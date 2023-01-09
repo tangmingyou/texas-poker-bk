@@ -1,0 +1,7 @@
+
+[auth]
+    ignoreUrl = [
+        "/ws",
+        "/auth/captcha"
+    ]
+
