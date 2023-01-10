@@ -1,4 +1,4 @@
-package subject
+package session
 
 // NetAccount 已认证的长连接用户
 type NetAccount struct {

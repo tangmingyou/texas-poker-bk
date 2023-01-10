@@ -5,25 +5,25 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/json"
-	"flag"
 	"fmt"
-	"texas-poker-bk/internal/model"
+	"texas-poker-bk/internal/conf"
+	"texas-poker-bk/internal/model/message"
+	"texas-poker-bk/internal/server"
 	"time"
 )
 
-var confPath string
-
-func init() {
-	flag.StringVar(&confPath, "conf", "comet-example.toml", "default config path.")
+func startServer() {
+	httpServer := server.NewServer()
+	err := httpServer.Run(conf.Conf.Http.Addr)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
+	startServer()
+
 	// testRsa()
-
-}
-
-func testToml() {
-
 }
 
 func testRsa() {
@@ -44,11 +44,11 @@ func testRsa() {
 }
 
 func testMsgCodec() {
-	identity := &model.Identity{Token: "12312312asahjasd"}
+	identity := &message.ReqIdentity{Token: "12312312asahjasd"}
 	bytes, _ := json.Marshal(identity)
 
-	// msg: int32:route:msg
-	msg := &model.Message{T: "identity", Ms: time.Now().UnixMilli(), D: bytes}
+	// message: int32:route:message
+	msg := &message.Message{T: "identity", Ms: time.Now().UnixMilli(), D: bytes}
 	b, _ := json.Marshal(msg)
 
 	fmt.Println(msg)

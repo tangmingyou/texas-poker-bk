@@ -1,7 +1,18 @@
 
-[auth]
-    ignoreUrl = [
-        "/ws",
-        "/auth/captcha"
-    ]
+[http]
+addr = ":9999"
 
+[auth]
+aesTokenKey = "9Nz3Y6DES3msAFndz4QsJAECUIFkf+KKaRa+jRnNALk="
+ignoreUrl = [
+    "/ws",
+    "/auth/captcha",
+    "/auth/authorize",
+    "/user/findByName",
+]
+# 需要输入图形验证码的url
+captchaUrl = [
+    "/auth/authorize"
+]
+[sqlite]
+dbPath = "etc/texas-poker.db"

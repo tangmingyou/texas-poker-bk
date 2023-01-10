@@ -27,7 +27,7 @@ func TestAes() {
 	fmt.Println(key)
 
 	text := []byte("you are my sunshine!")
-	encrypt := EncryptAesCBC(text, key)
+	encrypt, _ := EncryptAesCBC(text, key)
 	fmt.Println(encrypt)
 	fmt.Println(base64.URLEncoding.EncodeToString(text))
 
@@ -52,10 +52,10 @@ func getAesKey(keySize int) []byte {
 // EncryptAesCBC
 // src -> 要加密的原文
 // key -> 秘钥, 和加密秘钥相同, 大小为: 8byte
-func EncryptAesCBC(src, key []byte) []byte {
+func EncryptAesCBC(src, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	blockSize := block.BlockSize()
 	// 对最后一个明文分组进行数据填充
@@ -68,7 +68,7 @@ func EncryptAesCBC(src, key []byte) []byte {
 	// 5.加密连续的数据块
 	dst := make([]byte, len(src))
 	blackMode.CryptBlocks(dst, src)
-	return dst
+	return dst, nil
 }
 
 // DecryptAesCBC

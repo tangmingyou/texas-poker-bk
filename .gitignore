@@ -14,6 +14,7 @@
 *.patch
 *.tmp
 *.swp
+*.db
 
 # system ignore
 .DS_Store
@@ -26,3 +27,4 @@ Thumbs.db
 /target
 /configs
 /dist
+/etc/texas-poker.db

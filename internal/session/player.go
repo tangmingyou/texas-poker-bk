@@ -1,4 +1,4 @@
-package subject
+package session
 
 // Player 玩家: table,balance,(hand card)
 type Player struct {

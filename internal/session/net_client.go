@@ -1,4 +1,4 @@
-package subject
+package session
 
 import (
 	"github.com/gorilla/websocket"
