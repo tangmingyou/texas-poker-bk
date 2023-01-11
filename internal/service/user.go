@@ -27,13 +27,13 @@ func FindUserByName(ctx *gin.Context) {
 	user := userDao.FindUserByName(username)
 	if user == nil {
 		ctx.JSON(http.StatusOK, gin.H{
-			"message": "not found",
+			"api": "not found",
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-		"data":    user,
+		"api":  "ok",
+		"data": user,
 	})
 }
 

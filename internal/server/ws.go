@@ -7,23 +7,22 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
-	"texas-poker-bk/internal/service"
+	"texas-poker-bk/api"
 	"texas-poker-bk/internal/session"
-	"texas-poker-bk/message"
 	"time"
 )
 
 func Upgrade(ctx *gin.Context) {
-	token, exists := ctx.GetQuery("t")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "unauth"})
-		return
-	}
-	subject, err := service.DecodeSubject(token)
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "token failed"})
-		return
-	}
+	//token, exists := ctx.GetQuery("t")
+	//if !exists {
+	//	ctx.JSON(http.StatusUnauthorized, gin.H{"api": "unauth"})
+	//	return
+	//}
+	//subject, err := service.DecodeSubject(token)
+	//if err != nil {
+	//	ctx.JSON(http.StatusUnauthorized, gin.H{"api": "token failed"})
+	//	return
+	//}
 
 	conn, err := upgradeWs(ctx.Writer, ctx.Request)
 	if err != nil {
@@ -33,7 +32,7 @@ func Upgrade(ctx *gin.Context) {
 	}
 	client := session.NewNetClient(conn)
 
-	go handleNetClient(client, subject)
+	go handleNetClient(client)
 }
 
 func upgradeWs(resWriter http.ResponseWriter, req *http.Request) (*websocket.Conn, error) {
@@ -49,7 +48,7 @@ func upgradeWs(resWriter http.ResponseWriter, req *http.Request) (*websocket.Con
 }
 
 // 处理新建的websocket
-func handleNetClient(client *session.NetClient, subject *session.Subject) {
+func handleNetClient(client *session.NetClient) {
 	//defer (func() {
 	//	client.Close("conn finish")
 	//})()
@@ -68,23 +67,44 @@ func handleNetClient(client *session.NetClient, subject *session.Subject) {
 			return
 		}
 
-		p := &message.Proto{}
-		err = proto.Unmarshal(bytes, p)
+		wrap := &api.ProtoWrap{}
+		err = proto.Unmarshal(bytes, wrap)
 		if err != nil {
-			client.Close("message unmarshal fail! " + err.Error())
+			client.Close("api unmarshal fail! " + err.Error())
 			return
 		}
-		instance, err := message.NewProtoInstance(p.Op)
+		msg, err := api.NewProtoInstance(wrap.Op)
 		if err != nil {
 			client.Close(err.Error())
 			return
 		}
-		err = proto.Unmarshal(p.Body, instance)
+		err = proto.Unmarshal(wrap.Body, msg)
 		if err != nil {
-			client.Close("message body unmarshal fail! " + err.Error())
+			client.Close("api body unmarshal fail! " + err.Error())
 		}
-		// TODO msg -> handler
+		// TODO queue channel -> msg -> handler
+		handleNetClient := NetClientHandlers[wrap.Op]
+		if handleNetClient != nil {
+			handleNetClient(client, msg)
+			continue
+		}
+		// account process
+		handlerNetAccount := NetAccountHandlers[wrap.Op]
+		if handlerNetAccount != nil {
+			// TODO account check
+			handlerNetAccount(client.Account, msg)
+			continue
+		}
+		// player process
+		handlerPlayer := PlayerHandlers[wrap.Op]
+		if handlerPlayer != nil {
+			// TODO player check
+			handlerPlayer(nil, msg)
+			continue
+		}
 
+		// log not found handler wrap.Op
+		fmt.Printf("not found handler for op %d, msg: %v", wrap.Op, msg)
 	}
 
 }

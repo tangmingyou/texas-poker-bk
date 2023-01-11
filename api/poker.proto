@@ -1,14 +1,14 @@
 syntax = "proto3";
 
-package message;
+package api;
 
-option go_package = "./message;message";
+option go_package = "./api;api";
 
 /*
  * v1.0.0
  * protocol
  */
-message Proto {
+message ProtoWrap {
   int32 ver = 1; // version
   int32 op = 2; // option/action
   int32 seq = 3; // sequence

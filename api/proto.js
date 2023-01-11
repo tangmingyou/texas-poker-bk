@@ -1,104 +1,102 @@
 /*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
-"use strict";
-
-var $protobuf = require("protobufjs/minimal");
+import * as $protobuf from "protobufjs/minimal";
 
 // Common aliases
-var $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+const $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
 
 // Exported root namespace
-var $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
+const $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
 
-$root.message = (function() {
+export const api = $root.api = (() => {
 
     /**
-     * Namespace message.
-     * @exports message
+     * Namespace api.
+     * @exports api
      * @namespace
      */
-    var message = {};
+    const api = {};
 
-    message.Proto = (function() {
+    api.ProtoWrap = (function() {
 
         /**
-         * Properties of a Proto.
-         * @memberof message
-         * @interface IProto
-         * @property {number|null} [ver] Proto ver
-         * @property {number|null} [op] Proto op
-         * @property {number|null} [seq] Proto seq
-         * @property {Uint8Array|null} [body] Proto body
+         * Properties of a ProtoWrap.
+         * @memberof api
+         * @interface IProtoWrap
+         * @property {number|null} [ver] ProtoWrap ver
+         * @property {number|null} [op] ProtoWrap op
+         * @property {number|null} [seq] ProtoWrap seq
+         * @property {Uint8Array|null} [body] ProtoWrap body
          */
 
         /**
-         * Constructs a new Proto.
-         * @memberof message
-         * @classdesc Represents a Proto.
-         * @implements IProto
+         * Constructs a new ProtoWrap.
+         * @memberof api
+         * @classdesc Represents a ProtoWrap.
+         * @implements IProtoWrap
          * @constructor
-         * @param {message.IProto=} [properties] Properties to set
+         * @param {api.IProtoWrap=} [properties] Properties to set
          */
-        function Proto(properties) {
+        function ProtoWrap(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
 
         /**
-         * Proto ver.
+         * ProtoWrap ver.
          * @member {number} ver
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @instance
          */
-        Proto.prototype.ver = 0;
+        ProtoWrap.prototype.ver = 0;
 
         /**
-         * Proto op.
+         * ProtoWrap op.
          * @member {number} op
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @instance
          */
-        Proto.prototype.op = 0;
+        ProtoWrap.prototype.op = 0;
 
         /**
-         * Proto seq.
+         * ProtoWrap seq.
          * @member {number} seq
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @instance
          */
-        Proto.prototype.seq = 0;
+        ProtoWrap.prototype.seq = 0;
 
         /**
-         * Proto body.
+         * ProtoWrap body.
          * @member {Uint8Array} body
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @instance
          */
-        Proto.prototype.body = $util.newBuffer([]);
+        ProtoWrap.prototype.body = $util.newBuffer([]);
 
         /**
-         * Creates a new Proto instance using the specified properties.
+         * Creates a new ProtoWrap instance using the specified properties.
          * @function create
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @static
-         * @param {message.IProto=} [properties] Properties to set
-         * @returns {message.Proto} Proto instance
+         * @param {api.IProtoWrap=} [properties] Properties to set
+         * @returns {api.ProtoWrap} ProtoWrap instance
          */
-        Proto.create = function create(properties) {
-            return new Proto(properties);
+        ProtoWrap.create = function create(properties) {
+            return new ProtoWrap(properties);
         };
 
         /**
-         * Encodes the specified Proto message. Does not implicitly {@link message.Proto.verify|verify} messages.
+         * Encodes the specified ProtoWrap message. Does not implicitly {@link api.ProtoWrap.verify|verify} messages.
          * @function encode
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @static
-         * @param {message.IProto} message Proto message or plain object to encode
+         * @param {api.IProtoWrap} message ProtoWrap message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Proto.encode = function encode(message, writer) {
+        ProtoWrap.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
             if (message.ver != null && Object.hasOwnProperty.call(message, "ver"))
@@ -113,35 +111,35 @@ $root.message = (function() {
         };
 
         /**
-         * Encodes the specified Proto message, length delimited. Does not implicitly {@link message.Proto.verify|verify} messages.
+         * Encodes the specified ProtoWrap message, length delimited. Does not implicitly {@link api.ProtoWrap.verify|verify} messages.
          * @function encodeDelimited
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @static
-         * @param {message.IProto} message Proto message or plain object to encode
+         * @param {api.IProtoWrap} message ProtoWrap message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Proto.encodeDelimited = function encodeDelimited(message, writer) {
+        ProtoWrap.encodeDelimited = function encodeDelimited(message, writer) {
             return this.encode(message, writer).ldelim();
         };
 
         /**
-         * Decodes a Proto message from the specified reader or buffer.
+         * Decodes a ProtoWrap message from the specified reader or buffer.
          * @function decode
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {message.Proto} Proto
+         * @returns {api.ProtoWrap} ProtoWrap
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Proto.decode = function decode(reader, length) {
+        ProtoWrap.decode = function decode(reader, length) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.message.Proto();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ProtoWrap();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1: {
                         message.ver = reader.int32();
@@ -168,30 +166,30 @@ $root.message = (function() {
         };
 
         /**
-         * Decodes a Proto message from the specified reader or buffer, length delimited.
+         * Decodes a ProtoWrap message from the specified reader or buffer, length delimited.
          * @function decodeDelimited
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {message.Proto} Proto
+         * @returns {api.ProtoWrap} ProtoWrap
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Proto.decodeDelimited = function decodeDelimited(reader) {
+        ProtoWrap.decodeDelimited = function decodeDelimited(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
         };
 
         /**
-         * Verifies a Proto message.
+         * Verifies a ProtoWrap message.
          * @function verify
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @static
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        Proto.verify = function verify(message) {
+        ProtoWrap.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
             if (message.ver != null && message.hasOwnProperty("ver"))
@@ -210,17 +208,17 @@ $root.message = (function() {
         };
 
         /**
-         * Creates a Proto message from a plain object. Also converts values to their respective internal types.
+         * Creates a ProtoWrap message from a plain object. Also converts values to their respective internal types.
          * @function fromObject
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @static
          * @param {Object.<string,*>} object Plain object
-         * @returns {message.Proto} Proto
+         * @returns {api.ProtoWrap} ProtoWrap
          */
-        Proto.fromObject = function fromObject(object) {
-            if (object instanceof $root.message.Proto)
+        ProtoWrap.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ProtoWrap)
                 return object;
-            var message = new $root.message.Proto();
+            let message = new $root.api.ProtoWrap();
             if (object.ver != null)
                 message.ver = object.ver | 0;
             if (object.op != null)
@@ -236,18 +234,18 @@ $root.message = (function() {
         };
 
         /**
-         * Creates a plain object from a Proto message. Also converts values to other types if specified.
+         * Creates a plain object from a ProtoWrap message. Also converts values to other types if specified.
          * @function toObject
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @static
-         * @param {message.Proto} message Proto
+         * @param {api.ProtoWrap} message ProtoWrap
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        Proto.toObject = function toObject(message, options) {
+        ProtoWrap.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults) {
                 object.ver = 0;
                 object.op = 0;
@@ -272,53 +270,53 @@ $root.message = (function() {
         };
 
         /**
-         * Converts this Proto to JSON.
+         * Converts this ProtoWrap to JSON.
          * @function toJSON
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        Proto.prototype.toJSON = function toJSON() {
+        ProtoWrap.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for Proto
+         * Gets the default type url for ProtoWrap
          * @function getTypeUrl
-         * @memberof message.Proto
+         * @memberof api.ProtoWrap
          * @static
          * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns {string} The default type url
          */
-        Proto.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        ProtoWrap.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
             if (typeUrlPrefix === undefined) {
                 typeUrlPrefix = "type.googleapis.com";
             }
-            return typeUrlPrefix + "/message.Proto";
+            return typeUrlPrefix + "/api.ProtoWrap";
         };
 
-        return Proto;
+        return ProtoWrap;
     })();
 
-    message.Ping = (function() {
+    api.Ping = (function() {
 
         /**
          * Properties of a Ping.
-         * @memberof message
+         * @memberof api
          * @interface IPing
          */
 
         /**
          * Constructs a new Ping.
-         * @memberof message
+         * @memberof api
          * @classdesc Represents a Ping.
          * @implements IPing
          * @constructor
-         * @param {message.IPing=} [properties] Properties to set
+         * @param {api.IPing=} [properties] Properties to set
          */
         function Ping(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -326,21 +324,21 @@ $root.message = (function() {
         /**
          * Creates a new Ping instance using the specified properties.
          * @function create
-         * @memberof message.Ping
+         * @memberof api.Ping
          * @static
-         * @param {message.IPing=} [properties] Properties to set
-         * @returns {message.Ping} Ping instance
+         * @param {api.IPing=} [properties] Properties to set
+         * @returns {api.Ping} Ping instance
          */
         Ping.create = function create(properties) {
             return new Ping(properties);
         };
 
         /**
-         * Encodes the specified Ping message. Does not implicitly {@link message.Ping.verify|verify} messages.
+         * Encodes the specified Ping message. Does not implicitly {@link api.Ping.verify|verify} messages.
          * @function encode
-         * @memberof message.Ping
+         * @memberof api.Ping
          * @static
-         * @param {message.IPing} message Ping message or plain object to encode
+         * @param {api.IPing} message Ping message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
@@ -351,11 +349,11 @@ $root.message = (function() {
         };
 
         /**
-         * Encodes the specified Ping message, length delimited. Does not implicitly {@link message.Ping.verify|verify} messages.
+         * Encodes the specified Ping message, length delimited. Does not implicitly {@link api.Ping.verify|verify} messages.
          * @function encodeDelimited
-         * @memberof message.Ping
+         * @memberof api.Ping
          * @static
-         * @param {message.IPing} message Ping message or plain object to encode
+         * @param {api.IPing} message Ping message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
@@ -366,20 +364,20 @@ $root.message = (function() {
         /**
          * Decodes a Ping message from the specified reader or buffer.
          * @function decode
-         * @memberof message.Ping
+         * @memberof api.Ping
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {message.Ping} Ping
+         * @returns {api.Ping} Ping
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
         Ping.decode = function decode(reader, length) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.message.Ping();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.Ping();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 switch (tag >>> 3) {
                 default:
                     reader.skipType(tag & 7);
@@ -392,10 +390,10 @@ $root.message = (function() {
         /**
          * Decodes a Ping message from the specified reader or buffer, length delimited.
          * @function decodeDelimited
-         * @memberof message.Ping
+         * @memberof api.Ping
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {message.Ping} Ping
+         * @returns {api.Ping} Ping
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
@@ -408,7 +406,7 @@ $root.message = (function() {
         /**
          * Verifies a Ping message.
          * @function verify
-         * @memberof message.Ping
+         * @memberof api.Ping
          * @static
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
@@ -422,23 +420,23 @@ $root.message = (function() {
         /**
          * Creates a Ping message from a plain object. Also converts values to their respective internal types.
          * @function fromObject
-         * @memberof message.Ping
+         * @memberof api.Ping
          * @static
          * @param {Object.<string,*>} object Plain object
-         * @returns {message.Ping} Ping
+         * @returns {api.Ping} Ping
          */
         Ping.fromObject = function fromObject(object) {
-            if (object instanceof $root.message.Ping)
+            if (object instanceof $root.api.Ping)
                 return object;
-            return new $root.message.Ping();
+            return new $root.api.Ping();
         };
 
         /**
          * Creates a plain object from a Ping message. Also converts values to other types if specified.
          * @function toObject
-         * @memberof message.Ping
+         * @memberof api.Ping
          * @static
-         * @param {message.Ping} message Ping
+         * @param {api.Ping} message Ping
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
@@ -449,7 +447,7 @@ $root.message = (function() {
         /**
          * Converts this Ping to JSON.
          * @function toJSON
-         * @memberof message.Ping
+         * @memberof api.Ping
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
@@ -460,7 +458,7 @@ $root.message = (function() {
         /**
          * Gets the default type url for Ping
          * @function getTypeUrl
-         * @memberof message.Ping
+         * @memberof api.Ping
          * @static
          * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns {string} The default type url
@@ -469,31 +467,31 @@ $root.message = (function() {
             if (typeUrlPrefix === undefined) {
                 typeUrlPrefix = "type.googleapis.com";
             }
-            return typeUrlPrefix + "/message.Ping";
+            return typeUrlPrefix + "/api.Ping";
         };
 
         return Ping;
     })();
 
-    message.Pong = (function() {
+    api.Pong = (function() {
 
         /**
          * Properties of a Pong.
-         * @memberof message
+         * @memberof api
          * @interface IPong
          */
 
         /**
          * Constructs a new Pong.
-         * @memberof message
+         * @memberof api
          * @classdesc Represents a Pong.
          * @implements IPong
          * @constructor
-         * @param {message.IPong=} [properties] Properties to set
+         * @param {api.IPong=} [properties] Properties to set
          */
         function Pong(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -501,21 +499,21 @@ $root.message = (function() {
         /**
          * Creates a new Pong instance using the specified properties.
          * @function create
-         * @memberof message.Pong
+         * @memberof api.Pong
          * @static
-         * @param {message.IPong=} [properties] Properties to set
-         * @returns {message.Pong} Pong instance
+         * @param {api.IPong=} [properties] Properties to set
+         * @returns {api.Pong} Pong instance
          */
         Pong.create = function create(properties) {
             return new Pong(properties);
         };
 
         /**
-         * Encodes the specified Pong message. Does not implicitly {@link message.Pong.verify|verify} messages.
+         * Encodes the specified Pong message. Does not implicitly {@link api.Pong.verify|verify} messages.
          * @function encode
-         * @memberof message.Pong
+         * @memberof api.Pong
          * @static
-         * @param {message.IPong} message Pong message or plain object to encode
+         * @param {api.IPong} message Pong message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
@@ -526,11 +524,11 @@ $root.message = (function() {
         };
 
         /**
-         * Encodes the specified Pong message, length delimited. Does not implicitly {@link message.Pong.verify|verify} messages.
+         * Encodes the specified Pong message, length delimited. Does not implicitly {@link api.Pong.verify|verify} messages.
          * @function encodeDelimited
-         * @memberof message.Pong
+         * @memberof api.Pong
          * @static
-         * @param {message.IPong} message Pong message or plain object to encode
+         * @param {api.IPong} message Pong message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
@@ -541,20 +539,20 @@ $root.message = (function() {
         /**
          * Decodes a Pong message from the specified reader or buffer.
          * @function decode
-         * @memberof message.Pong
+         * @memberof api.Pong
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {message.Pong} Pong
+         * @returns {api.Pong} Pong
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
         Pong.decode = function decode(reader, length) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.message.Pong();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.Pong();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 switch (tag >>> 3) {
                 default:
                     reader.skipType(tag & 7);
@@ -567,10 +565,10 @@ $root.message = (function() {
         /**
          * Decodes a Pong message from the specified reader or buffer, length delimited.
          * @function decodeDelimited
-         * @memberof message.Pong
+         * @memberof api.Pong
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {message.Pong} Pong
+         * @returns {api.Pong} Pong
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
@@ -583,7 +581,7 @@ $root.message = (function() {
         /**
          * Verifies a Pong message.
          * @function verify
-         * @memberof message.Pong
+         * @memberof api.Pong
          * @static
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
@@ -597,23 +595,23 @@ $root.message = (function() {
         /**
          * Creates a Pong message from a plain object. Also converts values to their respective internal types.
          * @function fromObject
-         * @memberof message.Pong
+         * @memberof api.Pong
          * @static
          * @param {Object.<string,*>} object Plain object
-         * @returns {message.Pong} Pong
+         * @returns {api.Pong} Pong
          */
         Pong.fromObject = function fromObject(object) {
-            if (object instanceof $root.message.Pong)
+            if (object instanceof $root.api.Pong)
                 return object;
-            return new $root.message.Pong();
+            return new $root.api.Pong();
         };
 
         /**
          * Creates a plain object from a Pong message. Also converts values to other types if specified.
          * @function toObject
-         * @memberof message.Pong
+         * @memberof api.Pong
          * @static
-         * @param {message.Pong} message Pong
+         * @param {api.Pong} message Pong
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
@@ -624,7 +622,7 @@ $root.message = (function() {
         /**
          * Converts this Pong to JSON.
          * @function toJSON
-         * @memberof message.Pong
+         * @memberof api.Pong
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
@@ -635,7 +633,7 @@ $root.message = (function() {
         /**
          * Gets the default type url for Pong
          * @function getTypeUrl
-         * @memberof message.Pong
+         * @memberof api.Pong
          * @static
          * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns {string} The default type url
@@ -644,32 +642,32 @@ $root.message = (function() {
             if (typeUrlPrefix === undefined) {
                 typeUrlPrefix = "type.googleapis.com";
             }
-            return typeUrlPrefix + "/message.Pong";
+            return typeUrlPrefix + "/api.Pong";
         };
 
         return Pong;
     })();
 
-    message.ReqIdentity = (function() {
+    api.ReqIdentity = (function() {
 
         /**
          * Properties of a ReqIdentity.
-         * @memberof message
+         * @memberof api
          * @interface IReqIdentity
          * @property {string|null} [token] ReqIdentity token
          */
 
         /**
          * Constructs a new ReqIdentity.
-         * @memberof message
+         * @memberof api
          * @classdesc Represents a ReqIdentity.
          * @implements IReqIdentity
          * @constructor
-         * @param {message.IReqIdentity=} [properties] Properties to set
+         * @param {api.IReqIdentity=} [properties] Properties to set
          */
         function ReqIdentity(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -677,7 +675,7 @@ $root.message = (function() {
         /**
          * ReqIdentity token.
          * @member {string} token
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @instance
          */
         ReqIdentity.prototype.token = "";
@@ -685,21 +683,21 @@ $root.message = (function() {
         /**
          * Creates a new ReqIdentity instance using the specified properties.
          * @function create
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @static
-         * @param {message.IReqIdentity=} [properties] Properties to set
-         * @returns {message.ReqIdentity} ReqIdentity instance
+         * @param {api.IReqIdentity=} [properties] Properties to set
+         * @returns {api.ReqIdentity} ReqIdentity instance
          */
         ReqIdentity.create = function create(properties) {
             return new ReqIdentity(properties);
         };
 
         /**
-         * Encodes the specified ReqIdentity message. Does not implicitly {@link message.ReqIdentity.verify|verify} messages.
+         * Encodes the specified ReqIdentity message. Does not implicitly {@link api.ReqIdentity.verify|verify} messages.
          * @function encode
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @static
-         * @param {message.IReqIdentity} message ReqIdentity message or plain object to encode
+         * @param {api.IReqIdentity} message ReqIdentity message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
@@ -712,11 +710,11 @@ $root.message = (function() {
         };
 
         /**
-         * Encodes the specified ReqIdentity message, length delimited. Does not implicitly {@link message.ReqIdentity.verify|verify} messages.
+         * Encodes the specified ReqIdentity message, length delimited. Does not implicitly {@link api.ReqIdentity.verify|verify} messages.
          * @function encodeDelimited
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @static
-         * @param {message.IReqIdentity} message ReqIdentity message or plain object to encode
+         * @param {api.IReqIdentity} message ReqIdentity message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
@@ -727,20 +725,20 @@ $root.message = (function() {
         /**
          * Decodes a ReqIdentity message from the specified reader or buffer.
          * @function decode
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {message.ReqIdentity} ReqIdentity
+         * @returns {api.ReqIdentity} ReqIdentity
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
         ReqIdentity.decode = function decode(reader, length) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.message.ReqIdentity();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqIdentity();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1: {
                         message.token = reader.string();
@@ -757,10 +755,10 @@ $root.message = (function() {
         /**
          * Decodes a ReqIdentity message from the specified reader or buffer, length delimited.
          * @function decodeDelimited
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {message.ReqIdentity} ReqIdentity
+         * @returns {api.ReqIdentity} ReqIdentity
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
@@ -773,7 +771,7 @@ $root.message = (function() {
         /**
          * Verifies a ReqIdentity message.
          * @function verify
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @static
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
@@ -790,15 +788,15 @@ $root.message = (function() {
         /**
          * Creates a ReqIdentity message from a plain object. Also converts values to their respective internal types.
          * @function fromObject
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @static
          * @param {Object.<string,*>} object Plain object
-         * @returns {message.ReqIdentity} ReqIdentity
+         * @returns {api.ReqIdentity} ReqIdentity
          */
         ReqIdentity.fromObject = function fromObject(object) {
-            if (object instanceof $root.message.ReqIdentity)
+            if (object instanceof $root.api.ReqIdentity)
                 return object;
-            var message = new $root.message.ReqIdentity();
+            let message = new $root.api.ReqIdentity();
             if (object.token != null)
                 message.token = String(object.token);
             return message;
@@ -807,16 +805,16 @@ $root.message = (function() {
         /**
          * Creates a plain object from a ReqIdentity message. Also converts values to other types if specified.
          * @function toObject
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @static
-         * @param {message.ReqIdentity} message ReqIdentity
+         * @param {api.ReqIdentity} message ReqIdentity
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
         ReqIdentity.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults)
                 object.token = "";
             if (message.token != null && message.hasOwnProperty("token"))
@@ -827,7 +825,7 @@ $root.message = (function() {
         /**
          * Converts this ReqIdentity to JSON.
          * @function toJSON
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
@@ -838,7 +836,7 @@ $root.message = (function() {
         /**
          * Gets the default type url for ReqIdentity
          * @function getTypeUrl
-         * @memberof message.ReqIdentity
+         * @memberof api.ReqIdentity
          * @static
          * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns {string} The default type url
@@ -847,17 +845,17 @@ $root.message = (function() {
             if (typeUrlPrefix === undefined) {
                 typeUrlPrefix = "type.googleapis.com";
             }
-            return typeUrlPrefix + "/message.ReqIdentity";
+            return typeUrlPrefix + "/api.ReqIdentity";
         };
 
         return ReqIdentity;
     })();
 
-    message.ResIdentity = (function() {
+    api.ResIdentity = (function() {
 
         /**
          * Properties of a ResIdentity.
-         * @memberof message
+         * @memberof api
          * @interface IResIdentity
          * @property {number|null} [status] ResIdentity status
          * @property {string|null} [msg] ResIdentity msg
@@ -865,15 +863,15 @@ $root.message = (function() {
 
         /**
          * Constructs a new ResIdentity.
-         * @memberof message
+         * @memberof api
          * @classdesc Represents a ResIdentity.
          * @implements IResIdentity
          * @constructor
-         * @param {message.IResIdentity=} [properties] Properties to set
+         * @param {api.IResIdentity=} [properties] Properties to set
          */
         function ResIdentity(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -881,7 +879,7 @@ $root.message = (function() {
         /**
          * ResIdentity status.
          * @member {number} status
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @instance
          */
         ResIdentity.prototype.status = 0;
@@ -889,7 +887,7 @@ $root.message = (function() {
         /**
          * ResIdentity msg.
          * @member {string} msg
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @instance
          */
         ResIdentity.prototype.msg = "";
@@ -897,21 +895,21 @@ $root.message = (function() {
         /**
          * Creates a new ResIdentity instance using the specified properties.
          * @function create
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @static
-         * @param {message.IResIdentity=} [properties] Properties to set
-         * @returns {message.ResIdentity} ResIdentity instance
+         * @param {api.IResIdentity=} [properties] Properties to set
+         * @returns {api.ResIdentity} ResIdentity instance
          */
         ResIdentity.create = function create(properties) {
             return new ResIdentity(properties);
         };
 
         /**
-         * Encodes the specified ResIdentity message. Does not implicitly {@link message.ResIdentity.verify|verify} messages.
+         * Encodes the specified ResIdentity message. Does not implicitly {@link api.ResIdentity.verify|verify} messages.
          * @function encode
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @static
-         * @param {message.IResIdentity} message ResIdentity message or plain object to encode
+         * @param {api.IResIdentity} message ResIdentity message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
@@ -926,11 +924,11 @@ $root.message = (function() {
         };
 
         /**
-         * Encodes the specified ResIdentity message, length delimited. Does not implicitly {@link message.ResIdentity.verify|verify} messages.
+         * Encodes the specified ResIdentity message, length delimited. Does not implicitly {@link api.ResIdentity.verify|verify} messages.
          * @function encodeDelimited
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @static
-         * @param {message.IResIdentity} message ResIdentity message or plain object to encode
+         * @param {api.IResIdentity} message ResIdentity message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
@@ -941,20 +939,20 @@ $root.message = (function() {
         /**
          * Decodes a ResIdentity message from the specified reader or buffer.
          * @function decode
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {message.ResIdentity} ResIdentity
+         * @returns {api.ResIdentity} ResIdentity
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
         ResIdentity.decode = function decode(reader, length) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.message.ResIdentity();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResIdentity();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1: {
                         message.status = reader.int32();
@@ -975,10 +973,10 @@ $root.message = (function() {
         /**
          * Decodes a ResIdentity message from the specified reader or buffer, length delimited.
          * @function decodeDelimited
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {message.ResIdentity} ResIdentity
+         * @returns {api.ResIdentity} ResIdentity
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
@@ -991,7 +989,7 @@ $root.message = (function() {
         /**
          * Verifies a ResIdentity message.
          * @function verify
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @static
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
@@ -1011,15 +1009,15 @@ $root.message = (function() {
         /**
          * Creates a ResIdentity message from a plain object. Also converts values to their respective internal types.
          * @function fromObject
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @static
          * @param {Object.<string,*>} object Plain object
-         * @returns {message.ResIdentity} ResIdentity
+         * @returns {api.ResIdentity} ResIdentity
          */
         ResIdentity.fromObject = function fromObject(object) {
-            if (object instanceof $root.message.ResIdentity)
+            if (object instanceof $root.api.ResIdentity)
                 return object;
-            var message = new $root.message.ResIdentity();
+            let message = new $root.api.ResIdentity();
             if (object.status != null)
                 message.status = object.status | 0;
             if (object.msg != null)
@@ -1030,16 +1028,16 @@ $root.message = (function() {
         /**
          * Creates a plain object from a ResIdentity message. Also converts values to other types if specified.
          * @function toObject
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @static
-         * @param {message.ResIdentity} message ResIdentity
+         * @param {api.ResIdentity} message ResIdentity
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
         ResIdentity.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults) {
                 object.status = 0;
                 object.msg = "";
@@ -1054,7 +1052,7 @@ $root.message = (function() {
         /**
          * Converts this ResIdentity to JSON.
          * @function toJSON
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
@@ -1065,7 +1063,7 @@ $root.message = (function() {
         /**
          * Gets the default type url for ResIdentity
          * @function getTypeUrl
-         * @memberof message.ResIdentity
+         * @memberof api.ResIdentity
          * @static
          * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns {string} The default type url
@@ -1074,13 +1072,13 @@ $root.message = (function() {
             if (typeUrlPrefix === undefined) {
                 typeUrlPrefix = "type.googleapis.com";
             }
-            return typeUrlPrefix + "/message.ResIdentity";
+            return typeUrlPrefix + "/api.ResIdentity";
         };
 
         return ResIdentity;
     })();
 
-    return message;
+    return api;
 })();
 
-module.exports = $root;
+export { $root as default };

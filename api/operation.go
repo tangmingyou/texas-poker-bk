@@ -1,4 +1,4 @@
-package message
+package api
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ const opOffset int32 = 13578
 
 // 注册消息类型
 var protoInstances = []proto.Message{
-	&Proto{},
+	&ProtoWrap{},
 	&Ping{},
 	&Pong{},
 	&ReqIdentity{},
