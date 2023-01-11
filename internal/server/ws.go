@@ -1,15 +1,15 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
-	"texas-poker-bk/internal/model/message"
 	"texas-poker-bk/internal/service"
 	"texas-poker-bk/internal/session"
+	"texas-poker-bk/message"
 	"time"
 )
 
@@ -54,6 +54,9 @@ func handleNetClient(client *session.NetClient, subject *session.Subject) {
 	//	client.Close("conn finish")
 	//})()
 
+	//var account *session.NetAccount
+	//var player *session.Player
+
 	// TODO 1分钟后过期
 	for {
 		// 阻塞读取消息
@@ -64,41 +67,29 @@ func handleNetClient(client *session.NetClient, subject *session.Subject) {
 			client.Close("read conn err:" + err.Error())
 			return
 		}
-		msg := &message.Message{}
 
-		err = json.Unmarshal(bytes, msg)
+		p := &message.Proto{}
+		err = proto.Unmarshal(bytes, p)
 		if err != nil {
-			log.Println("反序列化json消息失败", err)
-			continue
+			client.Close("message unmarshal fail! " + err.Error())
+			return
 		}
-
-		// 认证消息(return -> account message route)
-		switch msg.T {
-		case "identify":
-			param := &message.ReqIdentity{}
-			_ = json.Unmarshal(msg.D, param)
-			subject, err := service.DecodeSubject(param.Token)
-			if err != nil {
-				res := message.NewResFail(err.Error())
-				resBytes, _ := json.Marshal(res)
-				_ = client.Conn.WriteMessage(websocket.TextMessage, resBytes)
-				// 认证失败关闭连接
-				client.Close("authorization fail!")
-				return
-			}
-
-			fmt.Printf("subject: %v", subject)
-
-		default:
-			client.Close("wrong message")
+		instance, err := message.NewProtoInstance(p.Op)
+		if err != nil {
+			client.Close(err.Error())
+			return
 		}
-		// TODO other,timeout -> close
+		err = proto.Unmarshal(p.Body, instance)
+		if err != nil {
+			client.Close("message body unmarshal fail! " + err.Error())
+		}
+		// TODO msg -> handler
 
 	}
 
 }
 
 // handleIdentity TODO 通过 token 认证连接的身份
-func handleIdentity(identity *message.ReqIdentity, client *session.NetClient) {
-
-}
+//func handleIdentity(identity *message2.ReqIdentity, client *session.NetClient) {
+//
+//}

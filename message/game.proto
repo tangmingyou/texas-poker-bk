@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package message;
+
+option go_package = "./message;message";
+
+/*
+ * v1.0.0
+ * protocol
+ */
+message Proto {
+  int32 ver = 1; // version
+  int32 op = 2; // option/action
+  int32 seq = 3; // sequence
+  bytes body = 4; // proto bytes
+}
+
+message Ping {
+
+}
+
+message Pong {
+
+}
+
+message ReqIdentity {
+  string token = 1;
+}
+
+message ResIdentity {
+  int32 status = 1;
+  string msg = 2;
+}

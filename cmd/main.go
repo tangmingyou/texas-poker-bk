@@ -6,9 +6,12 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"github.com/golang/protobuf/proto"
+	"reflect"
 	"texas-poker-bk/internal/conf"
-	"texas-poker-bk/internal/model/message"
+	message2 "texas-poker-bk/internal/message"
 	"texas-poker-bk/internal/server"
+	"texas-poker-bk/message"
 	"time"
 )
 
@@ -21,9 +24,65 @@ func startServer() {
 }
 
 func main() {
-	startServer()
+	// startServer()
 
 	// testRsa()
+
+	// testProto()
+
+	testProtoReflect()
+}
+
+func handleProto(msg proto.GeneratedMessage) {
+	proto := msg.(message.Proto)
+	fmt.Println(proto.GetOp())
+}
+
+func handle[T proto.Message](msg T, f func(T)) {
+	// TODO registry handler
+	f(msg)
+}
+
+func testProtoReflect() {
+	msg := &message.Proto{Ver: 1, Op: 1, Seq: 1, Body: []byte("sunshine")}
+	bytes, _ := proto.Marshal(msg)
+
+	// TODO 通过 msgType 定位 handler
+	handle(msg, func(msg *message.Proto) {
+		fmt.Println("call:" + msg.String())
+	})
+
+	op, _ := message.GetProtoOp(msg)
+	fmt.Println(op)
+
+	instance, _ := message.NewProtoInstance(op)
+	err := proto.Unmarshal(bytes, instance)
+	fmt.Println(err)
+	fmt.Println(instance)
+	fmt.Println(reflect.TypeOf(instance))
+}
+
+// op(int) -> decode(proto)
+func testProto() {
+	msg1 := &message.Proto{Ver: 1, Op: 1, Seq: 1, Body: []byte("sunshine")}
+	handleProto(msg1)
+
+	bytes, _ := proto.Marshal(msg1)
+
+	type1 := reflect.TypeOf(msg1)
+
+	msg2 := &message.Proto{Ver: 1, Op: 1, Seq: 1, Body: bytes}
+	bytes, _ = proto.Marshal(msg2)
+	fmt.Println(type1, type1 == reflect.TypeOf(msg2))
+
+	fmt.Println(bytes)
+	fmt.Println(msg2.String())
+
+	decode := &message.Proto{}
+	_ = proto.Unmarshal(bytes, decode)
+	fmt.Println(decode)
+	_ = proto.Unmarshal(decode.Body, decode)
+	fmt.Println(decode)
 }
 
 func testRsa() {
@@ -44,11 +103,11 @@ func testRsa() {
 }
 
 func testMsgCodec() {
-	identity := &message.ReqIdentity{Token: "12312312asahjasd"}
+	identity := &message2.ReqIdentity{Token: "12312312asahjasd"}
 	bytes, _ := json.Marshal(identity)
 
 	// message: int32:route:message
-	msg := &message.Message{T: "identity", Ms: time.Now().UnixMilli(), D: bytes}
+	msg := &message2.Message{T: "identity", Ms: time.Now().UnixMilli(), D: bytes}
 	b, _ := json.Marshal(msg)
 
 	fmt.Println(msg)
