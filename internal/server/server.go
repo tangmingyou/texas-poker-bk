@@ -2,6 +2,8 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"texas-poker-bk/api"
 	"texas-poker-bk/internal/service"
 )
 
@@ -13,14 +15,20 @@ func NewServer() *gin.Engine {
 	// session storage
 	server.Use(SessionStore("golang-tech-stack"))
 
+	base := server.Group("/api")
+	conn := base.Group("/conn")
+	// 消息映射关系 TODO 生成 json 放在前端
+	conn.GET("/opMap", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{"data": gin.H{"offset": api.OpOffset, "opMap": api.GetOpNameMap()}})
+	})
 	// websocket
-	server.GET("/ws", Upgrade)
+	conn.GET("/ws", Upgrade)
 
-	auth := server.Group("/auth")
+	auth := base.Group("/auth")
 	auth.GET("/captcha", service.Captcha)      // 验证码
 	auth.POST("/authorize", service.Authorize) // 登录或注册认证
 
-	user := server.Group("/user")
+	user := base.Group("/user")
 	user.GET("/findByName", service.FindUserByName)
 
 	return server

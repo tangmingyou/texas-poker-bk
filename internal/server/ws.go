@@ -83,24 +83,34 @@ func handleNetClient(client *session.NetClient) {
 			client.Close("api body unmarshal fail! " + err.Error())
 		}
 		// TODO queue channel -> msg -> handler
+		var called bool
+		var res proto.Message
+		var resErr error
 		handleNetClient := NetClientHandlers[wrap.Op]
-		if handleNetClient != nil {
-			handleNetClient(client, msg)
-			continue
+		if called = handleNetClient != nil; called {
+			res, resErr = handleNetClient(client, msg)
+			// continue
+		} else {
+			// account process
+			handlerNetAccount := NetAccountHandlers[wrap.Op]
+			if called = handlerNetAccount != nil; called {
+				// TODO account check
+				res, resErr = handlerNetAccount(client.Account, msg)
+				// continue
+			} else {
+				// player process
+				handlerPlayer := PlayerHandlers[wrap.Op]
+				if called = handlerPlayer != nil; called {
+					// TODO player check
+					res, resErr = handlerPlayer(nil, msg)
+				}
+			}
 		}
-		// account process
-		handlerNetAccount := NetAccountHandlers[wrap.Op]
-		if handlerNetAccount != nil {
-			// TODO account check
-			handlerNetAccount(client.Account, msg)
-			continue
-		}
-		// player process
-		handlerPlayer := PlayerHandlers[wrap.Op]
-		if handlerPlayer != nil {
-			// TODO player check
-			handlerPlayer(nil, msg)
-			continue
+		// TODO 处理请求对应消息响应
+		fmt.Println(called, res, resErr)
+		// 写响应
+		if res != nil {
+			client.WriteSeq(wrap.Seq, res)
 		}
 
 		// log not found handler wrap.Op

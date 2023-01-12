@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"texas-poker-bk/internal/conf"
@@ -21,6 +22,14 @@ var (
 	aesTokenKeyBytes []byte // token aes 加密 key
 )
 
+func init() {
+	keyBytes, err := base64.StdEncoding.DecodeString(conf.Conf.Auth.AesTokenKey)
+	if err != nil {
+		panic(err)
+	}
+	aesTokenKeyBytes = keyBytes
+}
+
 // Authorize 登录或注册
 func Authorize(ctx *gin.Context) {
 	username := ctx.PostForm("username")
@@ -29,7 +38,7 @@ func Authorize(ctx *gin.Context) {
 	//username := ctx.Param("username")
 	//password := ctx.Param("password")
 	if username == "" || password == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"api": "用户名或密码不能为空"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"msg": "用户名或密码不能为空"})
 		return
 	}
 	user := userDao.FindUserByName(username)
@@ -39,7 +48,7 @@ func Authorize(ctx *gin.Context) {
 	} else {
 		// 校验密码
 		if user.Password != password {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"api": "用户名或密码有误"})
+			ctx.JSON(http.StatusUnauthorized, gin.H{"msg": "用户名或密码有误"})
 			return
 		}
 	}
@@ -47,7 +56,7 @@ func Authorize(ctx *gin.Context) {
 	sub := &session.Subject{Id: user.Id, Name: user.Username, Time: time.Now().UnixMilli()}
 	token, err := EncodeSubject(sub)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"api": err.Error()})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"msg": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"data": gin.H{"token": token}})
@@ -65,14 +74,6 @@ func registerUser(username string, password string) *entity.User {
 	return user
 }
 
-func init() {
-	keyBytes, err := base64.StdEncoding.DecodeString(conf.Conf.Auth.AesTokenKey)
-	if err != nil {
-		panic(err)
-	}
-	aesTokenKeyBytes = keyBytes
-}
-
 // SubjectAuthFilter 认证过滤器
 func SubjectAuthFilter(ctx *gin.Context) {
 
@@ -88,14 +89,16 @@ func SubjectAuthFilter(ctx *gin.Context) {
 
 	auth := ctx.GetHeader("Authorization")
 	if auth == "" {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"api": "请登录后进行操作"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"msg": "请登录后进行操作"})
 		ctx.Abort()
+		return
 	}
 
 	defer func() {
 		// 捕获aes解析错误
 		if r := recover(); r != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"api": "认证失败，请重新登录"})
+			fmt.Println("request error:", r)
+			ctx.JSON(http.StatusUnauthorized, gin.H{"msg": "认证失败，请重新登录"})
 			ctx.Abort()
 		}
 	}()
@@ -103,7 +106,7 @@ func SubjectAuthFilter(ctx *gin.Context) {
 	// 这里返回 error，不然后捕获后续执行 handler 的 panic
 	subject, err := DecodeSubject(auth)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"api": "认证失败，请重新登录"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"msg": "认证失败，请重新登录"})
 		ctx.Abort()
 	} else {
 		// 设置token用户到请求上下文

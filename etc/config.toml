@@ -5,10 +5,11 @@ addr = ":9999"
 [auth]
 aesTokenKey = "9Nz3Y6DES3msAFndz4QsJAECUIFkf+KKaRa+jRnNALk="
 ignoreUrl = [
-    "/ws",
-    "/auth/captcha",
-    "/auth/authorize",
-    "/user/findByName",
+    "/api/conn/ws",
+    "/api/conn/opMap",
+    "/api/auth/captcha",
+    "/api/auth/authorize",
+    "/api/user/findByName",
 ]
 # 需要输入图形验证码的url
 captchaUrl = [

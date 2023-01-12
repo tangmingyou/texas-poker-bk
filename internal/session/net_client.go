@@ -22,12 +22,16 @@ func (c *NetClient) Close(reason string) {
 }
 
 func (c *NetClient) Write(msg proto.Message) {
+	c.WriteSeq(0, msg)
+}
+
+func (c *NetClient) WriteSeq(seq int32, msg proto.Message) {
 	op, err := api.GetProtoOp(msg)
 	if err != nil {
 		return
 	}
 	bytes, err := proto.Marshal(msg)
-	wrap := &api.ProtoWrap{Ver: 1, Op: op, Seq: 1, Body: bytes}
+	wrap := &api.ProtoWrap{Ver: 1, Op: op, Seq: seq, Body: bytes}
 	wrapBytes, err := proto.Marshal(wrap)
 	err = c.Conn.WriteMessage(websocket.BinaryMessage, wrapBytes)
 }
