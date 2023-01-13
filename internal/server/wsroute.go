@@ -16,8 +16,8 @@ func init() {
 	HandleNetClientMsg(&api.ReqIdentity{}, func(client *session.NetClient, msg *api.ReqIdentity) (proto.Message, error) {
 		subject, err := service.DecodeSubject(msg.Token)
 		if err != nil {
-			client.Close("authorize failed!")
-			return nil, nil
+			// client.Close("authorize failed!")
+			return nil, err
 		}
 		account := &session.NetAccount{Id: subject.Id, UserName: subject.Name, Client: client}
 		client.Account = account

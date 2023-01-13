@@ -15,5 +15,4 @@ func startServer() {
 
 func main() {
 	startServer()
-
 }

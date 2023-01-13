@@ -25,6 +25,7 @@ export const api = $root.api = (() => {
          * @property {number|null} [ver] ProtoWrap ver
          * @property {number|null} [op] ProtoWrap op
          * @property {number|null} [seq] ProtoWrap seq
+         * @property {boolean|null} [success] ProtoWrap success
          * @property {Uint8Array|null} [body] ProtoWrap body
          */
 
@@ -68,6 +69,14 @@ export const api = $root.api = (() => {
         ProtoWrap.prototype.seq = 0;
 
         /**
+         * ProtoWrap success.
+         * @member {boolean} success
+         * @memberof api.ProtoWrap
+         * @instance
+         */
+        ProtoWrap.prototype.success = false;
+
+        /**
          * ProtoWrap body.
          * @member {Uint8Array} body
          * @memberof api.ProtoWrap
@@ -105,8 +114,10 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.op);
             if (message.seq != null && Object.hasOwnProperty.call(message, "seq"))
                 writer.uint32(/* id 3, wireType 0 =*/24).int32(message.seq);
+            if (message.success != null && Object.hasOwnProperty.call(message, "success"))
+                writer.uint32(/* id 4, wireType 0 =*/32).bool(message.success);
             if (message.body != null && Object.hasOwnProperty.call(message, "body"))
-                writer.uint32(/* id 4, wireType 2 =*/34).bytes(message.body);
+                writer.uint32(/* id 7, wireType 2 =*/58).bytes(message.body);
             return writer;
         };
 
@@ -154,6 +165,10 @@ export const api = $root.api = (() => {
                         break;
                     }
                 case 4: {
+                        message.success = reader.bool();
+                        break;
+                    }
+                case 7: {
                         message.body = reader.bytes();
                         break;
                     }
@@ -201,6 +216,9 @@ export const api = $root.api = (() => {
             if (message.seq != null && message.hasOwnProperty("seq"))
                 if (!$util.isInteger(message.seq))
                     return "seq: integer expected";
+            if (message.success != null && message.hasOwnProperty("success"))
+                if (typeof message.success !== "boolean")
+                    return "success: boolean expected";
             if (message.body != null && message.hasOwnProperty("body"))
                 if (!(message.body && typeof message.body.length === "number" || $util.isString(message.body)))
                     return "body: buffer expected";
@@ -225,6 +243,8 @@ export const api = $root.api = (() => {
                 message.op = object.op | 0;
             if (object.seq != null)
                 message.seq = object.seq | 0;
+            if (object.success != null)
+                message.success = Boolean(object.success);
             if (object.body != null)
                 if (typeof object.body === "string")
                     $util.base64.decode(object.body, message.body = $util.newBuffer($util.base64.length(object.body)), 0);
@@ -250,6 +270,7 @@ export const api = $root.api = (() => {
                 object.ver = 0;
                 object.op = 0;
                 object.seq = 0;
+                object.success = false;
                 if (options.bytes === String)
                     object.body = "";
                 else {
@@ -264,6 +285,8 @@ export const api = $root.api = (() => {
                 object.op = message.op;
             if (message.seq != null && message.hasOwnProperty("seq"))
                 object.seq = message.seq;
+            if (message.success != null && message.hasOwnProperty("success"))
+                object.success = message.success;
             if (message.body != null && message.hasOwnProperty("body"))
                 object.body = options.bytes === String ? $util.base64.encode(message.body, 0, message.body.length) : options.bytes === Array ? Array.prototype.slice.call(message.body) : message.body;
             return object;
@@ -646,6 +669,209 @@ export const api = $root.api = (() => {
         };
 
         return Pong;
+    })();
+
+    api.ResFail = (function() {
+
+        /**
+         * Properties of a ResFail.
+         * @memberof api
+         * @interface IResFail
+         * @property {string|null} [msg] ResFail msg
+         */
+
+        /**
+         * Constructs a new ResFail.
+         * @memberof api
+         * @classdesc Represents a ResFail.
+         * @implements IResFail
+         * @constructor
+         * @param {api.IResFail=} [properties] Properties to set
+         */
+        function ResFail(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * ResFail msg.
+         * @member {string} msg
+         * @memberof api.ResFail
+         * @instance
+         */
+        ResFail.prototype.msg = "";
+
+        /**
+         * Creates a new ResFail instance using the specified properties.
+         * @function create
+         * @memberof api.ResFail
+         * @static
+         * @param {api.IResFail=} [properties] Properties to set
+         * @returns {api.ResFail} ResFail instance
+         */
+        ResFail.create = function create(properties) {
+            return new ResFail(properties);
+        };
+
+        /**
+         * Encodes the specified ResFail message. Does not implicitly {@link api.ResFail.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResFail
+         * @static
+         * @param {api.IResFail} message ResFail message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResFail.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.msg != null && Object.hasOwnProperty.call(message, "msg"))
+                writer.uint32(/* id 3, wireType 2 =*/26).string(message.msg);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResFail message, length delimited. Does not implicitly {@link api.ResFail.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResFail
+         * @static
+         * @param {api.IResFail} message ResFail message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResFail.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResFail message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResFail
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResFail} ResFail
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResFail.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResFail();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 3: {
+                        message.msg = reader.string();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResFail message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResFail
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResFail} ResFail
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResFail.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResFail message.
+         * @function verify
+         * @memberof api.ResFail
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResFail.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.msg != null && message.hasOwnProperty("msg"))
+                if (!$util.isString(message.msg))
+                    return "msg: string expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResFail message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResFail
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResFail} ResFail
+         */
+        ResFail.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResFail)
+                return object;
+            let message = new $root.api.ResFail();
+            if (object.msg != null)
+                message.msg = String(object.msg);
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a ResFail message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResFail
+         * @static
+         * @param {api.ResFail} message ResFail
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResFail.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.msg = "";
+            if (message.msg != null && message.hasOwnProperty("msg"))
+                object.msg = message.msg;
+            return object;
+        };
+
+        /**
+         * Converts this ResFail to JSON.
+         * @function toJSON
+         * @memberof api.ResFail
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResFail.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResFail
+         * @function getTypeUrl
+         * @memberof api.ResFail
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResFail.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResFail";
+        };
+
+        return ResFail;
     })();
 
     api.ReqIdentity = (function() {
@@ -1078,7 +1304,1272 @@ export const api = $root.api = (() => {
         return ResIdentity;
     })();
 
+    api.ReqLobbyView = (function() {
+
+        /**
+         * Properties of a ReqLobbyView.
+         * @memberof api
+         * @interface IReqLobbyView
+         */
+
+        /**
+         * Constructs a new ReqLobbyView.
+         * @memberof api
+         * @classdesc Represents a ReqLobbyView.
+         * @implements IReqLobbyView
+         * @constructor
+         * @param {api.IReqLobbyView=} [properties] Properties to set
+         */
+        function ReqLobbyView(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ReqLobbyView instance using the specified properties.
+         * @function create
+         * @memberof api.ReqLobbyView
+         * @static
+         * @param {api.IReqLobbyView=} [properties] Properties to set
+         * @returns {api.ReqLobbyView} ReqLobbyView instance
+         */
+        ReqLobbyView.create = function create(properties) {
+            return new ReqLobbyView(properties);
+        };
+
+        /**
+         * Encodes the specified ReqLobbyView message. Does not implicitly {@link api.ReqLobbyView.verify|verify} messages.
+         * @function encode
+         * @memberof api.ReqLobbyView
+         * @static
+         * @param {api.IReqLobbyView} message ReqLobbyView message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqLobbyView.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ReqLobbyView message, length delimited. Does not implicitly {@link api.ReqLobbyView.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ReqLobbyView
+         * @static
+         * @param {api.IReqLobbyView} message ReqLobbyView message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqLobbyView.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ReqLobbyView message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ReqLobbyView
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ReqLobbyView} ReqLobbyView
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqLobbyView.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqLobbyView();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ReqLobbyView message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ReqLobbyView
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ReqLobbyView} ReqLobbyView
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqLobbyView.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ReqLobbyView message.
+         * @function verify
+         * @memberof api.ReqLobbyView
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ReqLobbyView.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ReqLobbyView message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ReqLobbyView
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ReqLobbyView} ReqLobbyView
+         */
+        ReqLobbyView.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqLobbyView)
+                return object;
+            return new $root.api.ReqLobbyView();
+        };
+
+        /**
+         * Creates a plain object from a ReqLobbyView message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ReqLobbyView
+         * @static
+         * @param {api.ReqLobbyView} message ReqLobbyView
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ReqLobbyView.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ReqLobbyView to JSON.
+         * @function toJSON
+         * @memberof api.ReqLobbyView
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ReqLobbyView.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ReqLobbyView
+         * @function getTypeUrl
+         * @memberof api.ReqLobbyView
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ReqLobbyView.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ReqLobbyView";
+        };
+
+        return ReqLobbyView;
+    })();
+
+    api.ResLobbyView = (function() {
+
+        /**
+         * Properties of a ResLobbyView.
+         * @memberof api
+         * @interface IResLobbyView
+         */
+
+        /**
+         * Constructs a new ResLobbyView.
+         * @memberof api
+         * @classdesc Represents a ResLobbyView.
+         * @implements IResLobbyView
+         * @constructor
+         * @param {api.IResLobbyView=} [properties] Properties to set
+         */
+        function ResLobbyView(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ResLobbyView instance using the specified properties.
+         * @function create
+         * @memberof api.ResLobbyView
+         * @static
+         * @param {api.IResLobbyView=} [properties] Properties to set
+         * @returns {api.ResLobbyView} ResLobbyView instance
+         */
+        ResLobbyView.create = function create(properties) {
+            return new ResLobbyView(properties);
+        };
+
+        /**
+         * Encodes the specified ResLobbyView message. Does not implicitly {@link api.ResLobbyView.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResLobbyView
+         * @static
+         * @param {api.IResLobbyView} message ResLobbyView message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResLobbyView.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResLobbyView message, length delimited. Does not implicitly {@link api.ResLobbyView.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResLobbyView
+         * @static
+         * @param {api.IResLobbyView} message ResLobbyView message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResLobbyView.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResLobbyView message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResLobbyView
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResLobbyView} ResLobbyView
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResLobbyView.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResLobbyView();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResLobbyView message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResLobbyView
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResLobbyView} ResLobbyView
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResLobbyView.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResLobbyView message.
+         * @function verify
+         * @memberof api.ResLobbyView
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResLobbyView.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResLobbyView message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResLobbyView
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResLobbyView} ResLobbyView
+         */
+        ResLobbyView.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResLobbyView)
+                return object;
+            return new $root.api.ResLobbyView();
+        };
+
+        /**
+         * Creates a plain object from a ResLobbyView message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResLobbyView
+         * @static
+         * @param {api.ResLobbyView} message ResLobbyView
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResLobbyView.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ResLobbyView to JSON.
+         * @function toJSON
+         * @memberof api.ResLobbyView
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResLobbyView.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResLobbyView
+         * @function getTypeUrl
+         * @memberof api.ResLobbyView
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResLobbyView.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResLobbyView";
+        };
+
+        return ResLobbyView;
+    })();
+
+    api.ReqCreateTable = (function() {
+
+        /**
+         * Properties of a ReqCreateTable.
+         * @memberof api
+         * @interface IReqCreateTable
+         */
+
+        /**
+         * Constructs a new ReqCreateTable.
+         * @memberof api
+         * @classdesc Represents a ReqCreateTable.
+         * @implements IReqCreateTable
+         * @constructor
+         * @param {api.IReqCreateTable=} [properties] Properties to set
+         */
+        function ReqCreateTable(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ReqCreateTable instance using the specified properties.
+         * @function create
+         * @memberof api.ReqCreateTable
+         * @static
+         * @param {api.IReqCreateTable=} [properties] Properties to set
+         * @returns {api.ReqCreateTable} ReqCreateTable instance
+         */
+        ReqCreateTable.create = function create(properties) {
+            return new ReqCreateTable(properties);
+        };
+
+        /**
+         * Encodes the specified ReqCreateTable message. Does not implicitly {@link api.ReqCreateTable.verify|verify} messages.
+         * @function encode
+         * @memberof api.ReqCreateTable
+         * @static
+         * @param {api.IReqCreateTable} message ReqCreateTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqCreateTable.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ReqCreateTable message, length delimited. Does not implicitly {@link api.ReqCreateTable.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ReqCreateTable
+         * @static
+         * @param {api.IReqCreateTable} message ReqCreateTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqCreateTable.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ReqCreateTable message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ReqCreateTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ReqCreateTable} ReqCreateTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqCreateTable.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqCreateTable();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ReqCreateTable message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ReqCreateTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ReqCreateTable} ReqCreateTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqCreateTable.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ReqCreateTable message.
+         * @function verify
+         * @memberof api.ReqCreateTable
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ReqCreateTable.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ReqCreateTable message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ReqCreateTable
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ReqCreateTable} ReqCreateTable
+         */
+        ReqCreateTable.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqCreateTable)
+                return object;
+            return new $root.api.ReqCreateTable();
+        };
+
+        /**
+         * Creates a plain object from a ReqCreateTable message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ReqCreateTable
+         * @static
+         * @param {api.ReqCreateTable} message ReqCreateTable
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ReqCreateTable.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ReqCreateTable to JSON.
+         * @function toJSON
+         * @memberof api.ReqCreateTable
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ReqCreateTable.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ReqCreateTable
+         * @function getTypeUrl
+         * @memberof api.ReqCreateTable
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ReqCreateTable.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ReqCreateTable";
+        };
+
+        return ReqCreateTable;
+    })();
+
+    api.ResCreateTable = (function() {
+
+        /**
+         * Properties of a ResCreateTable.
+         * @memberof api
+         * @interface IResCreateTable
+         */
+
+        /**
+         * Constructs a new ResCreateTable.
+         * @memberof api
+         * @classdesc Represents a ResCreateTable.
+         * @implements IResCreateTable
+         * @constructor
+         * @param {api.IResCreateTable=} [properties] Properties to set
+         */
+        function ResCreateTable(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ResCreateTable instance using the specified properties.
+         * @function create
+         * @memberof api.ResCreateTable
+         * @static
+         * @param {api.IResCreateTable=} [properties] Properties to set
+         * @returns {api.ResCreateTable} ResCreateTable instance
+         */
+        ResCreateTable.create = function create(properties) {
+            return new ResCreateTable(properties);
+        };
+
+        /**
+         * Encodes the specified ResCreateTable message. Does not implicitly {@link api.ResCreateTable.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResCreateTable
+         * @static
+         * @param {api.IResCreateTable} message ResCreateTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResCreateTable.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResCreateTable message, length delimited. Does not implicitly {@link api.ResCreateTable.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResCreateTable
+         * @static
+         * @param {api.IResCreateTable} message ResCreateTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResCreateTable.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResCreateTable message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResCreateTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResCreateTable} ResCreateTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResCreateTable.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResCreateTable();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResCreateTable message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResCreateTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResCreateTable} ResCreateTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResCreateTable.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResCreateTable message.
+         * @function verify
+         * @memberof api.ResCreateTable
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResCreateTable.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResCreateTable message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResCreateTable
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResCreateTable} ResCreateTable
+         */
+        ResCreateTable.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResCreateTable)
+                return object;
+            return new $root.api.ResCreateTable();
+        };
+
+        /**
+         * Creates a plain object from a ResCreateTable message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResCreateTable
+         * @static
+         * @param {api.ResCreateTable} message ResCreateTable
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResCreateTable.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ResCreateTable to JSON.
+         * @function toJSON
+         * @memberof api.ResCreateTable
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResCreateTable.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResCreateTable
+         * @function getTypeUrl
+         * @memberof api.ResCreateTable
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResCreateTable.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResCreateTable";
+        };
+
+        return ResCreateTable;
+    })();
+
+    api.ReqJoinTable = (function() {
+
+        /**
+         * Properties of a ReqJoinTable.
+         * @memberof api
+         * @interface IReqJoinTable
+         */
+
+        /**
+         * Constructs a new ReqJoinTable.
+         * @memberof api
+         * @classdesc Represents a ReqJoinTable.
+         * @implements IReqJoinTable
+         * @constructor
+         * @param {api.IReqJoinTable=} [properties] Properties to set
+         */
+        function ReqJoinTable(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ReqJoinTable instance using the specified properties.
+         * @function create
+         * @memberof api.ReqJoinTable
+         * @static
+         * @param {api.IReqJoinTable=} [properties] Properties to set
+         * @returns {api.ReqJoinTable} ReqJoinTable instance
+         */
+        ReqJoinTable.create = function create(properties) {
+            return new ReqJoinTable(properties);
+        };
+
+        /**
+         * Encodes the specified ReqJoinTable message. Does not implicitly {@link api.ReqJoinTable.verify|verify} messages.
+         * @function encode
+         * @memberof api.ReqJoinTable
+         * @static
+         * @param {api.IReqJoinTable} message ReqJoinTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqJoinTable.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ReqJoinTable message, length delimited. Does not implicitly {@link api.ReqJoinTable.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ReqJoinTable
+         * @static
+         * @param {api.IReqJoinTable} message ReqJoinTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqJoinTable.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ReqJoinTable message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ReqJoinTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ReqJoinTable} ReqJoinTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqJoinTable.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqJoinTable();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ReqJoinTable message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ReqJoinTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ReqJoinTable} ReqJoinTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqJoinTable.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ReqJoinTable message.
+         * @function verify
+         * @memberof api.ReqJoinTable
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ReqJoinTable.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ReqJoinTable message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ReqJoinTable
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ReqJoinTable} ReqJoinTable
+         */
+        ReqJoinTable.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqJoinTable)
+                return object;
+            return new $root.api.ReqJoinTable();
+        };
+
+        /**
+         * Creates a plain object from a ReqJoinTable message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ReqJoinTable
+         * @static
+         * @param {api.ReqJoinTable} message ReqJoinTable
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ReqJoinTable.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ReqJoinTable to JSON.
+         * @function toJSON
+         * @memberof api.ReqJoinTable
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ReqJoinTable.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ReqJoinTable
+         * @function getTypeUrl
+         * @memberof api.ReqJoinTable
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ReqJoinTable.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ReqJoinTable";
+        };
+
+        return ReqJoinTable;
+    })();
+
+    api.ResJoinTable = (function() {
+
+        /**
+         * Properties of a ResJoinTable.
+         * @memberof api
+         * @interface IResJoinTable
+         */
+
+        /**
+         * Constructs a new ResJoinTable.
+         * @memberof api
+         * @classdesc Represents a ResJoinTable.
+         * @implements IResJoinTable
+         * @constructor
+         * @param {api.IResJoinTable=} [properties] Properties to set
+         */
+        function ResJoinTable(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ResJoinTable instance using the specified properties.
+         * @function create
+         * @memberof api.ResJoinTable
+         * @static
+         * @param {api.IResJoinTable=} [properties] Properties to set
+         * @returns {api.ResJoinTable} ResJoinTable instance
+         */
+        ResJoinTable.create = function create(properties) {
+            return new ResJoinTable(properties);
+        };
+
+        /**
+         * Encodes the specified ResJoinTable message. Does not implicitly {@link api.ResJoinTable.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResJoinTable
+         * @static
+         * @param {api.IResJoinTable} message ResJoinTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResJoinTable.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResJoinTable message, length delimited. Does not implicitly {@link api.ResJoinTable.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResJoinTable
+         * @static
+         * @param {api.IResJoinTable} message ResJoinTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResJoinTable.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResJoinTable message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResJoinTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResJoinTable} ResJoinTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResJoinTable.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResJoinTable();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResJoinTable message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResJoinTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResJoinTable} ResJoinTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResJoinTable.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResJoinTable message.
+         * @function verify
+         * @memberof api.ResJoinTable
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResJoinTable.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResJoinTable message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResJoinTable
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResJoinTable} ResJoinTable
+         */
+        ResJoinTable.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResJoinTable)
+                return object;
+            return new $root.api.ResJoinTable();
+        };
+
+        /**
+         * Creates a plain object from a ResJoinTable message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResJoinTable
+         * @static
+         * @param {api.ResJoinTable} message ResJoinTable
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResJoinTable.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ResJoinTable to JSON.
+         * @function toJSON
+         * @memberof api.ResJoinTable
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResJoinTable.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResJoinTable
+         * @function getTypeUrl
+         * @memberof api.ResJoinTable
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResJoinTable.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResJoinTable";
+        };
+
+        return ResJoinTable;
+    })();
+
     return api;
+})();
+
+export const test = $root.test = (() => {
+
+    /**
+     * Namespace test.
+     * @exports test
+     * @namespace
+     */
+    const test = {};
+
+    test.Test = (function() {
+
+        /**
+         * Properties of a Test.
+         * @memberof test
+         * @interface ITest
+         * @property {string|null} [msg] Test msg
+         */
+
+        /**
+         * Constructs a new Test.
+         * @memberof test
+         * @classdesc Represents a Test.
+         * @implements ITest
+         * @constructor
+         * @param {test.ITest=} [properties] Properties to set
+         */
+        function Test(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Test msg.
+         * @member {string} msg
+         * @memberof test.Test
+         * @instance
+         */
+        Test.prototype.msg = "";
+
+        /**
+         * Creates a new Test instance using the specified properties.
+         * @function create
+         * @memberof test.Test
+         * @static
+         * @param {test.ITest=} [properties] Properties to set
+         * @returns {test.Test} Test instance
+         */
+        Test.create = function create(properties) {
+            return new Test(properties);
+        };
+
+        /**
+         * Encodes the specified Test message. Does not implicitly {@link test.Test.verify|verify} messages.
+         * @function encode
+         * @memberof test.Test
+         * @static
+         * @param {test.ITest} message Test message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        Test.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.msg != null && Object.hasOwnProperty.call(message, "msg"))
+                writer.uint32(/* id 3, wireType 2 =*/26).string(message.msg);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified Test message, length delimited. Does not implicitly {@link test.Test.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof test.Test
+         * @static
+         * @param {test.ITest} message Test message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        Test.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a Test message from the specified reader or buffer.
+         * @function decode
+         * @memberof test.Test
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {test.Test} Test
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        Test.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.test.Test();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 3: {
+                        message.msg = reader.string();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a Test message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof test.Test
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {test.Test} Test
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        Test.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a Test message.
+         * @function verify
+         * @memberof test.Test
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        Test.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.msg != null && message.hasOwnProperty("msg"))
+                if (!$util.isString(message.msg))
+                    return "msg: string expected";
+            return null;
+        };
+
+        /**
+         * Creates a Test message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof test.Test
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {test.Test} Test
+         */
+        Test.fromObject = function fromObject(object) {
+            if (object instanceof $root.test.Test)
+                return object;
+            let message = new $root.test.Test();
+            if (object.msg != null)
+                message.msg = String(object.msg);
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a Test message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof test.Test
+         * @static
+         * @param {test.Test} message Test
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        Test.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.msg = "";
+            if (message.msg != null && message.hasOwnProperty("msg"))
+                object.msg = message.msg;
+            return object;
+        };
+
+        /**
+         * Converts this Test to JSON.
+         * @function toJSON
+         * @memberof test.Test
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        Test.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for Test
+         * @function getTypeUrl
+         * @memberof test.Test
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        Test.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/test.Test";
+        };
+
+        return Test;
+    })();
+
+    return test;
 })();
 
 export { $root as default };

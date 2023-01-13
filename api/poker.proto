@@ -12,7 +12,8 @@ message ProtoWrap {
   int32 ver = 1; // version
   int32 op = 2; // option/action
   int32 seq = 3; // sequence
-  bytes body = 4; // proto bytes
+  bool success = 4; // 请求是否成功
+  bytes body = 7; // proto bytes
 }
 
 message Ping {
@@ -23,6 +24,11 @@ message Pong {
 
 }
 
+// 失败响应
+message ResFail {
+  string msg = 3; // 失败消息
+}
+
 message ReqIdentity {
   string token = 1;
 }
@@ -30,4 +36,28 @@ message ReqIdentity {
 message ResIdentity {
   int32 status = 1;
   string msg = 2;
+}
+
+message ReqLobbyView {
+
+}
+
+message ResLobbyView {
+
+}
+
+message ReqCreateTable {
+
+}
+
+message ResCreateTable {
+
+}
+
+message ReqJoinTable {
+
+}
+
+message ResJoinTable {
+
 }

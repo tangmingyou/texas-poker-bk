@@ -19,7 +19,7 @@ func NewServer() *gin.Engine {
 	conn := base.Group("/conn")
 	// 消息映射关系 TODO 生成 json 放在前端
 	conn.GET("/opMap", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{"data": gin.H{"offset": api.OpOffset, "opMap": api.GetOpNameMap()}})
+		ctx.JSON(http.StatusOK, gin.H{"data": api.GetOpNameMap()})
 	})
 	// websocket
 	conn.GET("/ws", Upgrade)

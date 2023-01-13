@@ -106,20 +106,20 @@ func handleNetClient(client *session.NetClient) {
 				}
 			}
 		}
-		// TODO 处理请求对应消息响应
-		fmt.Println(called, res, resErr)
-		// 写响应
-		if res != nil {
-			client.WriteSeq(wrap.Seq, res)
+		// 处理请求对应消息响应
+		// fmt.Println(called, res, resErr)
+		if resErr != nil {
+			// 错误消息
+			client.WriteSeq(false, wrap.Seq, &api.ResFail{Msg: resErr.Error()})
+			return
 		}
-
+		if res != nil {
+			// 响应消息
+			client.WriteSeq(true, wrap.Seq, res)
+			return
+		}
 		// log not found handler wrap.Op
 		fmt.Printf("not found handler for op %d, msg: %v", wrap.Op, msg)
 	}
 
 }
-
-// handleIdentity TODO 通过 token 认证连接的身份
-//func handleIdentity(identity *message2.ReqIdentity, client *session.NetClient) {
-//
-//}
