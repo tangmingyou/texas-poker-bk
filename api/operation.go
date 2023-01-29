@@ -13,6 +13,7 @@ const OpOffset int32 = 13578
 // 注册消息类型
 var protoInstances = []proto.Message{
 	&ProtoWrap{},
+	&ResSuccess{},
 	&ResFail{},
 	&Ping{},
 	&Pong{},
@@ -21,6 +22,7 @@ var protoInstances = []proto.Message{
 	&ReqLobbyView{},
 	&ResLobbyView{},
 	&ReqCreateTable{},
+	&ResCreateTable{},
 	&ReqJoinTable{},
 	&ResJoinTable{},
 }
@@ -72,11 +74,13 @@ func NewProtoInstance(op int32) (proto.Message, error) {
 
 // GetOpNameMap 获取编号和消息
 func GetOpNameMap() map[string]any {
-	failOp, _ := GetProtoOp(&ResFail{})
+	opSuccess, _ := GetProtoOp(&ResSuccess{})
+	oPFail, _ := GetProtoOp(&ResFail{})
 	front := make(map[string]any, 4)
 
 	front["offset"] = OpOffset
-	front["failOp"] = failOp
+	front["opSuccess"] = opSuccess
+	front["oPFail"] = oPFail
 	front["opPathMap"] = opProtoNameMap
 	front["nameOpMap"] = protoNameOpMap
 	return front

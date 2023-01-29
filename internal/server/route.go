@@ -31,5 +31,9 @@ func NewServer() *gin.Engine {
 	user := base.Group("/user")
 	user.GET("/findByName", service.FindUserByName)
 
+	game := base.Group("/game")
+	game.GET("/createTable", service.CreateTable) // 新建牌桌
+	game.GET("/lobby", service.GetLobbyView)      // 游戏大厅
+
 	return server
 }

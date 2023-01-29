@@ -671,6 +671,181 @@ export const api = $root.api = (() => {
         return Pong;
     })();
 
+    api.ResSuccess = (function() {
+
+        /**
+         * Properties of a ResSuccess.
+         * @memberof api
+         * @interface IResSuccess
+         */
+
+        /**
+         * Constructs a new ResSuccess.
+         * @memberof api
+         * @classdesc Represents a ResSuccess.
+         * @implements IResSuccess
+         * @constructor
+         * @param {api.IResSuccess=} [properties] Properties to set
+         */
+        function ResSuccess(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ResSuccess instance using the specified properties.
+         * @function create
+         * @memberof api.ResSuccess
+         * @static
+         * @param {api.IResSuccess=} [properties] Properties to set
+         * @returns {api.ResSuccess} ResSuccess instance
+         */
+        ResSuccess.create = function create(properties) {
+            return new ResSuccess(properties);
+        };
+
+        /**
+         * Encodes the specified ResSuccess message. Does not implicitly {@link api.ResSuccess.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResSuccess
+         * @static
+         * @param {api.IResSuccess} message ResSuccess message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResSuccess.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResSuccess message, length delimited. Does not implicitly {@link api.ResSuccess.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResSuccess
+         * @static
+         * @param {api.IResSuccess} message ResSuccess message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResSuccess.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResSuccess message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResSuccess
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResSuccess} ResSuccess
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResSuccess.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResSuccess();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResSuccess message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResSuccess
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResSuccess} ResSuccess
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResSuccess.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResSuccess message.
+         * @function verify
+         * @memberof api.ResSuccess
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResSuccess.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResSuccess message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResSuccess
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResSuccess} ResSuccess
+         */
+        ResSuccess.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResSuccess)
+                return object;
+            return new $root.api.ResSuccess();
+        };
+
+        /**
+         * Creates a plain object from a ResSuccess message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResSuccess
+         * @static
+         * @param {api.ResSuccess} message ResSuccess
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResSuccess.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ResSuccess to JSON.
+         * @function toJSON
+         * @memberof api.ResSuccess
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResSuccess.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResSuccess
+         * @function getTypeUrl
+         * @memberof api.ResSuccess
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResSuccess.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResSuccess";
+        };
+
+        return ResSuccess;
+    })();
+
     api.ResFail = (function() {
 
         /**
@@ -1660,6 +1835,8 @@ export const api = $root.api = (() => {
          * Properties of a ReqCreateTable.
          * @memberof api
          * @interface IReqCreateTable
+         * @property {number|null} [players] ReqCreateTable players
+         * @property {number|null} [robots] ReqCreateTable robots
          */
 
         /**
@@ -1676,6 +1853,22 @@ export const api = $root.api = (() => {
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
+
+        /**
+         * ReqCreateTable players.
+         * @member {number} players
+         * @memberof api.ReqCreateTable
+         * @instance
+         */
+        ReqCreateTable.prototype.players = 0;
+
+        /**
+         * ReqCreateTable robots.
+         * @member {number} robots
+         * @memberof api.ReqCreateTable
+         * @instance
+         */
+        ReqCreateTable.prototype.robots = 0;
 
         /**
          * Creates a new ReqCreateTable instance using the specified properties.
@@ -1701,6 +1894,10 @@ export const api = $root.api = (() => {
         ReqCreateTable.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.players != null && Object.hasOwnProperty.call(message, "players"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.players);
+            if (message.robots != null && Object.hasOwnProperty.call(message, "robots"))
+                writer.uint32(/* id 2, wireType 0 =*/16).int32(message.robots);
             return writer;
         };
 
@@ -1735,6 +1932,14 @@ export const api = $root.api = (() => {
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
+                case 1: {
+                        message.players = reader.int32();
+                        break;
+                    }
+                case 2: {
+                        message.robots = reader.int32();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -1770,6 +1975,12 @@ export const api = $root.api = (() => {
         ReqCreateTable.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (message.players != null && message.hasOwnProperty("players"))
+                if (!$util.isInteger(message.players))
+                    return "players: integer expected";
+            if (message.robots != null && message.hasOwnProperty("robots"))
+                if (!$util.isInteger(message.robots))
+                    return "robots: integer expected";
             return null;
         };
 
@@ -1784,7 +1995,12 @@ export const api = $root.api = (() => {
         ReqCreateTable.fromObject = function fromObject(object) {
             if (object instanceof $root.api.ReqCreateTable)
                 return object;
-            return new $root.api.ReqCreateTable();
+            let message = new $root.api.ReqCreateTable();
+            if (object.players != null)
+                message.players = object.players | 0;
+            if (object.robots != null)
+                message.robots = object.robots | 0;
+            return message;
         };
 
         /**
@@ -1796,8 +2012,19 @@ export const api = $root.api = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        ReqCreateTable.toObject = function toObject() {
-            return {};
+        ReqCreateTable.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults) {
+                object.players = 0;
+                object.robots = 0;
+            }
+            if (message.players != null && message.hasOwnProperty("players"))
+                object.players = message.players;
+            if (message.robots != null && message.hasOwnProperty("robots"))
+                object.robots = message.robots;
+            return object;
         };
 
         /**
@@ -1835,6 +2062,7 @@ export const api = $root.api = (() => {
          * Properties of a ResCreateTable.
          * @memberof api
          * @interface IResCreateTable
+         * @property {number|null} [tableNo] ResCreateTable tableNo
          */
 
         /**
@@ -1851,6 +2079,14 @@ export const api = $root.api = (() => {
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
+
+        /**
+         * ResCreateTable tableNo.
+         * @member {number} tableNo
+         * @memberof api.ResCreateTable
+         * @instance
+         */
+        ResCreateTable.prototype.tableNo = 0;
 
         /**
          * Creates a new ResCreateTable instance using the specified properties.
@@ -1876,6 +2112,8 @@ export const api = $root.api = (() => {
         ResCreateTable.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.tableNo != null && Object.hasOwnProperty.call(message, "tableNo"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.tableNo);
             return writer;
         };
 
@@ -1910,6 +2148,10 @@ export const api = $root.api = (() => {
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
+                case 1: {
+                        message.tableNo = reader.int32();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -1945,6 +2187,9 @@ export const api = $root.api = (() => {
         ResCreateTable.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (message.tableNo != null && message.hasOwnProperty("tableNo"))
+                if (!$util.isInteger(message.tableNo))
+                    return "tableNo: integer expected";
             return null;
         };
 
@@ -1959,7 +2204,10 @@ export const api = $root.api = (() => {
         ResCreateTable.fromObject = function fromObject(object) {
             if (object instanceof $root.api.ResCreateTable)
                 return object;
-            return new $root.api.ResCreateTable();
+            let message = new $root.api.ResCreateTable();
+            if (object.tableNo != null)
+                message.tableNo = object.tableNo | 0;
+            return message;
         };
 
         /**
@@ -1971,8 +2219,15 @@ export const api = $root.api = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        ResCreateTable.toObject = function toObject() {
-            return {};
+        ResCreateTable.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.tableNo = 0;
+            if (message.tableNo != null && message.hasOwnProperty("tableNo"))
+                object.tableNo = message.tableNo;
+            return object;
         };
 
         /**
@@ -2355,221 +2610,6 @@ export const api = $root.api = (() => {
     })();
 
     return api;
-})();
-
-export const test = $root.test = (() => {
-
-    /**
-     * Namespace test.
-     * @exports test
-     * @namespace
-     */
-    const test = {};
-
-    test.Test = (function() {
-
-        /**
-         * Properties of a Test.
-         * @memberof test
-         * @interface ITest
-         * @property {string|null} [msg] Test msg
-         */
-
-        /**
-         * Constructs a new Test.
-         * @memberof test
-         * @classdesc Represents a Test.
-         * @implements ITest
-         * @constructor
-         * @param {test.ITest=} [properties] Properties to set
-         */
-        function Test(properties) {
-            if (properties)
-                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
-
-        /**
-         * Test msg.
-         * @member {string} msg
-         * @memberof test.Test
-         * @instance
-         */
-        Test.prototype.msg = "";
-
-        /**
-         * Creates a new Test instance using the specified properties.
-         * @function create
-         * @memberof test.Test
-         * @static
-         * @param {test.ITest=} [properties] Properties to set
-         * @returns {test.Test} Test instance
-         */
-        Test.create = function create(properties) {
-            return new Test(properties);
-        };
-
-        /**
-         * Encodes the specified Test message. Does not implicitly {@link test.Test.verify|verify} messages.
-         * @function encode
-         * @memberof test.Test
-         * @static
-         * @param {test.ITest} message Test message or plain object to encode
-         * @param {$protobuf.Writer} [writer] Writer to encode to
-         * @returns {$protobuf.Writer} Writer
-         */
-        Test.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.msg != null && Object.hasOwnProperty.call(message, "msg"))
-                writer.uint32(/* id 3, wireType 2 =*/26).string(message.msg);
-            return writer;
-        };
-
-        /**
-         * Encodes the specified Test message, length delimited. Does not implicitly {@link test.Test.verify|verify} messages.
-         * @function encodeDelimited
-         * @memberof test.Test
-         * @static
-         * @param {test.ITest} message Test message or plain object to encode
-         * @param {$protobuf.Writer} [writer] Writer to encode to
-         * @returns {$protobuf.Writer} Writer
-         */
-        Test.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-
-        /**
-         * Decodes a Test message from the specified reader or buffer.
-         * @function decode
-         * @memberof test.Test
-         * @static
-         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @param {number} [length] Message length if known beforehand
-         * @returns {test.Test} Test
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        Test.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.test.Test();
-            while (reader.pos < end) {
-                let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 3: {
-                        message.msg = reader.string();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-                }
-            }
-            return message;
-        };
-
-        /**
-         * Decodes a Test message from the specified reader or buffer, length delimited.
-         * @function decodeDelimited
-         * @memberof test.Test
-         * @static
-         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {test.Test} Test
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        Test.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
-
-        /**
-         * Verifies a Test message.
-         * @function verify
-         * @memberof test.Test
-         * @static
-         * @param {Object.<string,*>} message Plain object to verify
-         * @returns {string|null} `null` if valid, otherwise the reason why it is not
-         */
-        Test.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.msg != null && message.hasOwnProperty("msg"))
-                if (!$util.isString(message.msg))
-                    return "msg: string expected";
-            return null;
-        };
-
-        /**
-         * Creates a Test message from a plain object. Also converts values to their respective internal types.
-         * @function fromObject
-         * @memberof test.Test
-         * @static
-         * @param {Object.<string,*>} object Plain object
-         * @returns {test.Test} Test
-         */
-        Test.fromObject = function fromObject(object) {
-            if (object instanceof $root.test.Test)
-                return object;
-            let message = new $root.test.Test();
-            if (object.msg != null)
-                message.msg = String(object.msg);
-            return message;
-        };
-
-        /**
-         * Creates a plain object from a Test message. Also converts values to other types if specified.
-         * @function toObject
-         * @memberof test.Test
-         * @static
-         * @param {test.Test} message Test
-         * @param {$protobuf.IConversionOptions} [options] Conversion options
-         * @returns {Object.<string,*>} Plain object
-         */
-        Test.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            let object = {};
-            if (options.defaults)
-                object.msg = "";
-            if (message.msg != null && message.hasOwnProperty("msg"))
-                object.msg = message.msg;
-            return object;
-        };
-
-        /**
-         * Converts this Test to JSON.
-         * @function toJSON
-         * @memberof test.Test
-         * @instance
-         * @returns {Object.<string,*>} JSON object
-         */
-        Test.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
-
-        /**
-         * Gets the default type url for Test
-         * @function getTypeUrl
-         * @memberof test.Test
-         * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
-         */
-        Test.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/test.Test";
-        };
-
-        return Test;
-    })();
-
-    return test;
 })();
 
 export { $root as default };

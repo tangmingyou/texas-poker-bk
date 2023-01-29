@@ -81,7 +81,10 @@ func handleNetClient(client *session.NetClient) {
 		err = proto.Unmarshal(wrap.Body, msg)
 		if err != nil {
 			client.Close("api body unmarshal fail! " + err.Error())
+			return
 		}
+		log.Println(fmt.Sprintf("ws msg: %v", msg))
+
 		// TODO queue channel -> msg -> handler
 		var called bool
 		var res proto.Message
@@ -95,7 +98,7 @@ func handleNetClient(client *session.NetClient) {
 			handlerNetAccount := NetAccountHandlers[wrap.Op]
 			if called = handlerNetAccount != nil; called {
 				// TODO account check
-				res, resErr = handlerNetAccount(client.Account, msg)
+				res, resErr = handlerNetAccount(*client.Account, msg)
 				// continue
 			} else {
 				// player process
@@ -116,10 +119,11 @@ func handleNetClient(client *session.NetClient) {
 		if res != nil {
 			// 响应消息
 			client.WriteSeq(true, wrap.Seq, res)
-			return
 		}
-		// log not found handler wrap.Op
-		fmt.Printf("not found handler for op %d, msg: %v", wrap.Op, msg)
+		if !called {
+			// log not found handler wrap.Op
+			fmt.Printf("not found handler for op %d, msg: %v", wrap.Op, msg)
+		}
 	}
 
 }

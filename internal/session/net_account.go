@@ -4,6 +4,7 @@ package session
 type NetAccount struct {
 	Id       int64
 	UserName string
+	Avatar   string
 	Client   *NetClient
 }
 

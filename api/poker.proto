@@ -24,6 +24,11 @@ message Pong {
 
 }
 
+// 成功消息
+message ResSuccess {
+
+}
+
 // 失败响应
 message ResFail {
   string msg = 3; // 失败消息
@@ -47,11 +52,12 @@ message ResLobbyView {
 }
 
 message ReqCreateTable {
-
+  int32 players  = 1;
+  int32 robots  = 2;
 }
 
 message ResCreateTable {
-
+  int32 tableNo = 1;
 }
 
 message ReqJoinTable {

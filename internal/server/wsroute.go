@@ -9,17 +9,18 @@ import (
 )
 
 var NetClientHandlers = make(map[int32]func(*session.NetClient, proto.Message) (proto.Message, error))
-var NetAccountHandlers = make(map[int32]func(*session.NetAccount, proto.Message) (proto.Message, error))
+var NetAccountHandlers = make(map[int32]func(session.NetAccount, proto.Message) (proto.Message, error))
 var PlayerHandlers = make(map[int32]func(*session.Player, proto.Message) (proto.Message, error))
 
 func init() {
+	// 连接token认证
 	HandleNetClientMsg(&api.ReqIdentity{}, func(client *session.NetClient, msg *api.ReqIdentity) (proto.Message, error) {
 		subject, err := service.DecodeSubject(msg.Token)
 		if err != nil {
 			// client.Close("authorize failed!")
 			return nil, err
 		}
-		account := &session.NetAccount{Id: subject.Id, UserName: subject.Name, Client: client}
+		account := &session.NetAccount{Id: subject.Id, UserName: subject.Name, Avatar: subject.Avatar, Client: client}
 		client.Account = account
 
 		// response
@@ -27,6 +28,8 @@ func init() {
 		// client.Write(res)
 		return res, nil
 	})
+	// 创建桌面
+	HandleNetAccountMsg(&api.ReqCreateTable{}, service.CreateNewTable)
 }
 
 func checkExistsTypeHandler(op int32, err error) {
@@ -47,10 +50,10 @@ func HandleNetClientMsg[T proto.Message](msg T, f func(*session.NetClient, T) (p
 	}
 }
 
-func HandleNetAccountMsg[T proto.Message](msg T, f func(*session.NetAccount, T) (proto.Message, error)) {
+func HandleNetAccountMsg[T proto.Message](msg T, f func(session.NetAccount, T) (proto.Message, error)) {
 	op, err := api.GetProtoOp(msg)
 	checkExistsTypeHandler(op, err)
-	NetAccountHandlers[op] = func(account *session.NetAccount, msg proto.Message) (proto.Message, error) {
+	NetAccountHandlers[op] = func(account session.NetAccount, msg proto.Message) (proto.Message, error) {
 		return f(account, msg.(T))
 	}
 }

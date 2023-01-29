@@ -1,4 +1,4 @@
-package card
+package game
 
 type Card struct {
 	Dot  PokerDot  // 点数
