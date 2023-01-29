@@ -51,6 +51,17 @@ message ResLobbyView {
 
 }
 
+message LobbyTable {
+  int32 tableNo = 1;
+  repeated LobbyPlayer players = 3;
+}
+
+message LobbyPlayer {
+  bytes type = 1;
+  string username = 2;
+  string avatar = 3;
+}
+
 message ReqCreateTable {
   int32 players  = 1;
   int32 robots  = 2;

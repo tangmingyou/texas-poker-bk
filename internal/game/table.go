@@ -16,7 +16,7 @@ type Table struct {
 	Robots       []*Robot
 	bigBlindsPos int // 大盲注位
 
-	// TODO game logs
+	// TODO game logs7
 }
 
 type Stage int
