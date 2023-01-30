@@ -327,6 +327,7 @@ export const api = $root.api = (() => {
          * Properties of a Ping.
          * @memberof api
          * @interface IPing
+         * @property {number|Long|null} [timeMs] Ping timeMs
          */
 
         /**
@@ -343,6 +344,14 @@ export const api = $root.api = (() => {
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
+
+        /**
+         * Ping timeMs.
+         * @member {number|Long} timeMs
+         * @memberof api.Ping
+         * @instance
+         */
+        Ping.prototype.timeMs = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
 
         /**
          * Creates a new Ping instance using the specified properties.
@@ -368,6 +377,8 @@ export const api = $root.api = (() => {
         Ping.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.timeMs != null && Object.hasOwnProperty.call(message, "timeMs"))
+                writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.timeMs);
             return writer;
         };
 
@@ -402,6 +413,10 @@ export const api = $root.api = (() => {
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
+                case 1: {
+                        message.timeMs = reader.uint64();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -437,6 +452,9 @@ export const api = $root.api = (() => {
         Ping.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (message.timeMs != null && message.hasOwnProperty("timeMs"))
+                if (!$util.isInteger(message.timeMs) && !(message.timeMs && $util.isInteger(message.timeMs.low) && $util.isInteger(message.timeMs.high)))
+                    return "timeMs: integer|Long expected";
             return null;
         };
 
@@ -451,7 +469,17 @@ export const api = $root.api = (() => {
         Ping.fromObject = function fromObject(object) {
             if (object instanceof $root.api.Ping)
                 return object;
-            return new $root.api.Ping();
+            let message = new $root.api.Ping();
+            if (object.timeMs != null)
+                if ($util.Long)
+                    (message.timeMs = $util.Long.fromValue(object.timeMs)).unsigned = true;
+                else if (typeof object.timeMs === "string")
+                    message.timeMs = parseInt(object.timeMs, 10);
+                else if (typeof object.timeMs === "number")
+                    message.timeMs = object.timeMs;
+                else if (typeof object.timeMs === "object")
+                    message.timeMs = new $util.LongBits(object.timeMs.low >>> 0, object.timeMs.high >>> 0).toNumber(true);
+            return message;
         };
 
         /**
@@ -463,8 +491,22 @@ export const api = $root.api = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        Ping.toObject = function toObject() {
-            return {};
+        Ping.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                if ($util.Long) {
+                    let long = new $util.Long(0, 0, true);
+                    object.timeMs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.timeMs = options.longs === String ? "0" : 0;
+            if (message.timeMs != null && message.hasOwnProperty("timeMs"))
+                if (typeof message.timeMs === "number")
+                    object.timeMs = options.longs === String ? String(message.timeMs) : message.timeMs;
+                else
+                    object.timeMs = options.longs === String ? $util.Long.prototype.toString.call(message.timeMs) : options.longs === Number ? new $util.LongBits(message.timeMs.low >>> 0, message.timeMs.high >>> 0).toNumber(true) : message.timeMs;
+            return object;
         };
 
         /**
@@ -502,6 +544,7 @@ export const api = $root.api = (() => {
          * Properties of a Pong.
          * @memberof api
          * @interface IPong
+         * @property {number|Long|null} [timeMs] Pong timeMs
          */
 
         /**
@@ -518,6 +561,14 @@ export const api = $root.api = (() => {
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
+
+        /**
+         * Pong timeMs.
+         * @member {number|Long} timeMs
+         * @memberof api.Pong
+         * @instance
+         */
+        Pong.prototype.timeMs = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
 
         /**
          * Creates a new Pong instance using the specified properties.
@@ -543,6 +594,8 @@ export const api = $root.api = (() => {
         Pong.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.timeMs != null && Object.hasOwnProperty.call(message, "timeMs"))
+                writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.timeMs);
             return writer;
         };
 
@@ -577,6 +630,10 @@ export const api = $root.api = (() => {
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
+                case 1: {
+                        message.timeMs = reader.uint64();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -612,6 +669,9 @@ export const api = $root.api = (() => {
         Pong.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (message.timeMs != null && message.hasOwnProperty("timeMs"))
+                if (!$util.isInteger(message.timeMs) && !(message.timeMs && $util.isInteger(message.timeMs.low) && $util.isInteger(message.timeMs.high)))
+                    return "timeMs: integer|Long expected";
             return null;
         };
 
@@ -626,7 +686,17 @@ export const api = $root.api = (() => {
         Pong.fromObject = function fromObject(object) {
             if (object instanceof $root.api.Pong)
                 return object;
-            return new $root.api.Pong();
+            let message = new $root.api.Pong();
+            if (object.timeMs != null)
+                if ($util.Long)
+                    (message.timeMs = $util.Long.fromValue(object.timeMs)).unsigned = true;
+                else if (typeof object.timeMs === "string")
+                    message.timeMs = parseInt(object.timeMs, 10);
+                else if (typeof object.timeMs === "number")
+                    message.timeMs = object.timeMs;
+                else if (typeof object.timeMs === "object")
+                    message.timeMs = new $util.LongBits(object.timeMs.low >>> 0, object.timeMs.high >>> 0).toNumber(true);
+            return message;
         };
 
         /**
@@ -638,8 +708,22 @@ export const api = $root.api = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        Pong.toObject = function toObject() {
-            return {};
+        Pong.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                if ($util.Long) {
+                    let long = new $util.Long(0, 0, true);
+                    object.timeMs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.timeMs = options.longs === String ? "0" : 0;
+            if (message.timeMs != null && message.hasOwnProperty("timeMs"))
+                if (typeof message.timeMs === "number")
+                    object.timeMs = options.longs === String ? String(message.timeMs) : message.timeMs;
+                else
+                    object.timeMs = options.longs === String ? $util.Long.prototype.toString.call(message.timeMs) : options.longs === Number ? new $util.LongBits(message.timeMs.low >>> 0, message.timeMs.high >>> 0).toNumber(true) : message.timeMs;
+            return object;
         };
 
         /**
@@ -1660,6 +1744,7 @@ export const api = $root.api = (() => {
          * Properties of a ResLobbyView.
          * @memberof api
          * @interface IResLobbyView
+         * @property {Array.<api.ILobbyTable>|null} [tables] ResLobbyView tables
          */
 
         /**
@@ -1671,11 +1756,20 @@ export const api = $root.api = (() => {
          * @param {api.IResLobbyView=} [properties] Properties to set
          */
         function ResLobbyView(properties) {
+            this.tables = [];
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
+
+        /**
+         * ResLobbyView tables.
+         * @member {Array.<api.ILobbyTable>} tables
+         * @memberof api.ResLobbyView
+         * @instance
+         */
+        ResLobbyView.prototype.tables = $util.emptyArray;
 
         /**
          * Creates a new ResLobbyView instance using the specified properties.
@@ -1701,6 +1795,9 @@ export const api = $root.api = (() => {
         ResLobbyView.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.tables != null && message.tables.length)
+                for (let i = 0; i < message.tables.length; ++i)
+                    $root.api.LobbyTable.encode(message.tables[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
             return writer;
         };
 
@@ -1735,6 +1832,12 @@ export const api = $root.api = (() => {
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
+                case 3: {
+                        if (!(message.tables && message.tables.length))
+                            message.tables = [];
+                        message.tables.push($root.api.LobbyTable.decode(reader, reader.uint32()));
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -1770,6 +1873,15 @@ export const api = $root.api = (() => {
         ResLobbyView.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (message.tables != null && message.hasOwnProperty("tables")) {
+                if (!Array.isArray(message.tables))
+                    return "tables: array expected";
+                for (let i = 0; i < message.tables.length; ++i) {
+                    let error = $root.api.LobbyTable.verify(message.tables[i]);
+                    if (error)
+                        return "tables." + error;
+                }
+            }
             return null;
         };
 
@@ -1784,7 +1896,18 @@ export const api = $root.api = (() => {
         ResLobbyView.fromObject = function fromObject(object) {
             if (object instanceof $root.api.ResLobbyView)
                 return object;
-            return new $root.api.ResLobbyView();
+            let message = new $root.api.ResLobbyView();
+            if (object.tables) {
+                if (!Array.isArray(object.tables))
+                    throw TypeError(".api.ResLobbyView.tables: array expected");
+                message.tables = [];
+                for (let i = 0; i < object.tables.length; ++i) {
+                    if (typeof object.tables[i] !== "object")
+                        throw TypeError(".api.ResLobbyView.tables: object expected");
+                    message.tables[i] = $root.api.LobbyTable.fromObject(object.tables[i]);
+                }
+            }
+            return message;
         };
 
         /**
@@ -1796,8 +1919,18 @@ export const api = $root.api = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        ResLobbyView.toObject = function toObject() {
-            return {};
+        ResLobbyView.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.arrays || options.defaults)
+                object.tables = [];
+            if (message.tables && message.tables.length) {
+                object.tables = [];
+                for (let j = 0; j < message.tables.length; ++j)
+                    object.tables[j] = $root.api.LobbyTable.toObject(message.tables[j], options);
+            }
+            return object;
         };
 
         /**
@@ -1827,6 +1960,588 @@ export const api = $root.api = (() => {
         };
 
         return ResLobbyView;
+    })();
+
+    api.LobbyTable = (function() {
+
+        /**
+         * Properties of a LobbyTable.
+         * @memberof api
+         * @interface ILobbyTable
+         * @property {number|null} [tableNo] LobbyTable tableNo
+         * @property {number|null} [playerNum] LobbyTable playerNum
+         * @property {number|null} [robotNum] LobbyTable robotNum
+         * @property {Array.<api.ILobbyPlayer>|null} [players] LobbyTable players
+         */
+
+        /**
+         * Constructs a new LobbyTable.
+         * @memberof api
+         * @classdesc Represents a LobbyTable.
+         * @implements ILobbyTable
+         * @constructor
+         * @param {api.ILobbyTable=} [properties] Properties to set
+         */
+        function LobbyTable(properties) {
+            this.players = [];
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * LobbyTable tableNo.
+         * @member {number} tableNo
+         * @memberof api.LobbyTable
+         * @instance
+         */
+        LobbyTable.prototype.tableNo = 0;
+
+        /**
+         * LobbyTable playerNum.
+         * @member {number} playerNum
+         * @memberof api.LobbyTable
+         * @instance
+         */
+        LobbyTable.prototype.playerNum = 0;
+
+        /**
+         * LobbyTable robotNum.
+         * @member {number} robotNum
+         * @memberof api.LobbyTable
+         * @instance
+         */
+        LobbyTable.prototype.robotNum = 0;
+
+        /**
+         * LobbyTable players.
+         * @member {Array.<api.ILobbyPlayer>} players
+         * @memberof api.LobbyTable
+         * @instance
+         */
+        LobbyTable.prototype.players = $util.emptyArray;
+
+        /**
+         * Creates a new LobbyTable instance using the specified properties.
+         * @function create
+         * @memberof api.LobbyTable
+         * @static
+         * @param {api.ILobbyTable=} [properties] Properties to set
+         * @returns {api.LobbyTable} LobbyTable instance
+         */
+        LobbyTable.create = function create(properties) {
+            return new LobbyTable(properties);
+        };
+
+        /**
+         * Encodes the specified LobbyTable message. Does not implicitly {@link api.LobbyTable.verify|verify} messages.
+         * @function encode
+         * @memberof api.LobbyTable
+         * @static
+         * @param {api.ILobbyTable} message LobbyTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        LobbyTable.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.tableNo != null && Object.hasOwnProperty.call(message, "tableNo"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.tableNo);
+            if (message.playerNum != null && Object.hasOwnProperty.call(message, "playerNum"))
+                writer.uint32(/* id 2, wireType 0 =*/16).int32(message.playerNum);
+            if (message.robotNum != null && Object.hasOwnProperty.call(message, "robotNum"))
+                writer.uint32(/* id 3, wireType 0 =*/24).int32(message.robotNum);
+            if (message.players != null && message.players.length)
+                for (let i = 0; i < message.players.length; ++i)
+                    $root.api.LobbyPlayer.encode(message.players[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified LobbyTable message, length delimited. Does not implicitly {@link api.LobbyTable.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.LobbyTable
+         * @static
+         * @param {api.ILobbyTable} message LobbyTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        LobbyTable.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a LobbyTable message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.LobbyTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.LobbyTable} LobbyTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        LobbyTable.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.LobbyTable();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1: {
+                        message.tableNo = reader.int32();
+                        break;
+                    }
+                case 2: {
+                        message.playerNum = reader.int32();
+                        break;
+                    }
+                case 3: {
+                        message.robotNum = reader.int32();
+                        break;
+                    }
+                case 4: {
+                        if (!(message.players && message.players.length))
+                            message.players = [];
+                        message.players.push($root.api.LobbyPlayer.decode(reader, reader.uint32()));
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a LobbyTable message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.LobbyTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.LobbyTable} LobbyTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        LobbyTable.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a LobbyTable message.
+         * @function verify
+         * @memberof api.LobbyTable
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        LobbyTable.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.tableNo != null && message.hasOwnProperty("tableNo"))
+                if (!$util.isInteger(message.tableNo))
+                    return "tableNo: integer expected";
+            if (message.playerNum != null && message.hasOwnProperty("playerNum"))
+                if (!$util.isInteger(message.playerNum))
+                    return "playerNum: integer expected";
+            if (message.robotNum != null && message.hasOwnProperty("robotNum"))
+                if (!$util.isInteger(message.robotNum))
+                    return "robotNum: integer expected";
+            if (message.players != null && message.hasOwnProperty("players")) {
+                if (!Array.isArray(message.players))
+                    return "players: array expected";
+                for (let i = 0; i < message.players.length; ++i) {
+                    let error = $root.api.LobbyPlayer.verify(message.players[i]);
+                    if (error)
+                        return "players." + error;
+                }
+            }
+            return null;
+        };
+
+        /**
+         * Creates a LobbyTable message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.LobbyTable
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.LobbyTable} LobbyTable
+         */
+        LobbyTable.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.LobbyTable)
+                return object;
+            let message = new $root.api.LobbyTable();
+            if (object.tableNo != null)
+                message.tableNo = object.tableNo | 0;
+            if (object.playerNum != null)
+                message.playerNum = object.playerNum | 0;
+            if (object.robotNum != null)
+                message.robotNum = object.robotNum | 0;
+            if (object.players) {
+                if (!Array.isArray(object.players))
+                    throw TypeError(".api.LobbyTable.players: array expected");
+                message.players = [];
+                for (let i = 0; i < object.players.length; ++i) {
+                    if (typeof object.players[i] !== "object")
+                        throw TypeError(".api.LobbyTable.players: object expected");
+                    message.players[i] = $root.api.LobbyPlayer.fromObject(object.players[i]);
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a LobbyTable message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.LobbyTable
+         * @static
+         * @param {api.LobbyTable} message LobbyTable
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        LobbyTable.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.arrays || options.defaults)
+                object.players = [];
+            if (options.defaults) {
+                object.tableNo = 0;
+                object.playerNum = 0;
+                object.robotNum = 0;
+            }
+            if (message.tableNo != null && message.hasOwnProperty("tableNo"))
+                object.tableNo = message.tableNo;
+            if (message.playerNum != null && message.hasOwnProperty("playerNum"))
+                object.playerNum = message.playerNum;
+            if (message.robotNum != null && message.hasOwnProperty("robotNum"))
+                object.robotNum = message.robotNum;
+            if (message.players && message.players.length) {
+                object.players = [];
+                for (let j = 0; j < message.players.length; ++j)
+                    object.players[j] = $root.api.LobbyPlayer.toObject(message.players[j], options);
+            }
+            return object;
+        };
+
+        /**
+         * Converts this LobbyTable to JSON.
+         * @function toJSON
+         * @memberof api.LobbyTable
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        LobbyTable.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for LobbyTable
+         * @function getTypeUrl
+         * @memberof api.LobbyTable
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        LobbyTable.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.LobbyTable";
+        };
+
+        return LobbyTable;
+    })();
+
+    api.LobbyPlayer = (function() {
+
+        /**
+         * Properties of a LobbyPlayer.
+         * @memberof api
+         * @interface ILobbyPlayer
+         * @property {boolean|null} [robot] LobbyPlayer robot
+         * @property {number|Long|null} [id] LobbyPlayer id
+         * @property {string|null} [username] LobbyPlayer username
+         * @property {string|null} [avatar] LobbyPlayer avatar
+         */
+
+        /**
+         * Constructs a new LobbyPlayer.
+         * @memberof api
+         * @classdesc Represents a LobbyPlayer.
+         * @implements ILobbyPlayer
+         * @constructor
+         * @param {api.ILobbyPlayer=} [properties] Properties to set
+         */
+        function LobbyPlayer(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * LobbyPlayer robot.
+         * @member {boolean} robot
+         * @memberof api.LobbyPlayer
+         * @instance
+         */
+        LobbyPlayer.prototype.robot = false;
+
+        /**
+         * LobbyPlayer id.
+         * @member {number|Long} id
+         * @memberof api.LobbyPlayer
+         * @instance
+         */
+        LobbyPlayer.prototype.id = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+
+        /**
+         * LobbyPlayer username.
+         * @member {string} username
+         * @memberof api.LobbyPlayer
+         * @instance
+         */
+        LobbyPlayer.prototype.username = "";
+
+        /**
+         * LobbyPlayer avatar.
+         * @member {string} avatar
+         * @memberof api.LobbyPlayer
+         * @instance
+         */
+        LobbyPlayer.prototype.avatar = "";
+
+        /**
+         * Creates a new LobbyPlayer instance using the specified properties.
+         * @function create
+         * @memberof api.LobbyPlayer
+         * @static
+         * @param {api.ILobbyPlayer=} [properties] Properties to set
+         * @returns {api.LobbyPlayer} LobbyPlayer instance
+         */
+        LobbyPlayer.create = function create(properties) {
+            return new LobbyPlayer(properties);
+        };
+
+        /**
+         * Encodes the specified LobbyPlayer message. Does not implicitly {@link api.LobbyPlayer.verify|verify} messages.
+         * @function encode
+         * @memberof api.LobbyPlayer
+         * @static
+         * @param {api.ILobbyPlayer} message LobbyPlayer message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        LobbyPlayer.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.robot != null && Object.hasOwnProperty.call(message, "robot"))
+                writer.uint32(/* id 1, wireType 0 =*/8).bool(message.robot);
+            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                writer.uint32(/* id 2, wireType 0 =*/16).int64(message.id);
+            if (message.username != null && Object.hasOwnProperty.call(message, "username"))
+                writer.uint32(/* id 3, wireType 2 =*/26).string(message.username);
+            if (message.avatar != null && Object.hasOwnProperty.call(message, "avatar"))
+                writer.uint32(/* id 4, wireType 2 =*/34).string(message.avatar);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified LobbyPlayer message, length delimited. Does not implicitly {@link api.LobbyPlayer.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.LobbyPlayer
+         * @static
+         * @param {api.ILobbyPlayer} message LobbyPlayer message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        LobbyPlayer.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a LobbyPlayer message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.LobbyPlayer
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.LobbyPlayer} LobbyPlayer
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        LobbyPlayer.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.LobbyPlayer();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1: {
+                        message.robot = reader.bool();
+                        break;
+                    }
+                case 2: {
+                        message.id = reader.int64();
+                        break;
+                    }
+                case 3: {
+                        message.username = reader.string();
+                        break;
+                    }
+                case 4: {
+                        message.avatar = reader.string();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a LobbyPlayer message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.LobbyPlayer
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.LobbyPlayer} LobbyPlayer
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        LobbyPlayer.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a LobbyPlayer message.
+         * @function verify
+         * @memberof api.LobbyPlayer
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        LobbyPlayer.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.robot != null && message.hasOwnProperty("robot"))
+                if (typeof message.robot !== "boolean")
+                    return "robot: boolean expected";
+            if (message.id != null && message.hasOwnProperty("id"))
+                if (!$util.isInteger(message.id) && !(message.id && $util.isInteger(message.id.low) && $util.isInteger(message.id.high)))
+                    return "id: integer|Long expected";
+            if (message.username != null && message.hasOwnProperty("username"))
+                if (!$util.isString(message.username))
+                    return "username: string expected";
+            if (message.avatar != null && message.hasOwnProperty("avatar"))
+                if (!$util.isString(message.avatar))
+                    return "avatar: string expected";
+            return null;
+        };
+
+        /**
+         * Creates a LobbyPlayer message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.LobbyPlayer
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.LobbyPlayer} LobbyPlayer
+         */
+        LobbyPlayer.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.LobbyPlayer)
+                return object;
+            let message = new $root.api.LobbyPlayer();
+            if (object.robot != null)
+                message.robot = Boolean(object.robot);
+            if (object.id != null)
+                if ($util.Long)
+                    (message.id = $util.Long.fromValue(object.id)).unsigned = false;
+                else if (typeof object.id === "string")
+                    message.id = parseInt(object.id, 10);
+                else if (typeof object.id === "number")
+                    message.id = object.id;
+                else if (typeof object.id === "object")
+                    message.id = new $util.LongBits(object.id.low >>> 0, object.id.high >>> 0).toNumber();
+            if (object.username != null)
+                message.username = String(object.username);
+            if (object.avatar != null)
+                message.avatar = String(object.avatar);
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a LobbyPlayer message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.LobbyPlayer
+         * @static
+         * @param {api.LobbyPlayer} message LobbyPlayer
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        LobbyPlayer.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults) {
+                object.robot = false;
+                if ($util.Long) {
+                    let long = new $util.Long(0, 0, false);
+                    object.id = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.id = options.longs === String ? "0" : 0;
+                object.username = "";
+                object.avatar = "";
+            }
+            if (message.robot != null && message.hasOwnProperty("robot"))
+                object.robot = message.robot;
+            if (message.id != null && message.hasOwnProperty("id"))
+                if (typeof message.id === "number")
+                    object.id = options.longs === String ? String(message.id) : message.id;
+                else
+                    object.id = options.longs === String ? $util.Long.prototype.toString.call(message.id) : options.longs === Number ? new $util.LongBits(message.id.low >>> 0, message.id.high >>> 0).toNumber() : message.id;
+            if (message.username != null && message.hasOwnProperty("username"))
+                object.username = message.username;
+            if (message.avatar != null && message.hasOwnProperty("avatar"))
+                object.avatar = message.avatar;
+            return object;
+        };
+
+        /**
+         * Converts this LobbyPlayer to JSON.
+         * @function toJSON
+         * @memberof api.LobbyPlayer
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        LobbyPlayer.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for LobbyPlayer
+         * @function getTypeUrl
+         * @memberof api.LobbyPlayer
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        LobbyPlayer.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.LobbyPlayer";
+        };
+
+        return LobbyPlayer;
     })();
 
     api.ReqCreateTable = (function() {

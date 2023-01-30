@@ -17,11 +17,11 @@ message ProtoWrap {
 }
 
 message Ping {
-
+  uint64 timeMs = 1; // 毫秒时间戳
 }
 
 message Pong {
-
+  uint64 timeMs = 1; // 毫秒时间戳
 }
 
 // 成功消息
@@ -43,25 +43,32 @@ message ResIdentity {
   string msg = 2;
 }
 
+// 大厅消息 ============= begin
 message ReqLobbyView {
 
 }
 
 message ResLobbyView {
-
+  repeated LobbyTable tables = 3;
 }
 
 message LobbyTable {
-  int32 tableNo = 1;
-  repeated LobbyPlayer players = 3;
+  int32 tableNo = 1; // 游戏编号
+  int32 playerNum = 2;  // 限定玩家数量
+  int32 robotNum = 3;  // 限定机器人数量
+  repeated LobbyPlayer players = 4; // 当前玩家机器人列表
 }
 
 message LobbyPlayer {
-  bytes type = 1;
-  string username = 2;
-  string avatar = 3;
+  bool robot = 1; // 是否机器人
+  int64 id = 2;
+  string username = 3;
+  string avatar = 4;
 }
+// 大厅消息 ============= end
 
+
+// 创建桌面 ============= begin
 message ReqCreateTable {
   int32 players  = 1;
   int32 robots  = 2;
@@ -70,11 +77,58 @@ message ReqCreateTable {
 message ResCreateTable {
   int32 tableNo = 1;
 }
+// 创建桌面 ============= end
 
+
+// 加入游戏 ============= begin
 message ReqJoinTable {
+  int32 tableNo = 1;
+}
+
+// 玩家准备开始
+message ReqReadyStart {
+}
+
+// 房主踢人
+message ReqKickOutTable {
+  int32 playerId = 1;
+}
+
+message ReqAction {
+  int32 action = 1; // 4下大盲注,5下小盲注,6跟注,7弃牌
+  int32 chip = 2; // 押注金额
+}
+
+message ResAction {
 
 }
 
-message ResJoinTable {
-
+// 查询玩家当前游戏状态
+message ReqGameStatus {
 }
+
+message ResGameStatus { // 玩家当前游戏状态: 断线,重新登录....
+  bool inGame = 1; // 是否在游戏中
+  int32 tableNo = 2; // 所在桌面编号
+  int32 gameStage = 3; // 游戏阶段？
+  repeated TablePlayer players = 10;
+}
+
+message TablePlayer {
+  bool robot = 1; // 是否机器人
+  int64 id = 2;
+  string username = 3;
+  string avatar = 4;
+  int32 chip = 5; // 筹码
+  int32 status = 6; // 玩家状态: 1待准备开始,2已准备开始,已开始(3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃)
+  bool master = 7; // 是否房主
+  repeated Card handCard = 8; // 手牌
+  repeated Card publicCard = 9; // 公共牌
+}
+
+message Card {
+  int32 dot = 1; // 点数
+  int32 suit = 2; // 花色
+}
+
+// 加入游戏 ============= end

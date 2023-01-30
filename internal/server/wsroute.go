@@ -28,8 +28,9 @@ func init() {
 		// client.Write(res)
 		return res, nil
 	})
-	// 创建桌面
-	HandleNetAccountMsg(&api.ReqCreateTable{}, service.CreateNewTable)
+
+	HandleNetAccountMsg(&api.ReqCreateTable{}, service.CreateNewTable) // 创建桌面
+	HandleNetAccountMsg(&api.ReqLobbyView{}, service.GetLobbyView2)    // 查询所有游戏桌面
 }
 
 func checkExistsTypeHandler(op int32, err error) {

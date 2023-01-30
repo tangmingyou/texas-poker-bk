@@ -45,6 +45,9 @@ func GetLobbyTablesView() []*vo.TableVO {
 		if collect.IsNotEmptySlice(t.Players) {
 			tVO.Players = make([]*vo.PlayerVO, len(t.Players))
 			for i, player := range t.Players {
+				if player == nil {
+					continue
+				}
 				pVO := &vo.PlayerVO{Id: player.Id, Username: player.Username, Avatar: player.Avatar}
 				tVO.Players[i] = pVO
 			}
