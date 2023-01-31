@@ -16,6 +16,8 @@ func init() {
 	Dao = &Persistent{
 		Sqlite: newSqlite(),
 	}
+
+	initUserDao()
 }
 
 func newSqlite() (db *gorm.DB) {

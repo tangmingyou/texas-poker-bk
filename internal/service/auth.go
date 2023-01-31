@@ -5,8 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/golang/protobuf/proto"
 	"net/http"
+	"texas-poker-bk/api"
 	"texas-poker-bk/internal/conf"
+	"texas-poker-bk/internal/dao"
 	"texas-poker-bk/internal/model/entity"
 	"texas-poker-bk/internal/session"
 	"texas-poker-bk/tool/collect"
@@ -41,7 +44,7 @@ func Authorize(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"msg": "用户名或密码不能为空"})
 		return
 	}
-	user := userDao.FindUserByName(username)
+	user := dao.UserDao.FindUserByName(username)
 	if user == nil {
 		// 注册
 		user = registerUser(username, password)
@@ -68,9 +71,10 @@ func registerUser(username string, password string) *entity.User {
 		Username: username,
 		Password: password,
 		Nickname: username,
+		Balance:  conf.Conf.Game.GiftChip,
 	}
 	// TODO error
-	userDao.dao.Save(user)
+	dao.UserDao.DB.Save(user)
 	return user
 }
 
@@ -151,4 +155,26 @@ func GetSubject(ctx *gin.Context) *session.Subject {
 		panic("request subject not exists!")
 	}
 	return subject.(*session.Subject)
+}
+
+func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.Message, error) {
+	subject, err := DecodeSubject(msg.Token)
+	if err != nil {
+		// client.Close("authorize failed!")
+		return nil, err
+	}
+
+	account := &session.NetAccount{
+		Id:       subject.Id,
+		UserName: subject.Name,
+		Avatar:   subject.Avatar,
+		Client:   client,
+		Balance:  0,
+	}
+	client.Account = account
+
+	// response
+	res := &api.ResIdentity{Status: 200, Msg: "ok"}
+	// client.Write(res)
+	return res, nil
 }

@@ -1,12 +1,18 @@
 package game
 
+import (
+	"errors"
+	"sync"
+	"texas-poker-bk/api"
+)
+
 type Table struct {
 	TableNo    int32 // 牌桌编号
-	roundTimes int   // 回合次数
-	stage      Stage // 游戏阶段
+	RoundTimes int32 // 回合次数
+	Stage      int32 // 游戏阶段: 1等待玩家准备;2下大盲注;3下小盲注;4发公共牌;5发第四张公共牌,轮流下注;6发第五张公共牌,轮流下注
 
-	chip        int        // 牌桌当前筹码
-	robotChip   int        // 牌桌当前机器人下注筹码
+	chip        int32      // 牌桌当前筹码
+	robotChip   int32      // 牌桌当前机器人下注筹码
 	dealer      *Dealer    // 发牌员
 	publicCards [5]*Dealer // 公共牌
 
@@ -14,9 +20,30 @@ type Table struct {
 	RobotNum     int32     // 机器人数
 	Players      []*Player // 玩家
 	Robots       []*Robot
-	bigBlindsPos int // 大盲注位
+	BigBlindsPos int32 // 大盲注位
 
+	PlayerJoinLock *sync.Mutex
+	ChipLock       *sync.Mutex // 桌面筹码更新锁
 	// TODO game logs7
+}
+
+func (t *Table) JoinPlayer(player *Player) error {
+	t.PlayerJoinLock.Lock()
+	defer t.PlayerJoinLock.Unlock()
+	for i := range t.Players {
+		// 找个空位坐下
+		if t.Players[i] == nil {
+			t.Players[i] = player
+			return nil
+		}
+	}
+	return errors.New("牌桌玩家已满")
+}
+
+func (t *Table) NoticeGameStatus() {
+	gameStatus := &api.ResGameStatus{}
+	gameStatus.TableNo = t.TableNo
+
 }
 
 type Stage int

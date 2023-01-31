@@ -6,6 +6,7 @@ type User struct {
 	Username string `gorm:"column:username" json:"username"` // comment:用户名
 	Password string `gorm:"column:password" json:"password"` // comment:密码
 	Nickname string `gorm:"column:nickname" json:"nickname"` // comment:昵称
+	Balance  int32  `gorm:"column:balance" json:"balance"`   // comment:余额
 	Version  int64  `gorm:"column:version" json:"version"`   // comment:更新版本锁
 }
 

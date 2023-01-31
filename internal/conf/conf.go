@@ -34,6 +34,7 @@ type Config struct {
 	Auth   *Auth
 	Http   *Http
 	Sqlite *Sqlite
+	Game   *Game
 }
 
 type Auth struct {
@@ -47,4 +48,8 @@ type Http struct {
 
 type Sqlite struct {
 	DbPath string
+}
+
+type Game struct {
+	GiftChip int32
 }

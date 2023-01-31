@@ -15,5 +15,10 @@ ignoreUrl = [
 captchaUrl = [
     "/auth/authorize"
 ]
+
 [sqlite]
 dbPath = "etc/texas-poker.db"
+
+[game]
+# 新用户赠送筹码
+GiftChip = 10000

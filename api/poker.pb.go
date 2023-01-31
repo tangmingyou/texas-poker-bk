@@ -720,6 +720,8 @@ type ReqJoinTable struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+
+	TableNo int32 `protobuf:"varint,1,opt,name=tableNo,proto3" json:"tableNo,omitempty"`
 }
 
 func (x *ReqJoinTable) Reset() {
@@ -754,14 +756,22 @@ func (*ReqJoinTable) Descriptor() ([]byte, []int) {
 	return file_poker_proto_rawDescGZIP(), []int{13}
 }
 
-type ResJoinTable struct {
+func (x *ReqJoinTable) GetTableNo() int32 {
+	if x != nil {
+		return x.TableNo
+	}
+	return 0
+}
+
+// 离开房间
+type ReqLeaveTable struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *ResJoinTable) Reset() {
-	*x = ResJoinTable{}
+func (x *ReqLeaveTable) Reset() {
+	*x = ReqLeaveTable{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_poker_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -769,13 +779,13 @@ func (x *ResJoinTable) Reset() {
 	}
 }
 
-func (x *ResJoinTable) String() string {
+func (x *ReqLeaveTable) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ResJoinTable) ProtoMessage() {}
+func (*ReqLeaveTable) ProtoMessage() {}
 
-func (x *ResJoinTable) ProtoReflect() protoreflect.Message {
+func (x *ReqLeaveTable) ProtoReflect() protoreflect.Message {
 	mi := &file_poker_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -787,9 +797,465 @@ func (x *ResJoinTable) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ResJoinTable.ProtoReflect.Descriptor instead.
-func (*ResJoinTable) Descriptor() ([]byte, []int) {
+// Deprecated: Use ReqLeaveTable.ProtoReflect.Descriptor instead.
+func (*ReqLeaveTable) Descriptor() ([]byte, []int) {
 	return file_poker_proto_rawDescGZIP(), []int{14}
+}
+
+// 玩家准备开始
+type ReqReadyStart struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ReqReadyStart) Reset() {
+	*x = ReqReadyStart{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ReqReadyStart) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReqReadyStart) ProtoMessage() {}
+
+func (x *ReqReadyStart) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReqReadyStart.ProtoReflect.Descriptor instead.
+func (*ReqReadyStart) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{15}
+}
+
+// 房主踢人
+type ReqKickOutTable struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	PlayerId int32 `protobuf:"varint,1,opt,name=playerId,proto3" json:"playerId,omitempty"`
+}
+
+func (x *ReqKickOutTable) Reset() {
+	*x = ReqKickOutTable{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ReqKickOutTable) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReqKickOutTable) ProtoMessage() {}
+
+func (x *ReqKickOutTable) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReqKickOutTable.ProtoReflect.Descriptor instead.
+func (*ReqKickOutTable) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ReqKickOutTable) GetPlayerId() int32 {
+	if x != nil {
+		return x.PlayerId
+	}
+	return 0
+}
+
+type ReqGameAction struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Action int32 `protobuf:"varint,1,opt,name=action,proto3" json:"action,omitempty"` // 4下大盲注,5下小盲注,6跟注,7弃牌
+	Chip   int32 `protobuf:"varint,2,opt,name=chip,proto3" json:"chip,omitempty"`     // 押注金额
+}
+
+func (x *ReqGameAction) Reset() {
+	*x = ReqGameAction{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ReqGameAction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReqGameAction) ProtoMessage() {}
+
+func (x *ReqGameAction) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReqGameAction.ProtoReflect.Descriptor instead.
+func (*ReqGameAction) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ReqGameAction) GetAction() int32 {
+	if x != nil {
+		return x.Action
+	}
+	return 0
+}
+
+func (x *ReqGameAction) GetChip() int32 {
+	if x != nil {
+		return x.Chip
+	}
+	return 0
+}
+
+type ResGameAction struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ResGameAction) Reset() {
+	*x = ResGameAction{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ResGameAction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResGameAction) ProtoMessage() {}
+
+func (x *ResGameAction) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResGameAction.ProtoReflect.Descriptor instead.
+func (*ResGameAction) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{18}
+}
+
+// 查询玩家当前游戏状态
+type ReqGameStatus struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ReqGameStatus) Reset() {
+	*x = ReqGameStatus{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ReqGameStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReqGameStatus) ProtoMessage() {}
+
+func (x *ReqGameStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReqGameStatus.ProtoReflect.Descriptor instead.
+func (*ReqGameStatus) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{19}
+}
+
+type ResGameStatus struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	InGame    bool           `protobuf:"varint,1,opt,name=inGame,proto3" json:"inGame,omitempty"`       // 是否在游戏中
+	TableNo   int32          `protobuf:"varint,2,opt,name=tableNo,proto3" json:"tableNo,omitempty"`     // 所在桌面编号
+	GameStage int32          `protobuf:"varint,3,opt,name=gameStage,proto3" json:"gameStage,omitempty"` // 游戏阶段？
+	Players   []*TablePlayer `protobuf:"bytes,10,rep,name=players,proto3" json:"players,omitempty"`
+}
+
+func (x *ResGameStatus) Reset() {
+	*x = ResGameStatus{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ResGameStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResGameStatus) ProtoMessage() {}
+
+func (x *ResGameStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResGameStatus.ProtoReflect.Descriptor instead.
+func (*ResGameStatus) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ResGameStatus) GetInGame() bool {
+	if x != nil {
+		return x.InGame
+	}
+	return false
+}
+
+func (x *ResGameStatus) GetTableNo() int32 {
+	if x != nil {
+		return x.TableNo
+	}
+	return 0
+}
+
+func (x *ResGameStatus) GetGameStage() int32 {
+	if x != nil {
+		return x.GameStage
+	}
+	return 0
+}
+
+func (x *ResGameStatus) GetPlayers() []*TablePlayer {
+	if x != nil {
+		return x.Players
+	}
+	return nil
+}
+
+type TablePlayer struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Robot      bool    `protobuf:"varint,1,opt,name=robot,proto3" json:"robot,omitempty"` // 是否机器人
+	Id         int64   `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
+	Username   string  `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	Avatar     string  `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Chip       int32   `protobuf:"varint,5,opt,name=chip,proto3" json:"chip,omitempty"`            // 筹码
+	Status     int32   `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`        // 玩家状态: 1待准备开始,2已准备开始,已开始(3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃)
+	Master     bool    `protobuf:"varint,7,opt,name=master,proto3" json:"master,omitempty"`        // 是否房主`
+	HandCard   []*Card `protobuf:"bytes,8,rep,name=handCard,proto3" json:"handCard,omitempty"`     // 手牌
+	PublicCard []*Card `protobuf:"bytes,9,rep,name=publicCard,proto3" json:"publicCard,omitempty"` // 公共牌
+}
+
+func (x *TablePlayer) Reset() {
+	*x = TablePlayer{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[21]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TablePlayer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TablePlayer) ProtoMessage() {}
+
+func (x *TablePlayer) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[21]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TablePlayer.ProtoReflect.Descriptor instead.
+func (*TablePlayer) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *TablePlayer) GetRobot() bool {
+	if x != nil {
+		return x.Robot
+	}
+	return false
+}
+
+func (x *TablePlayer) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *TablePlayer) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *TablePlayer) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *TablePlayer) GetChip() int32 {
+	if x != nil {
+		return x.Chip
+	}
+	return 0
+}
+
+func (x *TablePlayer) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *TablePlayer) GetMaster() bool {
+	if x != nil {
+		return x.Master
+	}
+	return false
+}
+
+func (x *TablePlayer) GetHandCard() []*Card {
+	if x != nil {
+		return x.HandCard
+	}
+	return nil
+}
+
+func (x *TablePlayer) GetPublicCard() []*Card {
+	if x != nil {
+		return x.PublicCard
+	}
+	return nil
+}
+
+type Card struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Dot  int32 `protobuf:"varint,1,opt,name=dot,proto3" json:"dot,omitempty"`   // 点数
+	Suit int32 `protobuf:"varint,2,opt,name=suit,proto3" json:"suit,omitempty"` // 花色
+}
+
+func (x *Card) Reset() {
+	*x = Card{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[22]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Card) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Card) ProtoMessage() {}
+
+func (x *Card) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[22]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Card.ProtoReflect.Descriptor instead.
+func (*Card) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *Card) GetDot() int32 {
+	if x != nil {
+		return x.Dot
+	}
+	return 0
+}
+
+func (x *Card) GetSuit() int32 {
+	if x != nil {
+		return x.Suit
+	}
+	return 0
 }
 
 var File_poker_proto protoreflect.FileDescriptor
@@ -842,10 +1308,50 @@ var file_poker_proto_rawDesc = []byte{
 	0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x72, 0x6f, 0x62, 0x6f, 0x74, 0x73, 0x22,
 	0x2a, 0x0a, 0x0e, 0x52, 0x65, 0x73, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x62, 0x6c,
 	0x65, 0x12, 0x18, 0x0a, 0x07, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x4e, 0x6f, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x05, 0x52, 0x07, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x4e, 0x6f, 0x22, 0x0e, 0x0a, 0x0c, 0x52,
-	0x65, 0x71, 0x4a, 0x6f, 0x69, 0x6e, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x22, 0x0e, 0x0a, 0x0c, 0x52,
-	0x65, 0x73, 0x4a, 0x6f, 0x69, 0x6e, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x42, 0x0b, 0x5a, 0x09, 0x2e,
-	0x2f, 0x61, 0x70, 0x69, 0x3b, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x28, 0x05, 0x52, 0x07, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x4e, 0x6f, 0x22, 0x28, 0x0a, 0x0c, 0x52,
+	0x65, 0x71, 0x4a, 0x6f, 0x69, 0x6e, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x74,
+	0x61, 0x62, 0x6c, 0x65, 0x4e, 0x6f, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x74, 0x61,
+	0x62, 0x6c, 0x65, 0x4e, 0x6f, 0x22, 0x0f, 0x0a, 0x0d, 0x52, 0x65, 0x71, 0x4c, 0x65, 0x61, 0x76,
+	0x65, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x22, 0x0f, 0x0a, 0x0d, 0x52, 0x65, 0x71, 0x52, 0x65, 0x61,
+	0x64, 0x79, 0x53, 0x74, 0x61, 0x72, 0x74, 0x22, 0x2d, 0x0a, 0x0f, 0x52, 0x65, 0x71, 0x4b, 0x69,
+	0x63, 0x6b, 0x4f, 0x75, 0x74, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x6c,
+	0x61, 0x79, 0x65, 0x72, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x08, 0x70, 0x6c,
+	0x61, 0x79, 0x65, 0x72, 0x49, 0x64, 0x22, 0x3b, 0x0a, 0x0d, 0x52, 0x65, 0x71, 0x47, 0x61, 0x6d,
+	0x65, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x63, 0x74, 0x69, 0x6f,
+	0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12,
+	0x12, 0x0a, 0x04, 0x63, 0x68, 0x69, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x63,
+	0x68, 0x69, 0x70, 0x22, 0x0f, 0x0a, 0x0d, 0x52, 0x65, 0x73, 0x47, 0x61, 0x6d, 0x65, 0x41, 0x63,
+	0x74, 0x69, 0x6f, 0x6e, 0x22, 0x0f, 0x0a, 0x0d, 0x52, 0x65, 0x71, 0x47, 0x61, 0x6d, 0x65, 0x53,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x8b, 0x01, 0x0a, 0x0d, 0x52, 0x65, 0x73, 0x47, 0x61, 0x6d,
+	0x65, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x69, 0x6e, 0x47, 0x61, 0x6d,
+	0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x69, 0x6e, 0x47, 0x61, 0x6d, 0x65, 0x12,
+	0x18, 0x0a, 0x07, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x4e, 0x6f, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05,
+	0x52, 0x07, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x4e, 0x6f, 0x12, 0x1c, 0x0a, 0x09, 0x67, 0x61, 0x6d,
+	0x65, 0x53, 0x74, 0x61, 0x67, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x67, 0x61,
+	0x6d, 0x65, 0x53, 0x74, 0x61, 0x67, 0x65, 0x12, 0x2a, 0x0a, 0x07, 0x70, 0x6c, 0x61, 0x79, 0x65,
+	0x72, 0x73, 0x18, 0x0a, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x54,
+	0x61, 0x62, 0x6c, 0x65, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x52, 0x07, 0x70, 0x6c, 0x61, 0x79,
+	0x65, 0x72, 0x73, 0x22, 0xfd, 0x01, 0x0a, 0x0b, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x50, 0x6c, 0x61,
+	0x79, 0x65, 0x72, 0x12, 0x14, 0x0a, 0x05, 0x72, 0x6f, 0x62, 0x6f, 0x74, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x08, 0x52, 0x05, 0x72, 0x6f, 0x62, 0x6f, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x75, 0x73, 0x65,
+	0x72, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x75, 0x73, 0x65,
+	0x72, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x18,
+	0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x12, 0x12, 0x0a,
+	0x04, 0x63, 0x68, 0x69, 0x70, 0x18, 0x05, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x63, 0x68, 0x69,
+	0x70, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x06, 0x20, 0x01, 0x28,
+	0x05, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x6d, 0x61, 0x73,
+	0x74, 0x65, 0x72, 0x18, 0x07, 0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x6d, 0x61, 0x73, 0x74, 0x65,
+	0x72, 0x12, 0x25, 0x0a, 0x08, 0x68, 0x61, 0x6e, 0x64, 0x43, 0x61, 0x72, 0x64, 0x18, 0x08, 0x20,
+	0x03, 0x28, 0x0b, 0x32, 0x09, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x61, 0x72, 0x64, 0x52, 0x08,
+	0x68, 0x61, 0x6e, 0x64, 0x43, 0x61, 0x72, 0x64, 0x12, 0x29, 0x0a, 0x0a, 0x70, 0x75, 0x62, 0x6c,
+	0x69, 0x63, 0x43, 0x61, 0x72, 0x64, 0x18, 0x09, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x09, 0x2e, 0x61,
+	0x70, 0x69, 0x2e, 0x43, 0x61, 0x72, 0x64, 0x52, 0x0a, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x43,
+	0x61, 0x72, 0x64, 0x22, 0x2c, 0x0a, 0x04, 0x43, 0x61, 0x72, 0x64, 0x12, 0x10, 0x0a, 0x03, 0x64,
+	0x6f, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x03, 0x64, 0x6f, 0x74, 0x12, 0x12, 0x0a,
+	0x04, 0x73, 0x75, 0x69, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x73, 0x75, 0x69,
+	0x74, 0x42, 0x0b, 0x5a, 0x09, 0x2e, 0x2f, 0x61, 0x70, 0x69, 0x3b, 0x61, 0x70, 0x69, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -860,32 +1366,43 @@ func file_poker_proto_rawDescGZIP() []byte {
 	return file_poker_proto_rawDescData
 }
 
-var file_poker_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_poker_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_poker_proto_goTypes = []interface{}{
-	(*ProtoWrap)(nil),      // 0: api.ProtoWrap
-	(*Ping)(nil),           // 1: api.Ping
-	(*Pong)(nil),           // 2: api.Pong
-	(*ResSuccess)(nil),     // 3: api.ResSuccess
-	(*ResFail)(nil),        // 4: api.ResFail
-	(*ReqIdentity)(nil),    // 5: api.ReqIdentity
-	(*ResIdentity)(nil),    // 6: api.ResIdentity
-	(*ReqLobbyView)(nil),   // 7: api.ReqLobbyView
-	(*ResLobbyView)(nil),   // 8: api.ResLobbyView
-	(*LobbyTable)(nil),     // 9: api.LobbyTable
-	(*LobbyPlayer)(nil),    // 10: api.LobbyPlayer
-	(*ReqCreateTable)(nil), // 11: api.ReqCreateTable
-	(*ResCreateTable)(nil), // 12: api.ResCreateTable
-	(*ReqJoinTable)(nil),   // 13: api.ReqJoinTable
-	(*ResJoinTable)(nil),   // 14: api.ResJoinTable
+	(*ProtoWrap)(nil),       // 0: api.ProtoWrap
+	(*Ping)(nil),            // 1: api.Ping
+	(*Pong)(nil),            // 2: api.Pong
+	(*ResSuccess)(nil),      // 3: api.ResSuccess
+	(*ResFail)(nil),         // 4: api.ResFail
+	(*ReqIdentity)(nil),     // 5: api.ReqIdentity
+	(*ResIdentity)(nil),     // 6: api.ResIdentity
+	(*ReqLobbyView)(nil),    // 7: api.ReqLobbyView
+	(*ResLobbyView)(nil),    // 8: api.ResLobbyView
+	(*LobbyTable)(nil),      // 9: api.LobbyTable
+	(*LobbyPlayer)(nil),     // 10: api.LobbyPlayer
+	(*ReqCreateTable)(nil),  // 11: api.ReqCreateTable
+	(*ResCreateTable)(nil),  // 12: api.ResCreateTable
+	(*ReqJoinTable)(nil),    // 13: api.ReqJoinTable
+	(*ReqLeaveTable)(nil),   // 14: api.ReqLeaveTable
+	(*ReqReadyStart)(nil),   // 15: api.ReqReadyStart
+	(*ReqKickOutTable)(nil), // 16: api.ReqKickOutTable
+	(*ReqGameAction)(nil),   // 17: api.ReqGameAction
+	(*ResGameAction)(nil),   // 18: api.ResGameAction
+	(*ReqGameStatus)(nil),   // 19: api.ReqGameStatus
+	(*ResGameStatus)(nil),   // 20: api.ResGameStatus
+	(*TablePlayer)(nil),     // 21: api.TablePlayer
+	(*Card)(nil),            // 22: api.Card
 }
 var file_poker_proto_depIdxs = []int32{
 	9,  // 0: api.ResLobbyView.tables:type_name -> api.LobbyTable
 	10, // 1: api.LobbyTable.players:type_name -> api.LobbyPlayer
-	2,  // [2:2] is the sub-list for method output_type
-	2,  // [2:2] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	21, // 2: api.ResGameStatus.players:type_name -> api.TablePlayer
+	22, // 3: api.TablePlayer.handCard:type_name -> api.Card
+	22, // 4: api.TablePlayer.publicCard:type_name -> api.Card
+	5,  // [5:5] is the sub-list for method output_type
+	5,  // [5:5] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_poker_proto_init() }
@@ -1063,7 +1580,103 @@ func file_poker_proto_init() {
 			}
 		}
 		file_poker_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ResJoinTable); i {
+			switch v := v.(*ReqLeaveTable); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_poker_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ReqReadyStart); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_poker_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ReqKickOutTable); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_poker_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ReqGameAction); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_poker_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ResGameAction); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_poker_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ReqGameStatus); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_poker_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ResGameStatus); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_poker_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TablePlayer); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_poker_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Card); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1081,7 +1694,7 @@ func file_poker_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_poker_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

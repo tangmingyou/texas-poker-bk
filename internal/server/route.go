@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"texas-poker-bk/api"
+	"texas-poker-bk/internal/dao"
 	"texas-poker-bk/internal/service"
 )
 
@@ -29,10 +30,9 @@ func NewServer() *gin.Engine {
 	auth.POST("/authorize", service.Authorize) // 登录或注册认证
 
 	user := base.Group("/user")
-	user.GET("/findByName", service.FindUserByName)
+	user.GET("/findByName", dao.FindUserByName)
 
-	game := base.Group("/game")
-	game.GET("/lobby", service.GetLobbyView) // 游戏大厅
+	_ = base.Group("/game")
 
 	return server
 }

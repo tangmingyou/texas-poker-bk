@@ -4,33 +4,25 @@ import (
 	"github.com/golang/protobuf/proto"
 	"reflect"
 	"texas-poker-bk/api"
+	"texas-poker-bk/internal/game"
 	"texas-poker-bk/internal/service"
 	"texas-poker-bk/internal/session"
 )
 
 var NetClientHandlers = make(map[int32]func(*session.NetClient, proto.Message) (proto.Message, error))
 var NetAccountHandlers = make(map[int32]func(session.NetAccount, proto.Message) (proto.Message, error))
-var PlayerHandlers = make(map[int32]func(*session.Player, proto.Message) (proto.Message, error))
+var PlayerHandlers = make(map[int32]func(*game.Player, proto.Message) (proto.Message, error))
 
 func init() {
 	// 连接token认证
-	HandleNetClientMsg(&api.ReqIdentity{}, func(client *session.NetClient, msg *api.ReqIdentity) (proto.Message, error) {
-		subject, err := service.DecodeSubject(msg.Token)
-		if err != nil {
-			// client.Close("authorize failed!")
-			return nil, err
-		}
-		account := &session.NetAccount{Id: subject.Id, UserName: subject.Name, Avatar: subject.Avatar, Client: client}
-		client.Account = account
+	HandleNetClientMsg(&api.ReqIdentity{}, service.HandleReqIdentity)
+	// 创建桌面
+	HandleNetAccountMsg(&api.ReqCreateTable{}, service.HandleReqCreateTable)
+	// 查询所有游戏桌面
+	HandleNetAccountMsg(&api.ReqLobbyView{}, service.HandleReqLobbyView)
+	// 加入桌面
+	HandleNetAccountMsg(&api.ReqJoinTable{}, service.HandleJoinTable)
 
-		// response
-		res := &api.ResIdentity{Status: 200, Msg: "ok"}
-		// client.Write(res)
-		return res, nil
-	})
-
-	HandleNetAccountMsg(&api.ReqCreateTable{}, service.CreateNewTable) // 创建桌面
-	HandleNetAccountMsg(&api.ReqLobbyView{}, service.GetLobbyView2)    // 查询所有游戏桌面
 }
 
 func checkExistsTypeHandler(op int32, err error) {
@@ -59,10 +51,10 @@ func HandleNetAccountMsg[T proto.Message](msg T, f func(session.NetAccount, T) (
 	}
 }
 
-func HandleNetPlayerMsg[T proto.Message](msg T, f func(*session.Player, T) (proto.Message, error)) {
+func HandleNetPlayerMsg[T proto.Message](msg T, f func(*game.Player, T) (proto.Message, error)) {
 	op, err := api.GetProtoOp(msg)
 	checkExistsTypeHandler(op, err)
-	PlayerHandlers[op] = func(player *session.Player, msg proto.Message) (proto.Message, error) {
+	PlayerHandlers[op] = func(player *game.Player, msg proto.Message) (proto.Message, error) {
 		return f(player, msg.(T))
 	}
 }

@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"github.com/golang/protobuf/proto"
-	"net/http"
+	"sort"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/game"
 	"texas-poker-bk/internal/service/store"
@@ -11,8 +11,8 @@ import (
 	"texas-poker-bk/tool/collect"
 )
 
-// CreateNewTable 创建桌面 TODO 当前在房间则不可创建房间了
-func CreateNewTable(account session.NetAccount, msg *api.ReqCreateTable) (proto.Message, error) {
+// HandleReqCreateTable 创建桌面 TODO 当前在房间则不可创建房间了
+func HandleReqCreateTable(account session.NetAccount, msg *api.ReqCreateTable) (proto.Message, error) {
 	// 人数，机器人数
 	playerNum := msg.Players
 	robotNum := msg.Robots
@@ -31,7 +31,12 @@ func CreateNewTable(account session.NetAccount, msg *api.ReqCreateTable) (proto.
 		Id:       account.Id,
 		Username: account.UserName,
 		Avatar:   account.Avatar,
+		Status:   1,
+		Chip:     500,
 	}
+	// 扣除DB账户余额 TODO 账户金额限制
+	account.DecrementBalance(500)
+
 	table.Players[0] = owner
 	for i := 0; i < int(robotNum); i++ {
 		table.Robots[i] = &game.Robot{}
@@ -43,13 +48,8 @@ func CreateNewTable(account session.NetAccount, msg *api.ReqCreateTable) (proto.
 	return &api.ResCreateTable{TableNo: table.TableNo}, nil
 }
 
-func GetLobbyView(ctx *gin.Context) {
-	lobby := store.GetLobbyTablesView()
-	ctx.JSON(http.StatusOK, gin.H{"data": lobby})
-}
-
-// GetLobbyView2 返回当前所有桌面和玩家数量
-func GetLobbyView2(account session.NetAccount, msg *api.ReqLobbyView) (proto.Message, error) {
+// HandleReqLobbyView 返回当前所有桌面和玩家数量
+func HandleReqLobbyView(account session.NetAccount, msg *api.ReqLobbyView) (proto.Message, error) {
 	res := &api.ResLobbyView{}
 	if store.LobbyTables == nil || len(store.LobbyTables) == 0 {
 		return res, nil
@@ -85,10 +85,76 @@ func GetLobbyView2(account session.NetAccount, msg *api.ReqLobbyView) (proto.Mes
 		tables[idx] = table
 		idx++
 	}
+	// 牌桌号降序
+	sort.Slice(tables, func(i, j int) bool {
+		return tables[i].TableNo > tables[j].TableNo
+	})
 	return res, nil
 }
 
-// JoinTable 加入牌桌
-func JoinTable(ctx *gin.Context) {
+// HandleJoinTable 加入牌桌
+func HandleJoinTable(account session.NetAccount, msg *api.ReqJoinTable) (proto.Message, error) {
+	account.Lock.Lock()
+	defer account.Lock.Unlock()
 
+	if account.Player != nil {
+		return &api.ResFail{Msg: fmt.Sprintf("用户当前已加入#%d牌桌", account.Player.GameTable.TableNo)}, nil
+	}
+	// account -> player
+	// TODO 账户余额限制
+
+	table := store.LobbyTables[msg.TableNo]
+	if table == nil {
+		return &api.ResFail{Msg: "牌桌不存在"}, nil
+	}
+	player := &game.Player{
+		Id:        account.Id,
+		Username:  account.UserName,
+		Avatar:    account.Avatar,
+		Status:    1,
+		Chip:      500,
+		GameTable: table,
+	}
+	err := table.JoinPlayer(player)
+	if err != nil {
+		return nil, err
+	}
+	// 从账户扣除进入牌桌的金额
+	account.DecrementBalance(500)
+	account.Player = player
+	return &api.ResSuccess{}, nil
+}
+
+// HandleLeaveTable 离开牌桌
+func HandleLeaveTable(account session.NetAccount, msg *api.ReqCreateTable) (proto.Message, error) {
+	account.Lock.Lock()
+	defer account.Lock.Unlock()
+	// 结算, player -> nil
+	if account.Player == nil {
+		return &api.ResFail{Msg: "当前未加入牌桌"}, nil
+	}
+	// 根据玩家游戏状态判断可否退出
+	switch account.Player.Status {
+	case 1, 2, 7: // 未在游戏中 可退出
+		// 结算金额
+		account.IncrementBalance(account.Player.Chip)
+		gameTable := account.Player.GameTable
+		// table player remove
+		for i := range gameTable.Players {
+			if gameTable.Players[i] == account.Player {
+				gameTable.Players[i] = nil
+			}
+		}
+		account.Player = nil
+		// TODO notice 牌桌其他玩家 gameTable.notice(ResGameStatus)
+		return &api.ResSuccess{}, nil
+	default:
+		return &api.ResFail{Msg: "游戏进行中,不能退出"}, nil
+	}
+}
+
+// HandleReqReadyStart 准备开始游戏
+func HandleReqReadyStart(player game.Player, msg *api.ReqReadyStart) (proto.Message, error) {
+
+	return nil, nil
 }

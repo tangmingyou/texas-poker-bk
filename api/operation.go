@@ -18,7 +18,7 @@ var protoInstances = []proto.Message{
 
 	&Ping{},
 	&Pong{},
-	
+
 	&ReqIdentity{},
 	&ResIdentity{},
 
@@ -29,7 +29,16 @@ var protoInstances = []proto.Message{
 	&ResCreateTable{},
 
 	&ReqJoinTable{},
-	&ResJoinTable{},
+	&ReqLeaveTable{},
+
+	&ReqGameAction{},
+	&ResGameAction{},
+
+	&ReqGameStatus{},
+	&ResGameStatus{},
+
+	&ReqReadyStart{},
+	&ReqKickOutTable{},
 }
 
 var (
