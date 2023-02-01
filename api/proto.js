@@ -761,6 +761,7 @@ export const api = $root.api = (() => {
          * Properties of a ResSuccess.
          * @memberof api
          * @interface IResSuccess
+         * @property {number|null} [code] ResSuccess code
          */
 
         /**
@@ -777,6 +778,14 @@ export const api = $root.api = (() => {
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
+
+        /**
+         * ResSuccess code.
+         * @member {number} code
+         * @memberof api.ResSuccess
+         * @instance
+         */
+        ResSuccess.prototype.code = 0;
 
         /**
          * Creates a new ResSuccess instance using the specified properties.
@@ -802,6 +811,8 @@ export const api = $root.api = (() => {
         ResSuccess.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.code != null && Object.hasOwnProperty.call(message, "code"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.code);
             return writer;
         };
 
@@ -836,6 +847,10 @@ export const api = $root.api = (() => {
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
+                case 1: {
+                        message.code = reader.int32();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -871,6 +886,9 @@ export const api = $root.api = (() => {
         ResSuccess.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (message.code != null && message.hasOwnProperty("code"))
+                if (!$util.isInteger(message.code))
+                    return "code: integer expected";
             return null;
         };
 
@@ -885,7 +903,10 @@ export const api = $root.api = (() => {
         ResSuccess.fromObject = function fromObject(object) {
             if (object instanceof $root.api.ResSuccess)
                 return object;
-            return new $root.api.ResSuccess();
+            let message = new $root.api.ResSuccess();
+            if (object.code != null)
+                message.code = object.code | 0;
+            return message;
         };
 
         /**
@@ -897,8 +918,15 @@ export const api = $root.api = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        ResSuccess.toObject = function toObject() {
-            return {};
+        ResSuccess.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.code = 0;
+            if (message.code != null && message.hasOwnProperty("code"))
+                object.code = message.code;
+            return object;
         };
 
         /**
@@ -936,6 +964,7 @@ export const api = $root.api = (() => {
          * Properties of a ResFail.
          * @memberof api
          * @interface IResFail
+         * @property {number|null} [code] ResFail code
          * @property {string|null} [msg] ResFail msg
          */
 
@@ -953,6 +982,14 @@ export const api = $root.api = (() => {
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
+
+        /**
+         * ResFail code.
+         * @member {number} code
+         * @memberof api.ResFail
+         * @instance
+         */
+        ResFail.prototype.code = 0;
 
         /**
          * ResFail msg.
@@ -986,6 +1023,8 @@ export const api = $root.api = (() => {
         ResFail.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.code != null && Object.hasOwnProperty.call(message, "code"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.code);
             if (message.msg != null && Object.hasOwnProperty.call(message, "msg"))
                 writer.uint32(/* id 3, wireType 2 =*/26).string(message.msg);
             return writer;
@@ -1022,6 +1061,10 @@ export const api = $root.api = (() => {
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
+                case 1: {
+                        message.code = reader.int32();
+                        break;
+                    }
                 case 3: {
                         message.msg = reader.string();
                         break;
@@ -1061,6 +1104,9 @@ export const api = $root.api = (() => {
         ResFail.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (message.code != null && message.hasOwnProperty("code"))
+                if (!$util.isInteger(message.code))
+                    return "code: integer expected";
             if (message.msg != null && message.hasOwnProperty("msg"))
                 if (!$util.isString(message.msg))
                     return "msg: string expected";
@@ -1079,6 +1125,8 @@ export const api = $root.api = (() => {
             if (object instanceof $root.api.ResFail)
                 return object;
             let message = new $root.api.ResFail();
+            if (object.code != null)
+                message.code = object.code | 0;
             if (object.msg != null)
                 message.msg = String(object.msg);
             return message;
@@ -1097,8 +1145,12 @@ export const api = $root.api = (() => {
             if (!options)
                 options = {};
             let object = {};
-            if (options.defaults)
+            if (options.defaults) {
+                object.code = 0;
                 object.msg = "";
+            }
+            if (message.code != null && message.hasOwnProperty("code"))
+                object.code = message.code;
             if (message.msg != null && message.hasOwnProperty("msg"))
                 object.msg = message.msg;
             return object;
@@ -4132,23 +4184,23 @@ export const api = $root.api = (() => {
         return ResGameAction;
     })();
 
-    api.ReqGameStatus = (function() {
+    api.ReqGameFullStatus = (function() {
 
         /**
-         * Properties of a ReqGameStatus.
+         * Properties of a ReqGameFullStatus.
          * @memberof api
-         * @interface IReqGameStatus
+         * @interface IReqGameFullStatus
          */
 
         /**
-         * Constructs a new ReqGameStatus.
+         * Constructs a new ReqGameFullStatus.
          * @memberof api
-         * @classdesc Represents a ReqGameStatus.
-         * @implements IReqGameStatus
+         * @classdesc Represents a ReqGameFullStatus.
+         * @implements IReqGameFullStatus
          * @constructor
-         * @param {api.IReqGameStatus=} [properties] Properties to set
+         * @param {api.IReqGameFullStatus=} [properties] Properties to set
          */
-        function ReqGameStatus(properties) {
+        function ReqGameFullStatus(properties) {
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
@@ -4156,60 +4208,60 @@ export const api = $root.api = (() => {
         }
 
         /**
-         * Creates a new ReqGameStatus instance using the specified properties.
+         * Creates a new ReqGameFullStatus instance using the specified properties.
          * @function create
-         * @memberof api.ReqGameStatus
+         * @memberof api.ReqGameFullStatus
          * @static
-         * @param {api.IReqGameStatus=} [properties] Properties to set
-         * @returns {api.ReqGameStatus} ReqGameStatus instance
+         * @param {api.IReqGameFullStatus=} [properties] Properties to set
+         * @returns {api.ReqGameFullStatus} ReqGameFullStatus instance
          */
-        ReqGameStatus.create = function create(properties) {
-            return new ReqGameStatus(properties);
+        ReqGameFullStatus.create = function create(properties) {
+            return new ReqGameFullStatus(properties);
         };
 
         /**
-         * Encodes the specified ReqGameStatus message. Does not implicitly {@link api.ReqGameStatus.verify|verify} messages.
+         * Encodes the specified ReqGameFullStatus message. Does not implicitly {@link api.ReqGameFullStatus.verify|verify} messages.
          * @function encode
-         * @memberof api.ReqGameStatus
+         * @memberof api.ReqGameFullStatus
          * @static
-         * @param {api.IReqGameStatus} message ReqGameStatus message or plain object to encode
+         * @param {api.IReqGameFullStatus} message ReqGameFullStatus message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        ReqGameStatus.encode = function encode(message, writer) {
+        ReqGameFullStatus.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
             return writer;
         };
 
         /**
-         * Encodes the specified ReqGameStatus message, length delimited. Does not implicitly {@link api.ReqGameStatus.verify|verify} messages.
+         * Encodes the specified ReqGameFullStatus message, length delimited. Does not implicitly {@link api.ReqGameFullStatus.verify|verify} messages.
          * @function encodeDelimited
-         * @memberof api.ReqGameStatus
+         * @memberof api.ReqGameFullStatus
          * @static
-         * @param {api.IReqGameStatus} message ReqGameStatus message or plain object to encode
+         * @param {api.IReqGameFullStatus} message ReqGameFullStatus message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        ReqGameStatus.encodeDelimited = function encodeDelimited(message, writer) {
+        ReqGameFullStatus.encodeDelimited = function encodeDelimited(message, writer) {
             return this.encode(message, writer).ldelim();
         };
 
         /**
-         * Decodes a ReqGameStatus message from the specified reader or buffer.
+         * Decodes a ReqGameFullStatus message from the specified reader or buffer.
          * @function decode
-         * @memberof api.ReqGameStatus
+         * @memberof api.ReqGameFullStatus
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {api.ReqGameStatus} ReqGameStatus
+         * @returns {api.ReqGameFullStatus} ReqGameFullStatus
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        ReqGameStatus.decode = function decode(reader, length) {
+        ReqGameFullStatus.decode = function decode(reader, length) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqGameStatus();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqGameFullStatus();
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
@@ -4222,112 +4274,116 @@ export const api = $root.api = (() => {
         };
 
         /**
-         * Decodes a ReqGameStatus message from the specified reader or buffer, length delimited.
+         * Decodes a ReqGameFullStatus message from the specified reader or buffer, length delimited.
          * @function decodeDelimited
-         * @memberof api.ReqGameStatus
+         * @memberof api.ReqGameFullStatus
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {api.ReqGameStatus} ReqGameStatus
+         * @returns {api.ReqGameFullStatus} ReqGameFullStatus
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        ReqGameStatus.decodeDelimited = function decodeDelimited(reader) {
+        ReqGameFullStatus.decodeDelimited = function decodeDelimited(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
         };
 
         /**
-         * Verifies a ReqGameStatus message.
+         * Verifies a ReqGameFullStatus message.
          * @function verify
-         * @memberof api.ReqGameStatus
+         * @memberof api.ReqGameFullStatus
          * @static
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        ReqGameStatus.verify = function verify(message) {
+        ReqGameFullStatus.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
             return null;
         };
 
         /**
-         * Creates a ReqGameStatus message from a plain object. Also converts values to their respective internal types.
+         * Creates a ReqGameFullStatus message from a plain object. Also converts values to their respective internal types.
          * @function fromObject
-         * @memberof api.ReqGameStatus
+         * @memberof api.ReqGameFullStatus
          * @static
          * @param {Object.<string,*>} object Plain object
-         * @returns {api.ReqGameStatus} ReqGameStatus
+         * @returns {api.ReqGameFullStatus} ReqGameFullStatus
          */
-        ReqGameStatus.fromObject = function fromObject(object) {
-            if (object instanceof $root.api.ReqGameStatus)
+        ReqGameFullStatus.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqGameFullStatus)
                 return object;
-            return new $root.api.ReqGameStatus();
+            return new $root.api.ReqGameFullStatus();
         };
 
         /**
-         * Creates a plain object from a ReqGameStatus message. Also converts values to other types if specified.
+         * Creates a plain object from a ReqGameFullStatus message. Also converts values to other types if specified.
          * @function toObject
-         * @memberof api.ReqGameStatus
+         * @memberof api.ReqGameFullStatus
          * @static
-         * @param {api.ReqGameStatus} message ReqGameStatus
+         * @param {api.ReqGameFullStatus} message ReqGameFullStatus
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        ReqGameStatus.toObject = function toObject() {
+        ReqGameFullStatus.toObject = function toObject() {
             return {};
         };
 
         /**
-         * Converts this ReqGameStatus to JSON.
+         * Converts this ReqGameFullStatus to JSON.
          * @function toJSON
-         * @memberof api.ReqGameStatus
+         * @memberof api.ReqGameFullStatus
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        ReqGameStatus.prototype.toJSON = function toJSON() {
+        ReqGameFullStatus.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for ReqGameStatus
+         * Gets the default type url for ReqGameFullStatus
          * @function getTypeUrl
-         * @memberof api.ReqGameStatus
+         * @memberof api.ReqGameFullStatus
          * @static
          * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns {string} The default type url
          */
-        ReqGameStatus.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        ReqGameFullStatus.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
             if (typeUrlPrefix === undefined) {
                 typeUrlPrefix = "type.googleapis.com";
             }
-            return typeUrlPrefix + "/api.ReqGameStatus";
+            return typeUrlPrefix + "/api.ReqGameFullStatus";
         };
 
-        return ReqGameStatus;
+        return ReqGameFullStatus;
     })();
 
-    api.ResGameStatus = (function() {
+    api.ResGameFullStatus = (function() {
 
         /**
-         * Properties of a ResGameStatus.
+         * Properties of a ResGameFullStatus.
          * @memberof api
-         * @interface IResGameStatus
-         * @property {boolean|null} [inGame] ResGameStatus inGame
-         * @property {number|null} [tableNo] ResGameStatus tableNo
-         * @property {number|null} [gameStage] ResGameStatus gameStage
-         * @property {Array.<api.ITablePlayer>|null} [players] ResGameStatus players
+         * @interface IResGameFullStatus
+         * @property {boolean|null} [inGame] ResGameFullStatus inGame
+         * @property {number|null} [tableNo] ResGameFullStatus tableNo
+         * @property {number|null} [gameStage] ResGameFullStatus gameStage
+         * @property {number|null} [chip] ResGameFullStatus chip
+         * @property {number|null} [RoundTimes] ResGameFullStatus RoundTimes
+         * @property {Array.<api.ICard>|null} [publicCard] ResGameFullStatus publicCard
+         * @property {Array.<api.ITablePlayer>|null} [players] ResGameFullStatus players
          */
 
         /**
-         * Constructs a new ResGameStatus.
+         * Constructs a new ResGameFullStatus.
          * @memberof api
-         * @classdesc Represents a ResGameStatus.
-         * @implements IResGameStatus
+         * @classdesc Represents a ResGameFullStatus.
+         * @implements IResGameFullStatus
          * @constructor
-         * @param {api.IResGameStatus=} [properties] Properties to set
+         * @param {api.IResGameFullStatus=} [properties] Properties to set
          */
-        function ResGameStatus(properties) {
+        function ResGameFullStatus(properties) {
+            this.publicCard = [];
             this.players = [];
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -4336,59 +4392,83 @@ export const api = $root.api = (() => {
         }
 
         /**
-         * ResGameStatus inGame.
+         * ResGameFullStatus inGame.
          * @member {boolean} inGame
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @instance
          */
-        ResGameStatus.prototype.inGame = false;
+        ResGameFullStatus.prototype.inGame = false;
 
         /**
-         * ResGameStatus tableNo.
+         * ResGameFullStatus tableNo.
          * @member {number} tableNo
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @instance
          */
-        ResGameStatus.prototype.tableNo = 0;
+        ResGameFullStatus.prototype.tableNo = 0;
 
         /**
-         * ResGameStatus gameStage.
+         * ResGameFullStatus gameStage.
          * @member {number} gameStage
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @instance
          */
-        ResGameStatus.prototype.gameStage = 0;
+        ResGameFullStatus.prototype.gameStage = 0;
 
         /**
-         * ResGameStatus players.
+         * ResGameFullStatus chip.
+         * @member {number} chip
+         * @memberof api.ResGameFullStatus
+         * @instance
+         */
+        ResGameFullStatus.prototype.chip = 0;
+
+        /**
+         * ResGameFullStatus RoundTimes.
+         * @member {number} RoundTimes
+         * @memberof api.ResGameFullStatus
+         * @instance
+         */
+        ResGameFullStatus.prototype.RoundTimes = 0;
+
+        /**
+         * ResGameFullStatus publicCard.
+         * @member {Array.<api.ICard>} publicCard
+         * @memberof api.ResGameFullStatus
+         * @instance
+         */
+        ResGameFullStatus.prototype.publicCard = $util.emptyArray;
+
+        /**
+         * ResGameFullStatus players.
          * @member {Array.<api.ITablePlayer>} players
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @instance
          */
-        ResGameStatus.prototype.players = $util.emptyArray;
+        ResGameFullStatus.prototype.players = $util.emptyArray;
 
         /**
-         * Creates a new ResGameStatus instance using the specified properties.
+         * Creates a new ResGameFullStatus instance using the specified properties.
          * @function create
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @static
-         * @param {api.IResGameStatus=} [properties] Properties to set
-         * @returns {api.ResGameStatus} ResGameStatus instance
+         * @param {api.IResGameFullStatus=} [properties] Properties to set
+         * @returns {api.ResGameFullStatus} ResGameFullStatus instance
          */
-        ResGameStatus.create = function create(properties) {
-            return new ResGameStatus(properties);
+        ResGameFullStatus.create = function create(properties) {
+            return new ResGameFullStatus(properties);
         };
 
         /**
-         * Encodes the specified ResGameStatus message. Does not implicitly {@link api.ResGameStatus.verify|verify} messages.
+         * Encodes the specified ResGameFullStatus message. Does not implicitly {@link api.ResGameFullStatus.verify|verify} messages.
          * @function encode
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @static
-         * @param {api.IResGameStatus} message ResGameStatus message or plain object to encode
+         * @param {api.IResGameFullStatus} message ResGameFullStatus message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        ResGameStatus.encode = function encode(message, writer) {
+        ResGameFullStatus.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
             if (message.inGame != null && Object.hasOwnProperty.call(message, "inGame"))
@@ -4397,6 +4477,13 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.tableNo);
             if (message.gameStage != null && Object.hasOwnProperty.call(message, "gameStage"))
                 writer.uint32(/* id 3, wireType 0 =*/24).int32(message.gameStage);
+            if (message.chip != null && Object.hasOwnProperty.call(message, "chip"))
+                writer.uint32(/* id 4, wireType 0 =*/32).int32(message.chip);
+            if (message.RoundTimes != null && Object.hasOwnProperty.call(message, "RoundTimes"))
+                writer.uint32(/* id 5, wireType 0 =*/40).int32(message.RoundTimes);
+            if (message.publicCard != null && message.publicCard.length)
+                for (let i = 0; i < message.publicCard.length; ++i)
+                    $root.api.Card.encode(message.publicCard[i], writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
             if (message.players != null && message.players.length)
                 for (let i = 0; i < message.players.length; ++i)
                     $root.api.TablePlayer.encode(message.players[i], writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
@@ -4404,33 +4491,33 @@ export const api = $root.api = (() => {
         };
 
         /**
-         * Encodes the specified ResGameStatus message, length delimited. Does not implicitly {@link api.ResGameStatus.verify|verify} messages.
+         * Encodes the specified ResGameFullStatus message, length delimited. Does not implicitly {@link api.ResGameFullStatus.verify|verify} messages.
          * @function encodeDelimited
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @static
-         * @param {api.IResGameStatus} message ResGameStatus message or plain object to encode
+         * @param {api.IResGameFullStatus} message ResGameFullStatus message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        ResGameStatus.encodeDelimited = function encodeDelimited(message, writer) {
+        ResGameFullStatus.encodeDelimited = function encodeDelimited(message, writer) {
             return this.encode(message, writer).ldelim();
         };
 
         /**
-         * Decodes a ResGameStatus message from the specified reader or buffer.
+         * Decodes a ResGameFullStatus message from the specified reader or buffer.
          * @function decode
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {api.ResGameStatus} ResGameStatus
+         * @returns {api.ResGameFullStatus} ResGameFullStatus
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        ResGameStatus.decode = function decode(reader, length) {
+        ResGameFullStatus.decode = function decode(reader, length) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResGameStatus();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResGameFullStatus();
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
@@ -4444,6 +4531,20 @@ export const api = $root.api = (() => {
                     }
                 case 3: {
                         message.gameStage = reader.int32();
+                        break;
+                    }
+                case 4: {
+                        message.chip = reader.int32();
+                        break;
+                    }
+                case 5: {
+                        message.RoundTimes = reader.int32();
+                        break;
+                    }
+                case 9: {
+                        if (!(message.publicCard && message.publicCard.length))
+                            message.publicCard = [];
+                        message.publicCard.push($root.api.Card.decode(reader, reader.uint32()));
                         break;
                     }
                 case 10: {
@@ -4461,30 +4562,30 @@ export const api = $root.api = (() => {
         };
 
         /**
-         * Decodes a ResGameStatus message from the specified reader or buffer, length delimited.
+         * Decodes a ResGameFullStatus message from the specified reader or buffer, length delimited.
          * @function decodeDelimited
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {api.ResGameStatus} ResGameStatus
+         * @returns {api.ResGameFullStatus} ResGameFullStatus
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        ResGameStatus.decodeDelimited = function decodeDelimited(reader) {
+        ResGameFullStatus.decodeDelimited = function decodeDelimited(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
         };
 
         /**
-         * Verifies a ResGameStatus message.
+         * Verifies a ResGameFullStatus message.
          * @function verify
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @static
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        ResGameStatus.verify = function verify(message) {
+        ResGameFullStatus.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
             if (message.inGame != null && message.hasOwnProperty("inGame"))
@@ -4496,6 +4597,21 @@ export const api = $root.api = (() => {
             if (message.gameStage != null && message.hasOwnProperty("gameStage"))
                 if (!$util.isInteger(message.gameStage))
                     return "gameStage: integer expected";
+            if (message.chip != null && message.hasOwnProperty("chip"))
+                if (!$util.isInteger(message.chip))
+                    return "chip: integer expected";
+            if (message.RoundTimes != null && message.hasOwnProperty("RoundTimes"))
+                if (!$util.isInteger(message.RoundTimes))
+                    return "RoundTimes: integer expected";
+            if (message.publicCard != null && message.hasOwnProperty("publicCard")) {
+                if (!Array.isArray(message.publicCard))
+                    return "publicCard: array expected";
+                for (let i = 0; i < message.publicCard.length; ++i) {
+                    let error = $root.api.Card.verify(message.publicCard[i]);
+                    if (error)
+                        return "publicCard." + error;
+                }
+            }
             if (message.players != null && message.hasOwnProperty("players")) {
                 if (!Array.isArray(message.players))
                     return "players: array expected";
@@ -4509,30 +4625,44 @@ export const api = $root.api = (() => {
         };
 
         /**
-         * Creates a ResGameStatus message from a plain object. Also converts values to their respective internal types.
+         * Creates a ResGameFullStatus message from a plain object. Also converts values to their respective internal types.
          * @function fromObject
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @static
          * @param {Object.<string,*>} object Plain object
-         * @returns {api.ResGameStatus} ResGameStatus
+         * @returns {api.ResGameFullStatus} ResGameFullStatus
          */
-        ResGameStatus.fromObject = function fromObject(object) {
-            if (object instanceof $root.api.ResGameStatus)
+        ResGameFullStatus.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResGameFullStatus)
                 return object;
-            let message = new $root.api.ResGameStatus();
+            let message = new $root.api.ResGameFullStatus();
             if (object.inGame != null)
                 message.inGame = Boolean(object.inGame);
             if (object.tableNo != null)
                 message.tableNo = object.tableNo | 0;
             if (object.gameStage != null)
                 message.gameStage = object.gameStage | 0;
+            if (object.chip != null)
+                message.chip = object.chip | 0;
+            if (object.RoundTimes != null)
+                message.RoundTimes = object.RoundTimes | 0;
+            if (object.publicCard) {
+                if (!Array.isArray(object.publicCard))
+                    throw TypeError(".api.ResGameFullStatus.publicCard: array expected");
+                message.publicCard = [];
+                for (let i = 0; i < object.publicCard.length; ++i) {
+                    if (typeof object.publicCard[i] !== "object")
+                        throw TypeError(".api.ResGameFullStatus.publicCard: object expected");
+                    message.publicCard[i] = $root.api.Card.fromObject(object.publicCard[i]);
+                }
+            }
             if (object.players) {
                 if (!Array.isArray(object.players))
-                    throw TypeError(".api.ResGameStatus.players: array expected");
+                    throw TypeError(".api.ResGameFullStatus.players: array expected");
                 message.players = [];
                 for (let i = 0; i < object.players.length; ++i) {
                     if (typeof object.players[i] !== "object")
-                        throw TypeError(".api.ResGameStatus.players: object expected");
+                        throw TypeError(".api.ResGameFullStatus.players: object expected");
                     message.players[i] = $root.api.TablePlayer.fromObject(object.players[i]);
                 }
             }
@@ -4540,24 +4670,28 @@ export const api = $root.api = (() => {
         };
 
         /**
-         * Creates a plain object from a ResGameStatus message. Also converts values to other types if specified.
+         * Creates a plain object from a ResGameFullStatus message. Also converts values to other types if specified.
          * @function toObject
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @static
-         * @param {api.ResGameStatus} message ResGameStatus
+         * @param {api.ResGameFullStatus} message ResGameFullStatus
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        ResGameStatus.toObject = function toObject(message, options) {
+        ResGameFullStatus.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
             let object = {};
-            if (options.arrays || options.defaults)
+            if (options.arrays || options.defaults) {
+                object.publicCard = [];
                 object.players = [];
+            }
             if (options.defaults) {
                 object.inGame = false;
                 object.tableNo = 0;
                 object.gameStage = 0;
+                object.chip = 0;
+                object.RoundTimes = 0;
             }
             if (message.inGame != null && message.hasOwnProperty("inGame"))
                 object.inGame = message.inGame;
@@ -4565,6 +4699,15 @@ export const api = $root.api = (() => {
                 object.tableNo = message.tableNo;
             if (message.gameStage != null && message.hasOwnProperty("gameStage"))
                 object.gameStage = message.gameStage;
+            if (message.chip != null && message.hasOwnProperty("chip"))
+                object.chip = message.chip;
+            if (message.RoundTimes != null && message.hasOwnProperty("RoundTimes"))
+                object.RoundTimes = message.RoundTimes;
+            if (message.publicCard && message.publicCard.length) {
+                object.publicCard = [];
+                for (let j = 0; j < message.publicCard.length; ++j)
+                    object.publicCard[j] = $root.api.Card.toObject(message.publicCard[j], options);
+            }
             if (message.players && message.players.length) {
                 object.players = [];
                 for (let j = 0; j < message.players.length; ++j)
@@ -4574,32 +4717,32 @@ export const api = $root.api = (() => {
         };
 
         /**
-         * Converts this ResGameStatus to JSON.
+         * Converts this ResGameFullStatus to JSON.
          * @function toJSON
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        ResGameStatus.prototype.toJSON = function toJSON() {
+        ResGameFullStatus.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for ResGameStatus
+         * Gets the default type url for ResGameFullStatus
          * @function getTypeUrl
-         * @memberof api.ResGameStatus
+         * @memberof api.ResGameFullStatus
          * @static
          * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns {string} The default type url
          */
-        ResGameStatus.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        ResGameFullStatus.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
             if (typeUrlPrefix === undefined) {
                 typeUrlPrefix = "type.googleapis.com";
             }
-            return typeUrlPrefix + "/api.ResGameStatus";
+            return typeUrlPrefix + "/api.ResGameFullStatus";
         };
 
-        return ResGameStatus;
+        return ResGameFullStatus;
     })();
 
     api.TablePlayer = (function() {
@@ -4616,7 +4759,6 @@ export const api = $root.api = (() => {
          * @property {number|null} [status] TablePlayer status
          * @property {boolean|null} [master] TablePlayer master
          * @property {Array.<api.ICard>|null} [handCard] TablePlayer handCard
-         * @property {Array.<api.ICard>|null} [publicCard] TablePlayer publicCard
          */
 
         /**
@@ -4629,7 +4771,6 @@ export const api = $root.api = (() => {
          */
         function TablePlayer(properties) {
             this.handCard = [];
-            this.publicCard = [];
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
@@ -4701,14 +4842,6 @@ export const api = $root.api = (() => {
         TablePlayer.prototype.handCard = $util.emptyArray;
 
         /**
-         * TablePlayer publicCard.
-         * @member {Array.<api.ICard>} publicCard
-         * @memberof api.TablePlayer
-         * @instance
-         */
-        TablePlayer.prototype.publicCard = $util.emptyArray;
-
-        /**
          * Creates a new TablePlayer instance using the specified properties.
          * @function create
          * @memberof api.TablePlayer
@@ -4749,9 +4882,6 @@ export const api = $root.api = (() => {
             if (message.handCard != null && message.handCard.length)
                 for (let i = 0; i < message.handCard.length; ++i)
                     $root.api.Card.encode(message.handCard[i], writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
-            if (message.publicCard != null && message.publicCard.length)
-                for (let i = 0; i < message.publicCard.length; ++i)
-                    $root.api.Card.encode(message.publicCard[i], writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
             return writer;
         };
 
@@ -4820,12 +4950,6 @@ export const api = $root.api = (() => {
                         message.handCard.push($root.api.Card.decode(reader, reader.uint32()));
                         break;
                     }
-                case 9: {
-                        if (!(message.publicCard && message.publicCard.length))
-                            message.publicCard = [];
-                        message.publicCard.push($root.api.Card.decode(reader, reader.uint32()));
-                        break;
-                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -4891,15 +5015,6 @@ export const api = $root.api = (() => {
                         return "handCard." + error;
                 }
             }
-            if (message.publicCard != null && message.hasOwnProperty("publicCard")) {
-                if (!Array.isArray(message.publicCard))
-                    return "publicCard: array expected";
-                for (let i = 0; i < message.publicCard.length; ++i) {
-                    let error = $root.api.Card.verify(message.publicCard[i]);
-                    if (error)
-                        return "publicCard." + error;
-                }
-            }
             return null;
         };
 
@@ -4946,16 +5061,6 @@ export const api = $root.api = (() => {
                     message.handCard[i] = $root.api.Card.fromObject(object.handCard[i]);
                 }
             }
-            if (object.publicCard) {
-                if (!Array.isArray(object.publicCard))
-                    throw TypeError(".api.TablePlayer.publicCard: array expected");
-                message.publicCard = [];
-                for (let i = 0; i < object.publicCard.length; ++i) {
-                    if (typeof object.publicCard[i] !== "object")
-                        throw TypeError(".api.TablePlayer.publicCard: object expected");
-                    message.publicCard[i] = $root.api.Card.fromObject(object.publicCard[i]);
-                }
-            }
             return message;
         };
 
@@ -4972,10 +5077,8 @@ export const api = $root.api = (() => {
             if (!options)
                 options = {};
             let object = {};
-            if (options.arrays || options.defaults) {
+            if (options.arrays || options.defaults)
                 object.handCard = [];
-                object.publicCard = [];
-            }
             if (options.defaults) {
                 object.robot = false;
                 if ($util.Long) {
@@ -5010,11 +5113,6 @@ export const api = $root.api = (() => {
                 object.handCard = [];
                 for (let j = 0; j < message.handCard.length; ++j)
                     object.handCard[j] = $root.api.Card.toObject(message.handCard[j], options);
-            }
-            if (message.publicCard && message.publicCard.length) {
-                object.publicCard = [];
-                for (let j = 0; j < message.publicCard.length; ++j)
-                    object.publicCard[j] = $root.api.Card.toObject(message.publicCard[j], options);
             }
             return object;
         };
@@ -5055,7 +5153,7 @@ export const api = $root.api = (() => {
          * @memberof api
          * @interface ICard
          * @property {number|null} [dot] Card dot
-         * @property {number|null} [suit] Card suit
+         * @property {string|null} [suit] Card suit
          */
 
         /**
@@ -5083,11 +5181,11 @@ export const api = $root.api = (() => {
 
         /**
          * Card suit.
-         * @member {number} suit
+         * @member {string} suit
          * @memberof api.Card
          * @instance
          */
-        Card.prototype.suit = 0;
+        Card.prototype.suit = "";
 
         /**
          * Creates a new Card instance using the specified properties.
@@ -5116,7 +5214,7 @@ export const api = $root.api = (() => {
             if (message.dot != null && Object.hasOwnProperty.call(message, "dot"))
                 writer.uint32(/* id 1, wireType 0 =*/8).int32(message.dot);
             if (message.suit != null && Object.hasOwnProperty.call(message, "suit"))
-                writer.uint32(/* id 2, wireType 0 =*/16).int32(message.suit);
+                writer.uint32(/* id 2, wireType 2 =*/18).string(message.suit);
             return writer;
         };
 
@@ -5156,7 +5254,7 @@ export const api = $root.api = (() => {
                         break;
                     }
                 case 2: {
-                        message.suit = reader.int32();
+                        message.suit = reader.string();
                         break;
                     }
                 default:
@@ -5198,8 +5296,8 @@ export const api = $root.api = (() => {
                 if (!$util.isInteger(message.dot))
                     return "dot: integer expected";
             if (message.suit != null && message.hasOwnProperty("suit"))
-                if (!$util.isInteger(message.suit))
-                    return "suit: integer expected";
+                if (!$util.isString(message.suit))
+                    return "suit: string expected";
             return null;
         };
 
@@ -5218,7 +5316,7 @@ export const api = $root.api = (() => {
             if (object.dot != null)
                 message.dot = object.dot | 0;
             if (object.suit != null)
-                message.suit = object.suit | 0;
+                message.suit = String(object.suit);
             return message;
         };
 
@@ -5237,7 +5335,7 @@ export const api = $root.api = (() => {
             let object = {};
             if (options.defaults) {
                 object.dot = 0;
-                object.suit = 0;
+                object.suit = "";
             }
             if (message.dot != null && message.hasOwnProperty("dot"))
                 object.dot = message.dot;

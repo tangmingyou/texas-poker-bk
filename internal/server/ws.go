@@ -83,7 +83,7 @@ func handleNetClient(client *session.NetClient) {
 			client.Close("api body unmarshal fail! " + err.Error())
 			return
 		}
-		log.Println(fmt.Sprintf("ws msg: %v", msg))
+		log.Println(fmt.Sprintf("ws msg: %T{%v}", msg, msg))
 
 		// TODO queue channel -> msg -> handler
 		var called bool
@@ -91,21 +91,30 @@ func handleNetClient(client *session.NetClient) {
 		var resErr error
 		handleNetClient := NetClientHandlers[wrap.Op]
 		if called = handleNetClient != nil; called {
+			// 调用 netUser handler
 			res, resErr = handleNetClient(client, msg)
-			// continue
 		} else {
 			// account process
 			handlerNetAccount := NetAccountHandlers[wrap.Op]
 			if called = handlerNetAccount != nil; called {
-				// TODO account check
-				res, resErr = handlerNetAccount(*client.Account, msg)
-				// continue
+				// account 检查连接是否认证
+				if client.Account == nil {
+					res = &api.ResFail{Code: 401, Msg: "请登录后操作"}
+				} else {
+					// 调用 account handler
+					res, resErr = handlerNetAccount(client.Account, msg)
+				}
 			} else {
 				// player process
 				handlerPlayer := PlayerHandlers[wrap.Op]
 				if called = handlerPlayer != nil; called {
-					// TODO player check
-					res, resErr = handlerPlayer(nil, msg)
+					// 检查 player 对象，是否加入牌桌
+					if client.Account == nil || client.Account.Player == nil {
+						res = &api.ResFail{Code: 402, Msg: "请加入牌桌后操作"}
+					} else {
+						// 调用 player handler
+						res, resErr = handlerPlayer(client.Account.Player, msg)
+					}
 				}
 			}
 		}

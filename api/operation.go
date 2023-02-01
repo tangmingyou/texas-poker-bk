@@ -34,8 +34,8 @@ var protoInstances = []proto.Message{
 	&ReqGameAction{},
 	&ResGameAction{},
 
-	&ReqGameStatus{},
-	&ResGameStatus{},
+	&ReqGameFullStatus{},
+	&ResGameFullStatus{},
 
 	&ReqReadyStart{},
 	&ReqKickOutTable{},
@@ -94,7 +94,7 @@ func GetOpNameMap() map[string]any {
 
 	front["offset"] = OpOffset
 	front["opSuccess"] = opSuccess
-	front["oPFail"] = oPFail
+	front["opFail"] = oPFail
 	front["opPathMap"] = opProtoNameMap
 	front["nameOpMap"] = protoNameOpMap
 	return front

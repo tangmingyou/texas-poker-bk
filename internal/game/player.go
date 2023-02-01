@@ -14,7 +14,7 @@ type Player struct {
 	Status   int32    // 状态: 1待准备开始,2已准备开始,3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃
 
 	GameTable   *Table // 当前牌桌
-	ProtoWriter *letter.ProtoWriter
+	ProtoWriter letter.ProtoWriter
 }
 
 func NewPlayer() *Player {

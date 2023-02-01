@@ -26,11 +26,12 @@ message Pong {
 
 // 成功消息
 message ResSuccess {
-
+  int32 code = 1;
 }
 
 // 失败响应
 message ResFail {
+  int32 code = 1;
   string msg = 3; // 失败消息
 }
 
@@ -109,13 +110,17 @@ message ResGameAction {
 }
 
 // 查询玩家当前游戏状态
-message ReqGameStatus {
+message ReqGameFullStatus {
 }
 
-message ResGameStatus { // 玩家当前游戏状态: 断线,重新登录....
-  bool inGame = 1; // 是否在游戏中
+message ResGameFullStatus { // 玩家当前游戏状态: 断线,重新登录....
+  bool inGame = 1; // 游戏是否进行中
   int32 tableNo = 2; // 所在桌面编号
   int32 gameStage = 3; // 游戏阶段？
+  int32 chip = 4; // 牌桌筹码
+  int32 RoundTimes = 5; // 回合次数
+
+  repeated Card publicCard = 9; // 公共牌
   repeated TablePlayer players = 10;
 }
 
@@ -128,12 +133,12 @@ message TablePlayer {
   int32 status = 6; // 玩家状态: 1待准备开始,2已准备开始,已开始(3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃)
   bool master = 7; // 是否房主`
   repeated Card handCard = 8; // 手牌
-  repeated Card publicCard = 9; // 公共牌
+
 }
 
 message Card {
   int32 dot = 1; // 点数
-  int32 suit = 2; // 花色
+  string suit = 2; // 花色, protobuf默认值0, string类型区分空白牌
 }
 
 // 加入游戏 ============= end

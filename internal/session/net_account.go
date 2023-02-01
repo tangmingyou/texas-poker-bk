@@ -17,10 +17,6 @@ type NetAccount struct {
 	Lock        *sync.Mutex
 }
 
-func NewNetAccount() {
-
-}
-
 func (account *NetAccount) DecrementBalance(amount int32) int32 {
 	account.BalanceLock.Lock()
 	defer account.BalanceLock.Unlock()

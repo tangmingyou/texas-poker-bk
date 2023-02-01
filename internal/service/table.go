@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"sort"
+	"sync"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/game"
 	"texas-poker-bk/internal/service/store"
@@ -12,7 +13,7 @@ import (
 )
 
 // HandleReqCreateTable 创建桌面 TODO 当前在房间则不可创建房间了
-func HandleReqCreateTable(account session.NetAccount, msg *api.ReqCreateTable) (proto.Message, error) {
+func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) (proto.Message, error) {
 	// 人数，机器人数
 	playerNum := msg.Players
 	robotNum := msg.Robots
@@ -20,24 +21,40 @@ func HandleReqCreateTable(account session.NetAccount, msg *api.ReqCreateTable) (
 		return &api.ResFail{Msg: "至少添加一个玩家或机器人"}, nil
 	}
 	// 初始化一个牌桌
-	table := &game.Table{}
-	table.TableNo = store.TableNo.Add(1)
-	table.PlayerNum = int32(playerNum) + 1
-	table.RobotNum = int32(playerNum)
-	table.Players = make([]*game.Player, playerNum)
-	table.Robots = make([]*game.Robot, robotNum)
+	table := &game.Table{
+		TableNo:    store.TableNo.Add(1),
+		MasterId:   account.Id,
+		RoundTimes: 0,
+		Stage:      1,
+
+		Dealer:      game.NewDealer(),
+		PublicCards: [5]*game.Card{&game.Card{Dot: 0, Suit: 3}, &game.Card{Dot: 1, Suit: 3}, nil, nil, nil},
+
+		PlayerNum:      playerNum + 1,
+		RobotNum:       robotNum,
+		Players:        make([]*game.Player, playerNum),
+		Robots:         make([]*game.Robot, robotNum),
+		BigBlindsPos:   0,
+		PlayerJoinLock: &sync.Mutex{},
+		ChipLock:       &sync.Mutex{},
+	}
+
 	// 房主 [0]
 	owner := &game.Player{
-		Id:       account.Id,
-		Username: account.UserName,
-		Avatar:   account.Avatar,
-		Status:   1,
-		Chip:     500,
+		Id:          account.Id,
+		Username:    account.UserName,
+		Avatar:      account.Avatar,
+		Status:      1,
+		Chip:        500,
+		Cards:       [2]*game.Card{},
+		GameTable:   table,
+		ProtoWriter: account.Client,
 	}
 	// 扣除DB账户余额 TODO 账户金额限制
 	account.DecrementBalance(500)
-
+	account.Player = owner // 挂载 player 到 account 上
 	table.Players[0] = owner
+
 	for i := 0; i < int(robotNum); i++ {
 		table.Robots[i] = &game.Robot{}
 	}
@@ -49,7 +66,7 @@ func HandleReqCreateTable(account session.NetAccount, msg *api.ReqCreateTable) (
 }
 
 // HandleReqLobbyView 返回当前所有桌面和玩家数量
-func HandleReqLobbyView(account session.NetAccount, msg *api.ReqLobbyView) (proto.Message, error) {
+func HandleReqLobbyView(account *session.NetAccount, msg *api.ReqLobbyView) (proto.Message, error) {
 	res := &api.ResLobbyView{}
 	if store.LobbyTables == nil || len(store.LobbyTables) == 0 {
 		return res, nil
@@ -93,12 +110,12 @@ func HandleReqLobbyView(account session.NetAccount, msg *api.ReqLobbyView) (prot
 }
 
 // HandleJoinTable 加入牌桌
-func HandleJoinTable(account session.NetAccount, msg *api.ReqJoinTable) (proto.Message, error) {
+func HandleJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (proto.Message, error) {
 	account.Lock.Lock()
 	defer account.Lock.Unlock()
 
 	if account.Player != nil {
-		return &api.ResFail{Msg: fmt.Sprintf("用户当前已加入#%d牌桌", account.Player.GameTable.TableNo)}, nil
+		return &api.ResFail{Msg: fmt.Sprintf("当前已加入#%d牌桌", account.Player.GameTable.TableNo)}, nil
 	}
 	// account -> player
 	// TODO 账户余额限制
@@ -108,13 +125,16 @@ func HandleJoinTable(account session.NetAccount, msg *api.ReqJoinTable) (proto.M
 		return &api.ResFail{Msg: "牌桌不存在"}, nil
 	}
 	player := &game.Player{
-		Id:        account.Id,
-		Username:  account.UserName,
-		Avatar:    account.Avatar,
-		Status:    1,
-		Chip:      500,
-		GameTable: table,
+		Id:          account.Id,
+		Username:    account.UserName,
+		Avatar:      account.Avatar,
+		Status:      1,
+		Chip:        500,
+		Cards:       [2]*game.Card{nil, nil},
+		GameTable:   table,
+		ProtoWriter: account.Client,
 	}
+
 	err := table.JoinPlayer(player)
 	if err != nil {
 		return nil, err
@@ -151,6 +171,15 @@ func HandleLeaveTable(account session.NetAccount, msg *api.ReqCreateTable) (prot
 	default:
 		return &api.ResFail{Msg: "游戏进行中,不能退出"}, nil
 	}
+}
+
+// HandleReqGameFullStatus 获取牌桌当前所有状态
+func HandleReqGameFullStatus(player *game.Player, msg *api.ReqGameFullStatus) (proto.Message, error) {
+	if player.GameTable == nil {
+		return &api.ResFail{Msg: "当前未加入牌桌"}, nil
+	}
+	resGame := player.GameTable.BuildResGameFullStatus()
+	return resGame, nil
 }
 
 // HandleReqReadyStart 准备开始游戏

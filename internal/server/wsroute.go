@@ -10,7 +10,7 @@ import (
 )
 
 var NetClientHandlers = make(map[int32]func(*session.NetClient, proto.Message) (proto.Message, error))
-var NetAccountHandlers = make(map[int32]func(session.NetAccount, proto.Message) (proto.Message, error))
+var NetAccountHandlers = make(map[int32]func(*session.NetAccount, proto.Message) (proto.Message, error))
 var PlayerHandlers = make(map[int32]func(*game.Player, proto.Message) (proto.Message, error))
 
 func init() {
@@ -20,9 +20,10 @@ func init() {
 	HandleNetAccountMsg(&api.ReqCreateTable{}, service.HandleReqCreateTable)
 	// 查询所有游戏桌面
 	HandleNetAccountMsg(&api.ReqLobbyView{}, service.HandleReqLobbyView)
+	// 获取牌桌当前所有状态
+	HandleNetPlayerMsg(&api.ReqGameFullStatus{}, service.HandleReqGameFullStatus)
 	// 加入桌面
 	HandleNetAccountMsg(&api.ReqJoinTable{}, service.HandleJoinTable)
-
 }
 
 func checkExistsTypeHandler(op int32, err error) {
@@ -43,10 +44,10 @@ func HandleNetClientMsg[T proto.Message](msg T, f func(*session.NetClient, T) (p
 	}
 }
 
-func HandleNetAccountMsg[T proto.Message](msg T, f func(session.NetAccount, T) (proto.Message, error)) {
+func HandleNetAccountMsg[T proto.Message](msg T, f func(*session.NetAccount, T) (proto.Message, error)) {
 	op, err := api.GetProtoOp(msg)
 	checkExistsTypeHandler(op, err)
-	NetAccountHandlers[op] = func(account session.NetAccount, msg proto.Message) (proto.Message, error) {
+	NetAccountHandlers[op] = func(account *session.NetAccount, msg proto.Message) (proto.Message, error) {
 		return f(account, msg.(T))
 	}
 }

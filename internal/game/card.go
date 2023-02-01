@@ -18,7 +18,7 @@ func (c *Card) CompareWithDot(c2 *Card) int {
 	return int(c.Dot) - int(c2.Dot)
 }
 
-type PokerSuit int
+type PokerSuit int32
 
 func (c PokerSuit) String() string {
 	return colors[c]
@@ -26,6 +26,7 @@ func (c PokerSuit) String() string {
 
 // 常量在编译期就要确定值，只能将一些基本类型声明为常量
 var colors = [4]string{"diamond", "club", "heart", "spade"}
+var CardColors = [4]string{"D", "C", "H", "S"}
 
 const (
 	Diamond PokerSuit = iota // 方块
@@ -34,7 +35,7 @@ const (
 	Spade   PokerSuit = iota // 黑桃
 )
 
-type PokerDot int
+type PokerDot int32
 
 func (n PokerDot) String() string {
 	return pokers[n]

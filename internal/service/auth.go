@@ -7,10 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/protobuf/proto"
 	"net/http"
+	"sync"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/conf"
 	"texas-poker-bk/internal/dao"
 	"texas-poker-bk/internal/model/entity"
+	"texas-poker-bk/internal/service/store"
 	"texas-poker-bk/internal/session"
 	"texas-poker-bk/tool/collect"
 	"texas-poker-bk/tool/security"
@@ -165,12 +167,16 @@ func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.M
 	}
 
 	account := &session.NetAccount{
-		Id:       subject.Id,
-		UserName: subject.Name,
-		Avatar:   subject.Avatar,
-		Client:   client,
-		Balance:  0,
+		Id:          subject.Id,
+		UserName:    subject.Name,
+		Avatar:      subject.Avatar,
+		Client:      client,
+		Balance:     0,
+		BalanceLock: &sync.RWMutex{},
+		Lock:        &sync.Mutex{},
 	}
+	// TODO 查询 DB 账户余额
+	account = store.SaveNetAccounts(account)
 	client.Account = account
 
 	// response
