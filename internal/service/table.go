@@ -30,13 +30,13 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		Dealer:      game.NewDealer(),
 		PublicCards: [5]*game.Card{&game.Card{Dot: 0, Suit: 3}, &game.Card{Dot: 1, Suit: 3}, nil, nil, nil},
 
-		PlayerNum:      playerNum + 1,
-		RobotNum:       robotNum,
-		Players:        make([]*game.Player, playerNum),
-		Robots:         make([]*game.Robot, robotNum),
-		BigBlindsPos:   0,
-		PlayerJoinLock: &sync.Mutex{},
-		ChipLock:       &sync.Mutex{},
+		PlayerNum:    playerNum + 1,
+		RobotNum:     robotNum,
+		Players:      make([]*game.Player, playerNum),
+		Robots:       make([]*game.Robot, robotNum),
+		BigBlindsPos: 0,
+		PlayersLock:  &sync.Mutex{},
+		ChipLock:     &sync.Mutex{},
 	}
 
 	// 房主 [0]
@@ -142,6 +142,10 @@ func HandleJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (proto.
 	// 从账户扣除进入牌桌的金额
 	account.DecrementBalance(500)
 	account.Player = player
+
+	// 通知其他玩家
+	player.GameTable.NoticeGameFullStatus()
+
 	return &api.ResSuccess{}, nil
 }
 
@@ -173,12 +177,75 @@ func HandleLeaveTable(account session.NetAccount, msg *api.ReqCreateTable) (prot
 	}
 }
 
+// HandleReqKickOutTable 踢人
+func HandleReqKickOutTable(player *game.Player, msg *api.ReqKickOutTable) (proto.Message, error) {
+	player.GameTable.PlayersLock.Lock()
+	defer player.GameTable.PlayersLock.Unlock()
+
+	if player.GameTable.MasterId != player.Id {
+		return &api.ResFail{Msg: "不是房主不能踢人"}, nil
+	}
+	if player.Id == msg.PlayerId {
+		return &api.ResFail{Msg: "不能踢自己"}, nil
+	}
+	if player.GameTable.Stage != 1 {
+		return &api.ResFail{Msg: "牌局进行中不能踢人"}, nil
+	}
+	for i, p := range player.GameTable.Players {
+		if p != nil && p.Id == msg.PlayerId {
+			// 从牌桌移除该玩家
+			player.GameTable.Players[i] = nil
+			// 被对踢出人发送消息
+			account := store.NetAccounts[p.Id]
+			account.Player = nil                        // 解除账户绑定
+			account.IncrementBalance(player.Chip)       // 筹码返还账户
+			p.ProtoWriter.Write(&api.ResKickOutTable{}) // 被踢玩家消息
+			break
+		}
+	}
+	// 通知牌桌所有玩家
+	player.GameTable.NoticeGameFullStatus()
+	return &api.ResSuccess{}, nil
+}
+
+// HandleReqLeaveTable 离开桌面
+func HandleReqLeaveTable(player *game.Player, msg *api.ReqLeaveTable) (proto.Message, error) {
+	player.GameTable.PlayersLock.Lock()
+	defer player.GameTable.PlayersLock.Unlock()
+	if player.GameTable.Stage != 1 {
+		return &api.ResFail{Msg: "牌局进行中不能退出"}, nil
+	}
+	if player.Status != 1 {
+		return &api.ResFail{Msg: "您已准备不能退出"}, nil
+	}
+	if player.GameTable.MasterId == player.Id {
+		return &api.ResFail{Msg: "房主不能退出,请解散房间"}, nil
+	}
+	// 从牌桌移除
+	for i, p := range player.GameTable.Players {
+		if p.Id == player.Id {
+			player.GameTable.Players[i] = nil
+			break
+		}
+	}
+	account := store.NetAccounts[player.Id]
+	account.Player = nil                  // 解除账户绑定
+	account.IncrementBalance(player.Chip) // 筹码返还账户
+
+	// 通知牌桌其他玩家
+	player.GameTable.NoticeGameFullStatus()
+
+	return &api.ResSuccess{}, nil
+}
+
 // HandleReqGameFullStatus 获取牌桌当前所有状态
 func HandleReqGameFullStatus(player *game.Player, msg *api.ReqGameFullStatus) (proto.Message, error) {
 	if player.GameTable == nil {
 		return &api.ResFail{Msg: "当前未加入牌桌"}, nil
 	}
 	resGame := player.GameTable.BuildResGameFullStatus()
+	resGame.PlayerId = player.Id
+	// TODO 其他玩家手牌不返回，计算自己的5张推荐牌
 	return resGame, nil
 }
 

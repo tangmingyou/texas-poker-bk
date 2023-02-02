@@ -1,6 +1,7 @@
 package session
 
 import (
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"log"
@@ -28,12 +29,16 @@ func (c *NetClient) Write(msg proto.Message) {
 func (c *NetClient) WriteSeq(success bool, seq int32, msg proto.Message) {
 	op, err := api.GetProtoOp(msg)
 	if err != nil {
+		fmt.Println("write msg match op err:", err)
 		return
 	}
 	bytes, err := proto.Marshal(msg)
 	wrap := &api.ProtoWrap{Ver: 1, Op: op, Seq: seq, Success: success, Body: bytes}
 	wrapBytes, err := proto.Marshal(wrap)
 	err = c.Conn.WriteMessage(websocket.BinaryMessage, wrapBytes)
+	if err != nil {
+		fmt.Println("write msg err:", err)
+	}
 }
 
 func NewNetClient(conn *websocket.Conn) *NetClient {

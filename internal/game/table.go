@@ -24,14 +24,14 @@ type Table struct {
 	Robots       []*Robot
 	BigBlindsPos int32 // 大盲注位
 
-	PlayerJoinLock *sync.Mutex
-	ChipLock       *sync.Mutex // 桌面筹码更新锁
+	PlayersLock *sync.Mutex
+	ChipLock    *sync.Mutex // 桌面筹码更新锁
 	// TODO game logs7
 }
 
 func (t *Table) JoinPlayer(player *Player) error {
-	t.PlayerJoinLock.Lock()
-	defer t.PlayerJoinLock.Unlock()
+	t.PlayersLock.Lock()
+	defer t.PlayersLock.Unlock()
 	for i := range t.Players {
 		// 找个空位坐下
 		if t.Players[i] == nil {
@@ -98,15 +98,16 @@ func (t *Table) NoticeGameFullStatus() {
 	// 发送当前游戏状态消息到牌桌所有用户
 	for _, player := range t.Players {
 		if player != nil && player.ProtoWriter != nil {
+			resGame.PlayerId = player.Id
 			player.ProtoWriter.Write(resGame)
 		}
 	}
 }
 
 // NoticeGamePlayerCall TODO 发送(下注信息、下注人、下一位下注人)到牌桌所有用户
-func (t *Table) NoticeGamePlayerCall() {
-
-}
+//func (t *Table) NoticeGamePlayerCall() {
+//
+//}
 
 type Stage int
 

@@ -3585,7 +3585,7 @@ export const api = $root.api = (() => {
          * Properties of a ReqKickOutTable.
          * @memberof api
          * @interface IReqKickOutTable
-         * @property {number|null} [playerId] ReqKickOutTable playerId
+         * @property {number|Long|null} [playerId] ReqKickOutTable playerId
          */
 
         /**
@@ -3605,11 +3605,11 @@ export const api = $root.api = (() => {
 
         /**
          * ReqKickOutTable playerId.
-         * @member {number} playerId
+         * @member {number|Long} playerId
          * @memberof api.ReqKickOutTable
          * @instance
          */
-        ReqKickOutTable.prototype.playerId = 0;
+        ReqKickOutTable.prototype.playerId = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
 
         /**
          * Creates a new ReqKickOutTable instance using the specified properties.
@@ -3636,7 +3636,7 @@ export const api = $root.api = (() => {
             if (!writer)
                 writer = $Writer.create();
             if (message.playerId != null && Object.hasOwnProperty.call(message, "playerId"))
-                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.playerId);
+                writer.uint32(/* id 1, wireType 0 =*/8).int64(message.playerId);
             return writer;
         };
 
@@ -3672,7 +3672,7 @@ export const api = $root.api = (() => {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1: {
-                        message.playerId = reader.int32();
+                        message.playerId = reader.int64();
                         break;
                     }
                 default:
@@ -3711,8 +3711,8 @@ export const api = $root.api = (() => {
             if (typeof message !== "object" || message === null)
                 return "object expected";
             if (message.playerId != null && message.hasOwnProperty("playerId"))
-                if (!$util.isInteger(message.playerId))
-                    return "playerId: integer expected";
+                if (!$util.isInteger(message.playerId) && !(message.playerId && $util.isInteger(message.playerId.low) && $util.isInteger(message.playerId.high)))
+                    return "playerId: integer|Long expected";
             return null;
         };
 
@@ -3729,7 +3729,14 @@ export const api = $root.api = (() => {
                 return object;
             let message = new $root.api.ReqKickOutTable();
             if (object.playerId != null)
-                message.playerId = object.playerId | 0;
+                if ($util.Long)
+                    (message.playerId = $util.Long.fromValue(object.playerId)).unsigned = false;
+                else if (typeof object.playerId === "string")
+                    message.playerId = parseInt(object.playerId, 10);
+                else if (typeof object.playerId === "number")
+                    message.playerId = object.playerId;
+                else if (typeof object.playerId === "object")
+                    message.playerId = new $util.LongBits(object.playerId.low >>> 0, object.playerId.high >>> 0).toNumber();
             return message;
         };
 
@@ -3747,9 +3754,16 @@ export const api = $root.api = (() => {
                 options = {};
             let object = {};
             if (options.defaults)
-                object.playerId = 0;
+                if ($util.Long) {
+                    let long = new $util.Long(0, 0, false);
+                    object.playerId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.playerId = options.longs === String ? "0" : 0;
             if (message.playerId != null && message.hasOwnProperty("playerId"))
-                object.playerId = message.playerId;
+                if (typeof message.playerId === "number")
+                    object.playerId = options.longs === String ? String(message.playerId) : message.playerId;
+                else
+                    object.playerId = options.longs === String ? $util.Long.prototype.toString.call(message.playerId) : options.longs === Number ? new $util.LongBits(message.playerId.low >>> 0, message.playerId.high >>> 0).toNumber() : message.playerId;
             return object;
         };
 
@@ -3780,6 +3794,181 @@ export const api = $root.api = (() => {
         };
 
         return ReqKickOutTable;
+    })();
+
+    api.ResKickOutTable = (function() {
+
+        /**
+         * Properties of a ResKickOutTable.
+         * @memberof api
+         * @interface IResKickOutTable
+         */
+
+        /**
+         * Constructs a new ResKickOutTable.
+         * @memberof api
+         * @classdesc Represents a ResKickOutTable.
+         * @implements IResKickOutTable
+         * @constructor
+         * @param {api.IResKickOutTable=} [properties] Properties to set
+         */
+        function ResKickOutTable(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ResKickOutTable instance using the specified properties.
+         * @function create
+         * @memberof api.ResKickOutTable
+         * @static
+         * @param {api.IResKickOutTable=} [properties] Properties to set
+         * @returns {api.ResKickOutTable} ResKickOutTable instance
+         */
+        ResKickOutTable.create = function create(properties) {
+            return new ResKickOutTable(properties);
+        };
+
+        /**
+         * Encodes the specified ResKickOutTable message. Does not implicitly {@link api.ResKickOutTable.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResKickOutTable
+         * @static
+         * @param {api.IResKickOutTable} message ResKickOutTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResKickOutTable.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResKickOutTable message, length delimited. Does not implicitly {@link api.ResKickOutTable.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResKickOutTable
+         * @static
+         * @param {api.IResKickOutTable} message ResKickOutTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResKickOutTable.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResKickOutTable message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResKickOutTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResKickOutTable} ResKickOutTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResKickOutTable.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResKickOutTable();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResKickOutTable message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResKickOutTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResKickOutTable} ResKickOutTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResKickOutTable.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResKickOutTable message.
+         * @function verify
+         * @memberof api.ResKickOutTable
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResKickOutTable.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResKickOutTable message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResKickOutTable
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResKickOutTable} ResKickOutTable
+         */
+        ResKickOutTable.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResKickOutTable)
+                return object;
+            return new $root.api.ResKickOutTable();
+        };
+
+        /**
+         * Creates a plain object from a ResKickOutTable message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResKickOutTable
+         * @static
+         * @param {api.ResKickOutTable} message ResKickOutTable
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResKickOutTable.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ResKickOutTable to JSON.
+         * @function toJSON
+         * @memberof api.ResKickOutTable
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResKickOutTable.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResKickOutTable
+         * @function getTypeUrl
+         * @memberof api.ResKickOutTable
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResKickOutTable.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResKickOutTable";
+        };
+
+        return ResKickOutTable;
     })();
 
     api.ReqGameAction = (function() {
@@ -4369,7 +4558,8 @@ export const api = $root.api = (() => {
          * @property {number|null} [tableNo] ResGameFullStatus tableNo
          * @property {number|null} [gameStage] ResGameFullStatus gameStage
          * @property {number|null} [chip] ResGameFullStatus chip
-         * @property {number|null} [RoundTimes] ResGameFullStatus RoundTimes
+         * @property {number|null} [roundTimes] ResGameFullStatus roundTimes
+         * @property {number|Long|null} [playerId] ResGameFullStatus playerId
          * @property {Array.<api.ICard>|null} [publicCard] ResGameFullStatus publicCard
          * @property {Array.<api.ITablePlayer>|null} [players] ResGameFullStatus players
          */
@@ -4424,12 +4614,20 @@ export const api = $root.api = (() => {
         ResGameFullStatus.prototype.chip = 0;
 
         /**
-         * ResGameFullStatus RoundTimes.
-         * @member {number} RoundTimes
+         * ResGameFullStatus roundTimes.
+         * @member {number} roundTimes
          * @memberof api.ResGameFullStatus
          * @instance
          */
-        ResGameFullStatus.prototype.RoundTimes = 0;
+        ResGameFullStatus.prototype.roundTimes = 0;
+
+        /**
+         * ResGameFullStatus playerId.
+         * @member {number|Long} playerId
+         * @memberof api.ResGameFullStatus
+         * @instance
+         */
+        ResGameFullStatus.prototype.playerId = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
 
         /**
          * ResGameFullStatus publicCard.
@@ -4479,8 +4677,10 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 3, wireType 0 =*/24).int32(message.gameStage);
             if (message.chip != null && Object.hasOwnProperty.call(message, "chip"))
                 writer.uint32(/* id 4, wireType 0 =*/32).int32(message.chip);
-            if (message.RoundTimes != null && Object.hasOwnProperty.call(message, "RoundTimes"))
-                writer.uint32(/* id 5, wireType 0 =*/40).int32(message.RoundTimes);
+            if (message.roundTimes != null && Object.hasOwnProperty.call(message, "roundTimes"))
+                writer.uint32(/* id 5, wireType 0 =*/40).int32(message.roundTimes);
+            if (message.playerId != null && Object.hasOwnProperty.call(message, "playerId"))
+                writer.uint32(/* id 6, wireType 0 =*/48).int64(message.playerId);
             if (message.publicCard != null && message.publicCard.length)
                 for (let i = 0; i < message.publicCard.length; ++i)
                     $root.api.Card.encode(message.publicCard[i], writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
@@ -4538,7 +4738,11 @@ export const api = $root.api = (() => {
                         break;
                     }
                 case 5: {
-                        message.RoundTimes = reader.int32();
+                        message.roundTimes = reader.int32();
+                        break;
+                    }
+                case 6: {
+                        message.playerId = reader.int64();
                         break;
                     }
                 case 9: {
@@ -4600,9 +4804,12 @@ export const api = $root.api = (() => {
             if (message.chip != null && message.hasOwnProperty("chip"))
                 if (!$util.isInteger(message.chip))
                     return "chip: integer expected";
-            if (message.RoundTimes != null && message.hasOwnProperty("RoundTimes"))
-                if (!$util.isInteger(message.RoundTimes))
-                    return "RoundTimes: integer expected";
+            if (message.roundTimes != null && message.hasOwnProperty("roundTimes"))
+                if (!$util.isInteger(message.roundTimes))
+                    return "roundTimes: integer expected";
+            if (message.playerId != null && message.hasOwnProperty("playerId"))
+                if (!$util.isInteger(message.playerId) && !(message.playerId && $util.isInteger(message.playerId.low) && $util.isInteger(message.playerId.high)))
+                    return "playerId: integer|Long expected";
             if (message.publicCard != null && message.hasOwnProperty("publicCard")) {
                 if (!Array.isArray(message.publicCard))
                     return "publicCard: array expected";
@@ -4644,8 +4851,17 @@ export const api = $root.api = (() => {
                 message.gameStage = object.gameStage | 0;
             if (object.chip != null)
                 message.chip = object.chip | 0;
-            if (object.RoundTimes != null)
-                message.RoundTimes = object.RoundTimes | 0;
+            if (object.roundTimes != null)
+                message.roundTimes = object.roundTimes | 0;
+            if (object.playerId != null)
+                if ($util.Long)
+                    (message.playerId = $util.Long.fromValue(object.playerId)).unsigned = false;
+                else if (typeof object.playerId === "string")
+                    message.playerId = parseInt(object.playerId, 10);
+                else if (typeof object.playerId === "number")
+                    message.playerId = object.playerId;
+                else if (typeof object.playerId === "object")
+                    message.playerId = new $util.LongBits(object.playerId.low >>> 0, object.playerId.high >>> 0).toNumber();
             if (object.publicCard) {
                 if (!Array.isArray(object.publicCard))
                     throw TypeError(".api.ResGameFullStatus.publicCard: array expected");
@@ -4691,7 +4907,12 @@ export const api = $root.api = (() => {
                 object.tableNo = 0;
                 object.gameStage = 0;
                 object.chip = 0;
-                object.RoundTimes = 0;
+                object.roundTimes = 0;
+                if ($util.Long) {
+                    let long = new $util.Long(0, 0, false);
+                    object.playerId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.playerId = options.longs === String ? "0" : 0;
             }
             if (message.inGame != null && message.hasOwnProperty("inGame"))
                 object.inGame = message.inGame;
@@ -4701,8 +4922,13 @@ export const api = $root.api = (() => {
                 object.gameStage = message.gameStage;
             if (message.chip != null && message.hasOwnProperty("chip"))
                 object.chip = message.chip;
-            if (message.RoundTimes != null && message.hasOwnProperty("RoundTimes"))
-                object.RoundTimes = message.RoundTimes;
+            if (message.roundTimes != null && message.hasOwnProperty("roundTimes"))
+                object.roundTimes = message.roundTimes;
+            if (message.playerId != null && message.hasOwnProperty("playerId"))
+                if (typeof message.playerId === "number")
+                    object.playerId = options.longs === String ? String(message.playerId) : message.playerId;
+                else
+                    object.playerId = options.longs === String ? $util.Long.prototype.toString.call(message.playerId) : options.longs === Number ? new $util.LongBits(message.playerId.low >>> 0, message.playerId.high >>> 0).toNumber() : message.playerId;
             if (message.publicCard && message.publicCard.length) {
                 object.publicCard = [];
                 for (let j = 0; j < message.publicCard.length; ++j)

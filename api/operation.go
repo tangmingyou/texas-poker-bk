@@ -38,7 +38,9 @@ var protoInstances = []proto.Message{
 	&ResGameFullStatus{},
 
 	&ReqReadyStart{},
+
 	&ReqKickOutTable{},
+	&ResKickOutTable{},
 }
 
 var (

@@ -24,6 +24,12 @@ func init() {
 	HandleNetPlayerMsg(&api.ReqGameFullStatus{}, service.HandleReqGameFullStatus)
 	// 加入桌面
 	HandleNetAccountMsg(&api.ReqJoinTable{}, service.HandleJoinTable)
+
+	// 踢人
+	HandleNetPlayerMsg(&api.ReqKickOutTable{}, service.HandleReqKickOutTable)
+	// 离开房间
+	HandleNetPlayerMsg(&api.ReqLeaveTable{}, service.HandleReqLeaveTable)
+
 }
 
 func checkExistsTypeHandler(op int32, err error) {

@@ -97,7 +97,12 @@ message ReqReadyStart {
 
 // 房主踢人
 message ReqKickOutTable {
-  int32 playerId = 1;
+  int64 playerId = 1;
+}
+
+// 被踢人接受消息
+message ResKickOutTable {
+
 }
 
 message ReqGameAction {
@@ -118,7 +123,8 @@ message ResGameFullStatus { // 玩家当前游戏状态: 断线,重新登录....
   int32 tableNo = 2; // 所在桌面编号
   int32 gameStage = 3; // 游戏阶段？
   int32 chip = 4; // 牌桌筹码
-  int32 RoundTimes = 5; // 回合次数
+  int32 roundTimes = 5; // 回合次数
+  int64 playerId = 6; // 当前玩家id
 
   repeated Card publicCard = 9; // 公共牌
   repeated TablePlayer players = 10;
