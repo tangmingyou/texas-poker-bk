@@ -31,7 +31,7 @@ func TestAes() {
 	fmt.Println(encrypt)
 	fmt.Println(base64.URLEncoding.EncodeToString(text))
 
-	result := DecryptAesCBC(encrypt, key)
+	result, _ := DecryptAesCBC(encrypt, key)
 	fmt.Println(string(result))
 }
 
@@ -74,14 +74,14 @@ func EncryptAesCBC(src, key []byte) ([]byte, error) {
 // DecryptAesCBC
 // src -> 要解密的密文
 // key -> 秘钥, 和加密秘钥相同, 大小为: 8byte
-func DecryptAesCBC(src, key []byte) []byte {
+func DecryptAesCBC(src, key []byte) ([]byte, error) {
 	// 1. 创建并返回一个使用DES算法的cipher.Block接口
 	block, err := aes.NewCipher(key)
-	blockSize := block.BlockSize()
 	// 2. 判断是否创建成功
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
+	blockSize := block.BlockSize()
 	// 3. 创建一个密码分组为链接模式的, 底层使用DES解密的BlockMode接口
 	iv := make([]byte, blockSize, blockSize)
 	copy(iv, key)
@@ -92,7 +92,7 @@ func DecryptAesCBC(src, key []byte) []byte {
 	// 5. 去掉最后一组填充的数据
 	dst = pkcs5UnPadding(dst)
 	// 6. 返回结果
-	return dst
+	return dst, nil
 }
 
 // PKCS5Padding 使用pks5的方式填充

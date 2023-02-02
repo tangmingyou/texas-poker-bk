@@ -141,7 +141,10 @@ func DecodeSubject(auth string) (*session.Subject, error) {
 	if err != nil {
 		return nil, err
 	}
-	decode := security.DecryptAesCBC(bytes, aesTokenKeyBytes)
+	decode, err := security.DecryptAesCBC(bytes, aesTokenKeyBytes)
+	if err != nil {
+		return nil, err
+	}
 	subject := &session.Subject{}
 	err = json.Unmarshal(decode, subject)
 	if err != nil {

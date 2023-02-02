@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"texas-poker-bk/api"
+	"time"
 )
 
 // NetClient 长连接客户端
@@ -35,6 +36,12 @@ func (c *NetClient) WriteSeq(success bool, seq int32, msg proto.Message) {
 	bytes, err := proto.Marshal(msg)
 	wrap := &api.ProtoWrap{Ver: 1, Op: op, Seq: seq, Success: success, Body: bytes}
 	wrapBytes, err := proto.Marshal(wrap)
+	// TODO 看文档 SetWriteDeadline
+	err = c.Conn.SetWriteDeadline(time.Now().Add(time.Millisecond * 100))
+	if err != nil {
+		fmt.Println("set dead line err:", err)
+		return
+	}
 	err = c.Conn.WriteMessage(websocket.BinaryMessage, wrapBytes)
 	if err != nil {
 		fmt.Println("write msg err:", err)

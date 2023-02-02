@@ -56,14 +56,27 @@ func handleNetClient(client *session.NetClient) {
 	//var account *session.NetAccount
 	//var player *session.Player
 
+	// https://github.com/gorilla/websocket/blob/a68708917c6a4f06314ab4e52493cc61359c9d42/examples/chat/conn.go#L50
+	client.Conn.SetReadLimit(1024 * 1024)
+	//err := client.Conn.SetWriteDeadline(time.Now().Add(time.Millisecond * 50))
+	//if err != nil {
+	//	log.Printf("set deadline error: %v", err)
+	//	return
+	//}
+
 	// TODO 1分钟后过期
 	for {
 		// 阻塞读取消息
 		_, bytes, err := client.Conn.ReadMessage()
 		if err != nil {
-			// 读失败
-			log.Println("ReadMessage", err)
-			client.Close("read conn err:" + err.Error())
+			// websocket.IsCloseError(err, websocket.CloseGoingAway) TODO 连接关闭，进行中游戏处理等逻辑
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
+				log.Printf("error: %v", err)
+			} else {
+				// 读失败
+				log.Printf("ReadMessage error: %T, %v", err, err)
+				client.Close("read conn err:" + err.Error())
+			}
 			return
 		}
 

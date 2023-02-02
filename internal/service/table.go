@@ -32,7 +32,7 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 
 		PlayerNum:    playerNum + 1,
 		RobotNum:     robotNum,
-		Players:      make([]*game.Player, playerNum),
+		Players:      make([]*game.Player, playerNum+1),
 		Robots:       make([]*game.Robot, robotNum),
 		BigBlindsPos: 0,
 		PlayersLock:  &sync.Mutex{},
