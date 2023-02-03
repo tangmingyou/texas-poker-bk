@@ -47,6 +47,20 @@ func upgradeWs(resWriter http.ResponseWriter, req *http.Request) (*websocket.Con
 	return upgrader.Upgrade(resWriter, req, nil)
 }
 
+const (
+	// Time allowed to write a message to the peer.
+	writeWait = 10 * time.Second
+
+	// Time allowed to read the next pong message from the peer.
+	pongWait = 60 * time.Second
+
+	// Send pings to peer with this period. Must be less than pongWait.
+	pingPeriod = (pongWait * 9) / 10
+
+	// Maximum message size allowed from peer.
+	maxMessageSize = 512
+)
+
 // 处理新建的websocket
 func handleNetClient(client *session.NetClient) {
 	//defer (func() {
@@ -57,12 +71,16 @@ func handleNetClient(client *session.NetClient) {
 	//var player *session.Player
 
 	// https://github.com/gorilla/websocket/blob/a68708917c6a4f06314ab4e52493cc61359c9d42/examples/chat/conn.go#L50
-	client.Conn.SetReadLimit(1024 * 1024)
-	//err := client.Conn.SetWriteDeadline(time.Now().Add(time.Millisecond * 50))
+	client.Conn.SetReadLimit(maxMessageSize)
+	// TODO readDeadLine 读取超时后关闭连接
+	// err := client.Conn.SetReadDeadline(time.Now().Add(pongWait))
 	//if err != nil {
 	//	log.Printf("set deadline error: %v", err)
 	//	return
 	//}
+	client.Conn.SetPongHandler(func(string) error {
+		return client.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	})
 
 	// TODO 1分钟后过期
 	for {

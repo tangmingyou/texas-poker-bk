@@ -23,13 +23,20 @@ func init() {
 	// 获取牌桌当前所有状态
 	HandleNetPlayerMsg(&api.ReqGameFullStatus{}, service.HandleReqGameFullStatus)
 	// 加入桌面
-	HandleNetAccountMsg(&api.ReqJoinTable{}, service.HandleJoinTable)
+	HandleNetAccountMsg(&api.ReqJoinTable{}, service.HandleReqJoinTable)
 
 	// 踢人
 	HandleNetPlayerMsg(&api.ReqKickOutTable{}, service.HandleReqKickOutTable)
 	// 离开房间
 	HandleNetPlayerMsg(&api.ReqLeaveTable{}, service.HandleReqLeaveTable)
-
+	// 解散房间
+	HandleNetPlayerMsg(&api.ReqDismissGameTable{}, service.HandleReqDismissGameTable)
+	// 玩家准备
+	HandleNetPlayerMsg(&api.ReqReadyStart{}, service.HandleReqReadyStart)
+	// 玩家取消准备
+	HandleNetPlayerMsg(&api.ReqCancelReady{}, service.HandleReqCancelReady)
+	// 开始游戏
+	HandleNetPlayerMsg(&api.ReqGameStart{}, service.HandleReqGameStart)
 }
 
 func checkExistsTypeHandler(op int32, err error) {

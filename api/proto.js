@@ -1394,8 +1394,9 @@ export const api = $root.api = (() => {
          * Properties of a ResIdentity.
          * @memberof api
          * @interface IResIdentity
-         * @property {number|null} [status] ResIdentity status
-         * @property {string|null} [msg] ResIdentity msg
+         * @property {number|Long|null} [id] ResIdentity id
+         * @property {string|null} [username] ResIdentity username
+         * @property {string|null} [avatar] ResIdentity avatar
          */
 
         /**
@@ -1414,20 +1415,28 @@ export const api = $root.api = (() => {
         }
 
         /**
-         * ResIdentity status.
-         * @member {number} status
+         * ResIdentity id.
+         * @member {number|Long} id
          * @memberof api.ResIdentity
          * @instance
          */
-        ResIdentity.prototype.status = 0;
+        ResIdentity.prototype.id = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
 
         /**
-         * ResIdentity msg.
-         * @member {string} msg
+         * ResIdentity username.
+         * @member {string} username
          * @memberof api.ResIdentity
          * @instance
          */
-        ResIdentity.prototype.msg = "";
+        ResIdentity.prototype.username = "";
+
+        /**
+         * ResIdentity avatar.
+         * @member {string} avatar
+         * @memberof api.ResIdentity
+         * @instance
+         */
+        ResIdentity.prototype.avatar = "";
 
         /**
          * Creates a new ResIdentity instance using the specified properties.
@@ -1453,10 +1462,12 @@ export const api = $root.api = (() => {
         ResIdentity.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
-                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.status);
-            if (message.msg != null && Object.hasOwnProperty.call(message, "msg"))
-                writer.uint32(/* id 2, wireType 2 =*/18).string(message.msg);
+            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                writer.uint32(/* id 3, wireType 0 =*/24).int64(message.id);
+            if (message.username != null && Object.hasOwnProperty.call(message, "username"))
+                writer.uint32(/* id 4, wireType 2 =*/34).string(message.username);
+            if (message.avatar != null && Object.hasOwnProperty.call(message, "avatar"))
+                writer.uint32(/* id 5, wireType 2 =*/42).string(message.avatar);
             return writer;
         };
 
@@ -1491,12 +1502,16 @@ export const api = $root.api = (() => {
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1: {
-                        message.status = reader.int32();
+                case 3: {
+                        message.id = reader.int64();
                         break;
                     }
-                case 2: {
-                        message.msg = reader.string();
+                case 4: {
+                        message.username = reader.string();
+                        break;
+                    }
+                case 5: {
+                        message.avatar = reader.string();
                         break;
                     }
                 default:
@@ -1534,12 +1549,15 @@ export const api = $root.api = (() => {
         ResIdentity.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.status != null && message.hasOwnProperty("status"))
-                if (!$util.isInteger(message.status))
-                    return "status: integer expected";
-            if (message.msg != null && message.hasOwnProperty("msg"))
-                if (!$util.isString(message.msg))
-                    return "msg: string expected";
+            if (message.id != null && message.hasOwnProperty("id"))
+                if (!$util.isInteger(message.id) && !(message.id && $util.isInteger(message.id.low) && $util.isInteger(message.id.high)))
+                    return "id: integer|Long expected";
+            if (message.username != null && message.hasOwnProperty("username"))
+                if (!$util.isString(message.username))
+                    return "username: string expected";
+            if (message.avatar != null && message.hasOwnProperty("avatar"))
+                if (!$util.isString(message.avatar))
+                    return "avatar: string expected";
             return null;
         };
 
@@ -1555,10 +1573,19 @@ export const api = $root.api = (() => {
             if (object instanceof $root.api.ResIdentity)
                 return object;
             let message = new $root.api.ResIdentity();
-            if (object.status != null)
-                message.status = object.status | 0;
-            if (object.msg != null)
-                message.msg = String(object.msg);
+            if (object.id != null)
+                if ($util.Long)
+                    (message.id = $util.Long.fromValue(object.id)).unsigned = false;
+                else if (typeof object.id === "string")
+                    message.id = parseInt(object.id, 10);
+                else if (typeof object.id === "number")
+                    message.id = object.id;
+                else if (typeof object.id === "object")
+                    message.id = new $util.LongBits(object.id.low >>> 0, object.id.high >>> 0).toNumber();
+            if (object.username != null)
+                message.username = String(object.username);
+            if (object.avatar != null)
+                message.avatar = String(object.avatar);
             return message;
         };
 
@@ -1576,13 +1603,23 @@ export const api = $root.api = (() => {
                 options = {};
             let object = {};
             if (options.defaults) {
-                object.status = 0;
-                object.msg = "";
+                if ($util.Long) {
+                    let long = new $util.Long(0, 0, false);
+                    object.id = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.id = options.longs === String ? "0" : 0;
+                object.username = "";
+                object.avatar = "";
             }
-            if (message.status != null && message.hasOwnProperty("status"))
-                object.status = message.status;
-            if (message.msg != null && message.hasOwnProperty("msg"))
-                object.msg = message.msg;
+            if (message.id != null && message.hasOwnProperty("id"))
+                if (typeof message.id === "number")
+                    object.id = options.longs === String ? String(message.id) : message.id;
+                else
+                    object.id = options.longs === String ? $util.Long.prototype.toString.call(message.id) : options.longs === Number ? new $util.LongBits(message.id.low >>> 0, message.id.high >>> 0).toNumber() : message.id;
+            if (message.username != null && message.hasOwnProperty("username"))
+                object.username = message.username;
+            if (message.avatar != null && message.hasOwnProperty("avatar"))
+                object.avatar = message.avatar;
             return object;
         };
 
@@ -3577,6 +3614,181 @@ export const api = $root.api = (() => {
         };
 
         return ReqReadyStart;
+    })();
+
+    api.ReqCancelReady = (function() {
+
+        /**
+         * Properties of a ReqCancelReady.
+         * @memberof api
+         * @interface IReqCancelReady
+         */
+
+        /**
+         * Constructs a new ReqCancelReady.
+         * @memberof api
+         * @classdesc Represents a ReqCancelReady.
+         * @implements IReqCancelReady
+         * @constructor
+         * @param {api.IReqCancelReady=} [properties] Properties to set
+         */
+        function ReqCancelReady(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ReqCancelReady instance using the specified properties.
+         * @function create
+         * @memberof api.ReqCancelReady
+         * @static
+         * @param {api.IReqCancelReady=} [properties] Properties to set
+         * @returns {api.ReqCancelReady} ReqCancelReady instance
+         */
+        ReqCancelReady.create = function create(properties) {
+            return new ReqCancelReady(properties);
+        };
+
+        /**
+         * Encodes the specified ReqCancelReady message. Does not implicitly {@link api.ReqCancelReady.verify|verify} messages.
+         * @function encode
+         * @memberof api.ReqCancelReady
+         * @static
+         * @param {api.IReqCancelReady} message ReqCancelReady message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqCancelReady.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ReqCancelReady message, length delimited. Does not implicitly {@link api.ReqCancelReady.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ReqCancelReady
+         * @static
+         * @param {api.IReqCancelReady} message ReqCancelReady message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqCancelReady.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ReqCancelReady message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ReqCancelReady
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ReqCancelReady} ReqCancelReady
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqCancelReady.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqCancelReady();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ReqCancelReady message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ReqCancelReady
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ReqCancelReady} ReqCancelReady
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqCancelReady.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ReqCancelReady message.
+         * @function verify
+         * @memberof api.ReqCancelReady
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ReqCancelReady.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ReqCancelReady message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ReqCancelReady
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ReqCancelReady} ReqCancelReady
+         */
+        ReqCancelReady.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqCancelReady)
+                return object;
+            return new $root.api.ReqCancelReady();
+        };
+
+        /**
+         * Creates a plain object from a ReqCancelReady message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ReqCancelReady
+         * @static
+         * @param {api.ReqCancelReady} message ReqCancelReady
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ReqCancelReady.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ReqCancelReady to JSON.
+         * @function toJSON
+         * @memberof api.ReqCancelReady
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ReqCancelReady.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ReqCancelReady
+         * @function getTypeUrl
+         * @memberof api.ReqCancelReady
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ReqCancelReady.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ReqCancelReady";
+        };
+
+        return ReqCancelReady;
     })();
 
     api.ReqKickOutTable = (function() {
@@ -5597,6 +5809,937 @@ export const api = $root.api = (() => {
         };
 
         return Card;
+    })();
+
+    api.ReqGameStart = (function() {
+
+        /**
+         * Properties of a ReqGameStart.
+         * @memberof api
+         * @interface IReqGameStart
+         */
+
+        /**
+         * Constructs a new ReqGameStart.
+         * @memberof api
+         * @classdesc Represents a ReqGameStart.
+         * @implements IReqGameStart
+         * @constructor
+         * @param {api.IReqGameStart=} [properties] Properties to set
+         */
+        function ReqGameStart(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ReqGameStart instance using the specified properties.
+         * @function create
+         * @memberof api.ReqGameStart
+         * @static
+         * @param {api.IReqGameStart=} [properties] Properties to set
+         * @returns {api.ReqGameStart} ReqGameStart instance
+         */
+        ReqGameStart.create = function create(properties) {
+            return new ReqGameStart(properties);
+        };
+
+        /**
+         * Encodes the specified ReqGameStart message. Does not implicitly {@link api.ReqGameStart.verify|verify} messages.
+         * @function encode
+         * @memberof api.ReqGameStart
+         * @static
+         * @param {api.IReqGameStart} message ReqGameStart message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqGameStart.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ReqGameStart message, length delimited. Does not implicitly {@link api.ReqGameStart.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ReqGameStart
+         * @static
+         * @param {api.IReqGameStart} message ReqGameStart message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqGameStart.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ReqGameStart message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ReqGameStart
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ReqGameStart} ReqGameStart
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqGameStart.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqGameStart();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ReqGameStart message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ReqGameStart
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ReqGameStart} ReqGameStart
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqGameStart.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ReqGameStart message.
+         * @function verify
+         * @memberof api.ReqGameStart
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ReqGameStart.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ReqGameStart message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ReqGameStart
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ReqGameStart} ReqGameStart
+         */
+        ReqGameStart.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqGameStart)
+                return object;
+            return new $root.api.ReqGameStart();
+        };
+
+        /**
+         * Creates a plain object from a ReqGameStart message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ReqGameStart
+         * @static
+         * @param {api.ReqGameStart} message ReqGameStart
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ReqGameStart.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ReqGameStart to JSON.
+         * @function toJSON
+         * @memberof api.ReqGameStart
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ReqGameStart.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ReqGameStart
+         * @function getTypeUrl
+         * @memberof api.ReqGameStart
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ReqGameStart.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ReqGameStart";
+        };
+
+        return ReqGameStart;
+    })();
+
+    api.ResBigBlindChip = (function() {
+
+        /**
+         * Properties of a ResBigBlindChip.
+         * @memberof api
+         * @interface IResBigBlindChip
+         * @property {number|null} [chip] ResBigBlindChip chip
+         */
+
+        /**
+         * Constructs a new ResBigBlindChip.
+         * @memberof api
+         * @classdesc Represents a ResBigBlindChip.
+         * @implements IResBigBlindChip
+         * @constructor
+         * @param {api.IResBigBlindChip=} [properties] Properties to set
+         */
+        function ResBigBlindChip(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * ResBigBlindChip chip.
+         * @member {number} chip
+         * @memberof api.ResBigBlindChip
+         * @instance
+         */
+        ResBigBlindChip.prototype.chip = 0;
+
+        /**
+         * Creates a new ResBigBlindChip instance using the specified properties.
+         * @function create
+         * @memberof api.ResBigBlindChip
+         * @static
+         * @param {api.IResBigBlindChip=} [properties] Properties to set
+         * @returns {api.ResBigBlindChip} ResBigBlindChip instance
+         */
+        ResBigBlindChip.create = function create(properties) {
+            return new ResBigBlindChip(properties);
+        };
+
+        /**
+         * Encodes the specified ResBigBlindChip message. Does not implicitly {@link api.ResBigBlindChip.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResBigBlindChip
+         * @static
+         * @param {api.IResBigBlindChip} message ResBigBlindChip message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResBigBlindChip.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.chip != null && Object.hasOwnProperty.call(message, "chip"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.chip);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResBigBlindChip message, length delimited. Does not implicitly {@link api.ResBigBlindChip.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResBigBlindChip
+         * @static
+         * @param {api.IResBigBlindChip} message ResBigBlindChip message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResBigBlindChip.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResBigBlindChip message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResBigBlindChip
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResBigBlindChip} ResBigBlindChip
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResBigBlindChip.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResBigBlindChip();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1: {
+                        message.chip = reader.int32();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResBigBlindChip message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResBigBlindChip
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResBigBlindChip} ResBigBlindChip
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResBigBlindChip.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResBigBlindChip message.
+         * @function verify
+         * @memberof api.ResBigBlindChip
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResBigBlindChip.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.chip != null && message.hasOwnProperty("chip"))
+                if (!$util.isInteger(message.chip))
+                    return "chip: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResBigBlindChip message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResBigBlindChip
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResBigBlindChip} ResBigBlindChip
+         */
+        ResBigBlindChip.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResBigBlindChip)
+                return object;
+            let message = new $root.api.ResBigBlindChip();
+            if (object.chip != null)
+                message.chip = object.chip | 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a ResBigBlindChip message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResBigBlindChip
+         * @static
+         * @param {api.ResBigBlindChip} message ResBigBlindChip
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResBigBlindChip.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.chip = 0;
+            if (message.chip != null && message.hasOwnProperty("chip"))
+                object.chip = message.chip;
+            return object;
+        };
+
+        /**
+         * Converts this ResBigBlindChip to JSON.
+         * @function toJSON
+         * @memberof api.ResBigBlindChip
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResBigBlindChip.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResBigBlindChip
+         * @function getTypeUrl
+         * @memberof api.ResBigBlindChip
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResBigBlindChip.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResBigBlindChip";
+        };
+
+        return ResBigBlindChip;
+    })();
+
+    api.ResSmallBlindChip = (function() {
+
+        /**
+         * Properties of a ResSmallBlindChip.
+         * @memberof api
+         * @interface IResSmallBlindChip
+         * @property {number|null} [chip] ResSmallBlindChip chip
+         */
+
+        /**
+         * Constructs a new ResSmallBlindChip.
+         * @memberof api
+         * @classdesc Represents a ResSmallBlindChip.
+         * @implements IResSmallBlindChip
+         * @constructor
+         * @param {api.IResSmallBlindChip=} [properties] Properties to set
+         */
+        function ResSmallBlindChip(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * ResSmallBlindChip chip.
+         * @member {number} chip
+         * @memberof api.ResSmallBlindChip
+         * @instance
+         */
+        ResSmallBlindChip.prototype.chip = 0;
+
+        /**
+         * Creates a new ResSmallBlindChip instance using the specified properties.
+         * @function create
+         * @memberof api.ResSmallBlindChip
+         * @static
+         * @param {api.IResSmallBlindChip=} [properties] Properties to set
+         * @returns {api.ResSmallBlindChip} ResSmallBlindChip instance
+         */
+        ResSmallBlindChip.create = function create(properties) {
+            return new ResSmallBlindChip(properties);
+        };
+
+        /**
+         * Encodes the specified ResSmallBlindChip message. Does not implicitly {@link api.ResSmallBlindChip.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResSmallBlindChip
+         * @static
+         * @param {api.IResSmallBlindChip} message ResSmallBlindChip message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResSmallBlindChip.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.chip != null && Object.hasOwnProperty.call(message, "chip"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.chip);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResSmallBlindChip message, length delimited. Does not implicitly {@link api.ResSmallBlindChip.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResSmallBlindChip
+         * @static
+         * @param {api.IResSmallBlindChip} message ResSmallBlindChip message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResSmallBlindChip.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResSmallBlindChip message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResSmallBlindChip
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResSmallBlindChip} ResSmallBlindChip
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResSmallBlindChip.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResSmallBlindChip();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1: {
+                        message.chip = reader.int32();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResSmallBlindChip message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResSmallBlindChip
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResSmallBlindChip} ResSmallBlindChip
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResSmallBlindChip.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResSmallBlindChip message.
+         * @function verify
+         * @memberof api.ResSmallBlindChip
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResSmallBlindChip.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.chip != null && message.hasOwnProperty("chip"))
+                if (!$util.isInteger(message.chip))
+                    return "chip: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResSmallBlindChip message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResSmallBlindChip
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResSmallBlindChip} ResSmallBlindChip
+         */
+        ResSmallBlindChip.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResSmallBlindChip)
+                return object;
+            let message = new $root.api.ResSmallBlindChip();
+            if (object.chip != null)
+                message.chip = object.chip | 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a ResSmallBlindChip message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResSmallBlindChip
+         * @static
+         * @param {api.ResSmallBlindChip} message ResSmallBlindChip
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResSmallBlindChip.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.chip = 0;
+            if (message.chip != null && message.hasOwnProperty("chip"))
+                object.chip = message.chip;
+            return object;
+        };
+
+        /**
+         * Converts this ResSmallBlindChip to JSON.
+         * @function toJSON
+         * @memberof api.ResSmallBlindChip
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResSmallBlindChip.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResSmallBlindChip
+         * @function getTypeUrl
+         * @memberof api.ResSmallBlindChip
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResSmallBlindChip.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResSmallBlindChip";
+        };
+
+        return ResSmallBlindChip;
+    })();
+
+    api.ReqDismissGameTable = (function() {
+
+        /**
+         * Properties of a ReqDismissGameTable.
+         * @memberof api
+         * @interface IReqDismissGameTable
+         */
+
+        /**
+         * Constructs a new ReqDismissGameTable.
+         * @memberof api
+         * @classdesc Represents a ReqDismissGameTable.
+         * @implements IReqDismissGameTable
+         * @constructor
+         * @param {api.IReqDismissGameTable=} [properties] Properties to set
+         */
+        function ReqDismissGameTable(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ReqDismissGameTable instance using the specified properties.
+         * @function create
+         * @memberof api.ReqDismissGameTable
+         * @static
+         * @param {api.IReqDismissGameTable=} [properties] Properties to set
+         * @returns {api.ReqDismissGameTable} ReqDismissGameTable instance
+         */
+        ReqDismissGameTable.create = function create(properties) {
+            return new ReqDismissGameTable(properties);
+        };
+
+        /**
+         * Encodes the specified ReqDismissGameTable message. Does not implicitly {@link api.ReqDismissGameTable.verify|verify} messages.
+         * @function encode
+         * @memberof api.ReqDismissGameTable
+         * @static
+         * @param {api.IReqDismissGameTable} message ReqDismissGameTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqDismissGameTable.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ReqDismissGameTable message, length delimited. Does not implicitly {@link api.ReqDismissGameTable.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ReqDismissGameTable
+         * @static
+         * @param {api.IReqDismissGameTable} message ReqDismissGameTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqDismissGameTable.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ReqDismissGameTable message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ReqDismissGameTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ReqDismissGameTable} ReqDismissGameTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqDismissGameTable.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqDismissGameTable();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ReqDismissGameTable message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ReqDismissGameTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ReqDismissGameTable} ReqDismissGameTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqDismissGameTable.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ReqDismissGameTable message.
+         * @function verify
+         * @memberof api.ReqDismissGameTable
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ReqDismissGameTable.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ReqDismissGameTable message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ReqDismissGameTable
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ReqDismissGameTable} ReqDismissGameTable
+         */
+        ReqDismissGameTable.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqDismissGameTable)
+                return object;
+            return new $root.api.ReqDismissGameTable();
+        };
+
+        /**
+         * Creates a plain object from a ReqDismissGameTable message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ReqDismissGameTable
+         * @static
+         * @param {api.ReqDismissGameTable} message ReqDismissGameTable
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ReqDismissGameTable.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ReqDismissGameTable to JSON.
+         * @function toJSON
+         * @memberof api.ReqDismissGameTable
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ReqDismissGameTable.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ReqDismissGameTable
+         * @function getTypeUrl
+         * @memberof api.ReqDismissGameTable
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ReqDismissGameTable.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ReqDismissGameTable";
+        };
+
+        return ReqDismissGameTable;
+    })();
+
+    api.ResDismissGameTable = (function() {
+
+        /**
+         * Properties of a ResDismissGameTable.
+         * @memberof api
+         * @interface IResDismissGameTable
+         */
+
+        /**
+         * Constructs a new ResDismissGameTable.
+         * @memberof api
+         * @classdesc Represents a ResDismissGameTable.
+         * @implements IResDismissGameTable
+         * @constructor
+         * @param {api.IResDismissGameTable=} [properties] Properties to set
+         */
+        function ResDismissGameTable(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ResDismissGameTable instance using the specified properties.
+         * @function create
+         * @memberof api.ResDismissGameTable
+         * @static
+         * @param {api.IResDismissGameTable=} [properties] Properties to set
+         * @returns {api.ResDismissGameTable} ResDismissGameTable instance
+         */
+        ResDismissGameTable.create = function create(properties) {
+            return new ResDismissGameTable(properties);
+        };
+
+        /**
+         * Encodes the specified ResDismissGameTable message. Does not implicitly {@link api.ResDismissGameTable.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResDismissGameTable
+         * @static
+         * @param {api.IResDismissGameTable} message ResDismissGameTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResDismissGameTable.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResDismissGameTable message, length delimited. Does not implicitly {@link api.ResDismissGameTable.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResDismissGameTable
+         * @static
+         * @param {api.IResDismissGameTable} message ResDismissGameTable message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResDismissGameTable.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResDismissGameTable message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResDismissGameTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResDismissGameTable} ResDismissGameTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResDismissGameTable.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResDismissGameTable();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResDismissGameTable message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResDismissGameTable
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResDismissGameTable} ResDismissGameTable
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResDismissGameTable.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResDismissGameTable message.
+         * @function verify
+         * @memberof api.ResDismissGameTable
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResDismissGameTable.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResDismissGameTable message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResDismissGameTable
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResDismissGameTable} ResDismissGameTable
+         */
+        ResDismissGameTable.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResDismissGameTable)
+                return object;
+            return new $root.api.ResDismissGameTable();
+        };
+
+        /**
+         * Creates a plain object from a ResDismissGameTable message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResDismissGameTable
+         * @static
+         * @param {api.ResDismissGameTable} message ResDismissGameTable
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResDismissGameTable.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ResDismissGameTable to JSON.
+         * @function toJSON
+         * @memberof api.ResDismissGameTable
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResDismissGameTable.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResDismissGameTable
+         * @function getTypeUrl
+         * @memberof api.ResDismissGameTable
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResDismissGameTable.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResDismissGameTable";
+        };
+
+        return ResDismissGameTable;
     })();
 
     return api;

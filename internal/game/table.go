@@ -11,22 +11,57 @@ type Table struct {
 	TableNo    int32 // 牌桌编号
 	MasterId   int64 // 房主Id
 	RoundTimes int32 // 回合次数
-	Stage      int32 // 游戏阶段: 1等待玩家准备;2下大盲注;3下小盲注;4发公共牌;5发第四张公共牌,轮流下注;6发第五张公共牌,轮流下注,7比牌结算
+	Stage      int32 // 游戏阶段: 1等待玩家准备;2游戏开始(自动扣大小盲注,发牌,轮流下注)  [2(开始发牌)下大盲注;3下小盲注;4发公共牌;] 5发第四张公共牌,轮流下注;6发第五张公共牌,轮流下注,7比牌结算,9已解散
 
-	chip        int32    // 牌桌当前筹码
+	Chip        int32    // 牌桌当前筹码
 	robotChip   int32    // 牌桌当前机器人下注筹码
 	Dealer      *Dealer  // 发牌员
 	PublicCards [5]*Card // 公共牌
 
-	PlayerNum    int32     // 玩家数
-	RobotNum     int32     // 机器人数
-	Players      []*Player // 玩家
-	Robots       []*Robot
-	BigBlindsPos int32 // 大盲注位
+	PlayerNum     int32     // 玩家数
+	RobotNum      int32     // 机器人数
+	Players       []*Player // 玩家
+	Robots        []*Robot
+	BigBlindPos   int // 大盲注位
+	SmallBlindPos int // 小盲注位
 
 	PlayersLock *sync.Mutex
 	ChipLock    *sync.Mutex // 桌面筹码更新锁
 	// TODO game logs7
+}
+
+func (t *Table) PlayerCount() int32 {
+	var count int32 = 0
+	for _, p := range t.Players {
+		if p != nil {
+			count++
+		}
+	}
+	return count
+}
+
+func (t *Table) NextPosPlayer(current int) int {
+	for i := current; i < len(t.Players); i++ {
+		if t.Players[i] == nil {
+			continue
+		}
+		return i
+	}
+	for i, p := range t.Players {
+		if p != nil {
+			return i
+		}
+	}
+	return 0
+}
+
+func (t *Table) FindPlayerPos(player *Player) int32 {
+	for i, p := range t.Players {
+		if p != nil && p.Id == player.Id {
+			return int32(i)
+		}
+	}
+	return -1
 }
 
 func (t *Table) JoinPlayer(player *Player) error {
@@ -48,7 +83,7 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 	resGame.InGame = collect.In(t.Stage, 2, 3, 4, 5, 6, 7)
 	resGame.TableNo = t.TableNo
 	resGame.GameStage = t.Stage
-	resGame.Chip = t.chip
+	resGame.Chip = t.Chip
 	resGame.RoundTimes = t.RoundTimes
 
 	// 公共牌
@@ -93,12 +128,18 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 }
 
 func (t *Table) NoticeGameFullStatus() {
-	resGame := t.BuildResGameFullStatus()
-
 	// 发送当前游戏状态消息到牌桌所有用户
 	for _, player := range t.Players {
 		if player != nil && player.ProtoWriter != nil {
+			resGame := t.BuildResGameFullStatus()
 			resGame.PlayerId = player.Id
+			// 只返回自己的手牌 TODO 结算时全部返回
+			for _, p := range resGame.Players {
+				if p != nil && p.Id != player.Id {
+					p.HandCard[0] = nil
+					p.HandCard[1] = nil
+				}
+			}
 			player.ProtoWriter.Write(resGame)
 		}
 	}

@@ -2,6 +2,12 @@ package game
 
 import (
 	"math/rand"
+	"sync"
+)
+
+const (
+	BigBlindChip int32 = 2                // 大盲注金额
+	SmallBlinds  int32 = BigBlindChip / 2 // 小盲注金额
 )
 
 // Dealer 发牌员, 有打乱的一副牌
@@ -10,11 +16,22 @@ type Dealer struct {
 	// cardList *collect.LinkedList[Card]
 	cards []*Card
 	index int
+	lock  *sync.Mutex
+}
+
+func NewDealer() *Dealer {
+	return &Dealer{
+		cards: make([]*Card, 52),
+		index: 0,
+		lock:  new(sync.Mutex),
+	}
 }
 
 func (d *Dealer) Init() *Dealer {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+
 	d.index = 0
-	d.cards = make([]*Card, 52)
 	// 初始化一副牌，13张牌
 	for i := 0; i < 13; i++ {
 		// 4 种花色
@@ -29,23 +46,22 @@ func (d *Dealer) Init() *Dealer {
 
 // Deal 发牌堆第一张牌
 func (d *Dealer) Deal() *Card {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+
 	card := d.cards[d.index]
 	d.index++
 	return card
 }
 
-// disorder 洗牌
+// disorder 乱序洗牌
 func disorder(cards []*Card) {
 	length := len(cards)
-	// 洗13次
-	for i := 0; i < 13; i++ {
+	// 洗52次
+	for i := 0; i < length; i++ {
 		for j := 0; j < length; j++ {
-			repIdx := rand.Intn(length)
-			cards[i], cards[repIdx] = cards[repIdx], cards[i]
+			repIdx := (rand.Intn(length) + rand.Intn(length)) / 2
+			cards[j], cards[repIdx] = cards[repIdx], cards[j]
 		}
 	}
-}
-
-func NewDealer() *Dealer {
-	return new(Dealer).Init()
 }

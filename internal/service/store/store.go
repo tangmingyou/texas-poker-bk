@@ -14,7 +14,7 @@ var (
 	LobbyTables map[int32]*game.Table
 	lobbyLock   *sync.Mutex
 
-	// NetAccounts 存储一下在线用户
+	// NetAccounts 存储一下在线用户, TODO 连接终端,未在牌局或牌局未开始中回收账号,机器人代打后回收账号
 	NetAccounts map[int64]*session.NetAccount
 	accountLock *sync.Mutex
 )
@@ -39,8 +39,8 @@ func SaveNewTable(table *game.Table) error {
 	return nil
 }
 
-// SaveNetAccounts 保存一下在线账户映射关系 TODO 处理断线、重连问题
-func SaveNetAccounts(account *session.NetAccount) *session.NetAccount {
+// SaveAndTryRecoverNetAccounts 保存一下在线账户映射关系 TODO 处理断线、重连问题
+func SaveAndTryRecoverNetAccounts(account *session.NetAccount) *session.NetAccount {
 	accountLock.Lock()
 	defer accountLock.Unlock()
 	current := NetAccounts[account.Id]
@@ -50,5 +50,8 @@ func SaveNetAccounts(account *session.NetAccount) *session.NetAccount {
 	}
 	// 掉线重连的用户, TODO 重复登录的用户
 	current.Client = account.Client
+	if current.Player != nil {
+		current.Player.ProtoWriter = account.Client
+	}
 	return current
 }

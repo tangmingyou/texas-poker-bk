@@ -179,11 +179,10 @@ func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.M
 		Lock:        &sync.Mutex{},
 	}
 	// TODO 查询 DB 账户余额
-	account = store.SaveNetAccounts(account)
+	account = store.SaveAndTryRecoverNetAccounts(account)
 	client.Account = account
 
 	// response
-	res := &api.ResIdentity{Status: 200, Msg: "ok"}
-	// client.Write(res)
+	res := &api.ResIdentity{Id: subject.Id, Username: subject.Name, Avatar: subject.Avatar}
 	return res, nil
 }

@@ -40,8 +40,9 @@ message ReqIdentity {
 }
 
 message ResIdentity {
-  int32 status = 1;
-  string msg = 2;
+  int64 id = 3;
+  string username = 4;
+  string avatar = 5;
 }
 
 // 大厅消息 ============= begin
@@ -88,11 +89,14 @@ message ReqJoinTable {
 
 // 离开房间
 message ReqLeaveTable {
-
 }
 
 // 玩家准备开始
 message ReqReadyStart {
+}
+// 取消准备
+message ReqCancelReady {
+
 }
 
 // 房主踢人
@@ -148,3 +152,24 @@ message Card {
 }
 
 // 加入游戏 ============= end
+
+// 开始游戏
+message ReqGameStart {
+
+}
+
+// 扣除大盲注
+message ResBigBlindChip {
+  int32 chip = 1;
+}
+
+// 扣除小盲注消息, 然后发牌
+message ResSmallBlindChip {
+  int32 chip = 1;
+}
+
+// 解散房间
+message ReqDismissGameTable {
+}
+message ResDismissGameTable {
+}

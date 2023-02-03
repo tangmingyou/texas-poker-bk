@@ -30,13 +30,14 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		Dealer:      game.NewDealer(),
 		PublicCards: [5]*game.Card{&game.Card{Dot: 0, Suit: 3}, &game.Card{Dot: 1, Suit: 3}, nil, nil, nil},
 
-		PlayerNum:    playerNum + 1,
-		RobotNum:     robotNum,
-		Players:      make([]*game.Player, playerNum+1),
-		Robots:       make([]*game.Robot, robotNum),
-		BigBlindsPos: 0,
-		PlayersLock:  &sync.Mutex{},
-		ChipLock:     &sync.Mutex{},
+		PlayerNum:     playerNum + 1,
+		RobotNum:      robotNum,
+		Players:       make([]*game.Player, playerNum+1),
+		Robots:        make([]*game.Robot, robotNum),
+		BigBlindPos:   0,
+		SmallBlindPos: 0,
+		PlayersLock:   &sync.Mutex{},
+		ChipLock:      &sync.Mutex{},
 	}
 
 	// 房主 [0]
@@ -50,6 +51,7 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		GameTable:   table,
 		ProtoWriter: account.Client,
 	}
+	owner.Init()
 	// 扣除DB账户余额 TODO 账户金额限制
 	account.DecrementBalance(500)
 	account.Player = owner // 挂载 player 到 account 上
@@ -109,8 +111,8 @@ func HandleReqLobbyView(account *session.NetAccount, msg *api.ReqLobbyView) (pro
 	return res, nil
 }
 
-// HandleJoinTable 加入牌桌
-func HandleJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (proto.Message, error) {
+// HandleReqJoinTable 加入牌桌
+func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (proto.Message, error) {
 	account.Lock.Lock()
 	defer account.Lock.Unlock()
 
@@ -121,8 +123,13 @@ func HandleJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (proto.
 	// TODO 账户余额限制
 
 	table := store.LobbyTables[msg.TableNo]
+	table.ChipLock.Lock()
+	defer table.ChipLock.Unlock()
 	if table == nil {
 		return &api.ResFail{Msg: "牌桌不存在"}, nil
+	}
+	if table.Stage != 1 {
+		return &api.ResFail{Msg: "牌桌正在进行中"}, nil
 	}
 	player := &game.Player{
 		Id:          account.Id,
@@ -134,7 +141,7 @@ func HandleJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (proto.
 		GameTable:   table,
 		ProtoWriter: account.Client,
 	}
-
+	player.Init()
 	err := table.JoinPlayer(player)
 	if err != nil {
 		return nil, err
@@ -147,34 +154,6 @@ func HandleJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (proto.
 	player.GameTable.NoticeGameFullStatus()
 
 	return &api.ResSuccess{}, nil
-}
-
-// HandleLeaveTable 离开牌桌
-func HandleLeaveTable(account session.NetAccount, msg *api.ReqCreateTable) (proto.Message, error) {
-	account.Lock.Lock()
-	defer account.Lock.Unlock()
-	// 结算, player -> nil
-	if account.Player == nil {
-		return &api.ResFail{Msg: "当前未加入牌桌"}, nil
-	}
-	// 根据玩家游戏状态判断可否退出
-	switch account.Player.Status {
-	case 1, 2, 7: // 未在游戏中 可退出
-		// 结算金额
-		account.IncrementBalance(account.Player.Chip)
-		gameTable := account.Player.GameTable
-		// table player remove
-		for i := range gameTable.Players {
-			if gameTable.Players[i] == account.Player {
-				gameTable.Players[i] = nil
-			}
-		}
-		account.Player = nil
-		// TODO notice 牌桌其他玩家 gameTable.notice(ResGameStatus)
-		return &api.ResSuccess{}, nil
-	default:
-		return &api.ResFail{Msg: "游戏进行中,不能退出"}, nil
-	}
 }
 
 // HandleReqKickOutTable 踢人
@@ -212,6 +191,7 @@ func HandleReqKickOutTable(player *game.Player, msg *api.ReqKickOutTable) (proto
 func HandleReqLeaveTable(player *game.Player, msg *api.ReqLeaveTable) (proto.Message, error) {
 	player.GameTable.PlayersLock.Lock()
 	defer player.GameTable.PlayersLock.Unlock()
+
 	if player.GameTable.Stage != 1 {
 		return &api.ResFail{Msg: "牌局进行中不能退出"}, nil
 	}
@@ -245,12 +225,149 @@ func HandleReqGameFullStatus(player *game.Player, msg *api.ReqGameFullStatus) (p
 	}
 	resGame := player.GameTable.BuildResGameFullStatus()
 	resGame.PlayerId = player.Id
-	// TODO 其他玩家手牌不返回，计算自己的5张推荐牌
+	// 其他玩家手牌不返回，TODO 计算自己的5张推荐牌
+	for _, p := range resGame.Players {
+		if p != nil && p.Id != player.Id {
+			p.HandCard[0] = nil
+			p.HandCard[1] = nil
+		}
+	}
 	return resGame, nil
 }
 
 // HandleReqReadyStart 准备开始游戏
-func HandleReqReadyStart(player game.Player, msg *api.ReqReadyStart) (proto.Message, error) {
+func HandleReqReadyStart(player *game.Player, msg *api.ReqReadyStart) (proto.Message, error) {
+	player.Lock.Lock()
+	defer player.Lock.Unlock()
+	if player.Id == player.GameTable.MasterId {
+		return &api.ResFail{Msg: "房主不用准备"}, nil
+	}
+	if player.Status != 1 {
+		msg := ""
+		switch player.Status {
+		case 2:
+			msg = "已准备"
+		default:
+			msg = fmt.Sprintf("异常状态#%d", player.Status)
+		}
+		return &api.ResFail{Msg: msg}, nil
+	}
 
-	return nil, nil
+	player.Status = 2
+	player.GameTable.NoticeGameFullStatus()
+
+	return &api.ResSuccess{}, nil
+}
+
+func HandleReqCancelReady(player *game.Player, msg *api.ReqCancelReady) (proto.Message, error) {
+	player.Lock.Lock()
+	defer player.Lock.Unlock()
+	if player.Id == player.GameTable.MasterId {
+		return &api.ResFail{Msg: "房主不用准备"}, nil
+	}
+	if player.Status != 2 {
+		return &api.ResFail{Msg: "当前未准备"}, nil
+	}
+	player.Status = 1
+	player.GameTable.NoticeGameFullStatus()
+	return &api.ResSuccess{}, nil
+}
+
+func HandleReqDismissGameTable(player *game.Player, msg *api.ReqDismissGameTable) (proto.Message, error) {
+	player.GameTable.ChipLock.Lock()
+	defer player.GameTable.ChipLock.Unlock()
+	if player.GameTable.Stage != 1 {
+		return &api.ResFail{Msg: fmt.Sprintf("#%d,牌局进行中", player.GameTable.Stage)}, nil
+	}
+	player.GameTable.Stage = 9
+	delete(store.LobbyTables, player.GameTable.TableNo)
+	// 通知所有玩家，解除账号绑定，结算玩家金额
+	for i, p := range player.GameTable.Players {
+		if p == nil {
+			continue
+		}
+		account := store.NetAccounts[p.Id]
+		account.IncrementBalance(p.Chip)
+		account.Player = nil
+		player.GameTable.Players[i] = nil
+		if p.Id != player.Id {
+			p.ProtoWriter.Write(&api.ResDismissGameTable{})
+		}
+	}
+	return &api.ResDismissGameTable{}, nil
+}
+
+func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Message, error) {
+	player.GameTable.ChipLock.Lock()
+	defer player.GameTable.ChipLock.Unlock()
+	// 锁定牌桌所有玩家
+	for _, p := range player.GameTable.Players {
+		if p != nil {
+			p.Lock.Lock()
+			defer p.Lock.Unlock()
+		}
+	}
+
+	table := player.GameTable
+	if player.Id != table.MasterId {
+		return &api.ResFail{Msg: "你不是房主"}, nil
+	}
+	if table.Stage != 1 {
+		return &api.ResFail{Msg: fmt.Sprintf("牌局状态有误%d", table.Stage)}, nil
+	}
+	// 检查所有玩家准备状态
+	for _, p := range table.Players {
+		if p != nil && p.Id != table.MasterId && p.Status != 2 {
+			return &api.ResFail{Msg: "有玩家未准备"}, nil
+		}
+	}
+
+	// 游戏状态开始
+	table.Stage = 2
+	// 大盲注位
+	if table.RoundTimes == 0 {
+		table.BigBlindPos = 0
+	} else {
+		table.BigBlindPos = table.NextPosPlayer(table.BigBlindPos)
+	}
+	// 小盲注位
+	table.SmallBlindPos = table.NextPosPlayer(table.BigBlindPos)
+	// 回合数+1
+	table.RoundTimes++
+
+	// 扣除大小盲注金额
+	table.Players[table.BigBlindPos].Chip -= game.BigBlindChip
+	table.Players[table.SmallBlindPos].Chip -= game.SmallBlinds
+	table.Chip += game.BigBlindChip + game.SmallBlinds
+
+	table.Players[table.BigBlindPos].ProtoWriter.Write(&api.ResBigBlindChip{Chip: game.BigBlindChip})
+	table.Players[table.SmallBlindPos].ProtoWriter.Write(&api.ResSmallBlindChip{Chip: game.SmallBlinds})
+
+	// 开始发牌(手牌，公共牌)
+	table.Dealer.Init() // 初始化发牌员
+	for _, p := range table.Players {
+		if p == nil {
+			continue
+		}
+		for i := range p.Cards {
+			p.Cards[i] = table.Dealer.Deal()
+		}
+		// 玩家状态置为等待
+		p.Status = 3
+	}
+	// 发3张公共牌
+	for i := 0; i < 5; i++ {
+		if i < 3 {
+			table.PublicCards[i] = table.Dealer.Deal()
+			continue
+		}
+		// 第4,5张牌置空
+		table.PublicCards[i] = nil
+	}
+	// 待小盲注位玩家下注
+	table.Players[table.SmallBlindPos].Status = 4
+
+	// 广播牌桌状态
+	table.NoticeGameFullStatus()
+	return &api.ResSuccess{}, nil
 }

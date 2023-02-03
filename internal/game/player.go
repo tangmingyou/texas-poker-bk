@@ -1,6 +1,7 @@
 package game
 
 import (
+	"sync"
 	"texas-poker-bk/internal/letter"
 )
 
@@ -11,12 +12,13 @@ type Player struct {
 	Avatar   string
 	Cards    [2]*Card // 手牌
 	Chip     int32    // 玩家筹码
-	Status   int32    // 状态: 1待准备开始,2已准备开始,3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃
+	Status   int32    // 状态: 1待准备开始,2已准备开始,3等待其他玩家动作,4小盲注跟注, [5待大盲注,5待小盲注,] 6待跟注,7已弃牌
 
 	GameTable   *Table // 当前牌桌
 	ProtoWriter letter.ProtoWriter
+	Lock        *sync.Mutex
 }
 
-func NewPlayer() *Player {
-	return &Player{}
+func (p *Player) Init() {
+	p.Lock = new(sync.Mutex)
 }
