@@ -24,6 +24,7 @@ func NewServer() *gin.Engine {
 	})
 	// websocket
 	conn.GET("/ws", Upgrade)
+	conn.GET("/route_ws", RouteWs)
 
 	auth := base.Group("/auth")
 	auth.GET("/captcha", service.Captcha)      // 验证码

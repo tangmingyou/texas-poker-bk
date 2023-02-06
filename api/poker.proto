@@ -7,6 +7,7 @@ option go_package = "./api;api";
 /*
  * v1.0.0
  * protocol
+ * doc: https://protobuf.dev/programming-guides/proto3
  */
 message ProtoWrap {
   int32 ver = 1; // version
@@ -129,9 +130,12 @@ message ResGameFullStatus { // 玩家当前游戏状态: 断线,重新登录....
   int32 chip = 4; // 牌桌筹码
   int32 roundTimes = 5; // 回合次数
   int64 playerId = 6; // 当前玩家id
+  int32 bigBlindPos = 7; // 大盲注位
+  int32 smallBlindPos = 8; // 小盲注位
+  // int64 masterId = 9;
 
-  repeated Card publicCard = 9; // 公共牌
-  repeated TablePlayer players = 10;
+  repeated Card publicCard = 14; // 公共牌
+  repeated TablePlayer players = 15;
 }
 
 message TablePlayer {
@@ -141,9 +145,9 @@ message TablePlayer {
   string avatar = 4;
   int32 chip = 5; // 筹码
   int32 status = 6; // 玩家状态: 1待准备开始,2已准备开始,已开始(3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃)
-  bool master = 7; // 是否房主`
-  repeated Card handCard = 8; // 手牌
-
+  int32 lastStatus = 7; // TODO 删, 前端通过消息监听获取下注金额信息
+  bool master = 8; // 是否房主`
+  repeated Card handCard = 15; // 手牌
 }
 
 message Card {

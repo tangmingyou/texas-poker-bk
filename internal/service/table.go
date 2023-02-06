@@ -28,7 +28,7 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		Stage:      1,
 
 		Dealer:      game.NewDealer(),
-		PublicCards: [5]*game.Card{&game.Card{Dot: 0, Suit: 3}, &game.Card{Dot: 1, Suit: 3}, nil, nil, nil},
+		PublicCards: [5]*game.Card{nil, nil, nil, nil, nil}, //&game.Card{Dot: 0, Suit: 3}, &game.Card{Dot: 1, Suit: 3}
 
 		PlayerNum:     playerNum + 1,
 		RobotNum:      robotNum,
@@ -46,6 +46,7 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		Username:    account.UserName,
 		Avatar:      account.Avatar,
 		Status:      1,
+		LastStatus:  0,
 		Chip:        500,
 		Cards:       [2]*game.Card{},
 		GameTable:   table,
@@ -136,6 +137,7 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 		Username:    account.UserName,
 		Avatar:      account.Avatar,
 		Status:      1,
+		LastStatus:  0,
 		Chip:        500,
 		Cards:       [2]*game.Card{nil, nil},
 		GameTable:   table,
@@ -253,7 +255,7 @@ func HandleReqReadyStart(player *game.Player, msg *api.ReqReadyStart) (proto.Mes
 		return &api.ResFail{Msg: msg}, nil
 	}
 
-	player.Status = 2
+	player.SetStatus(2)
 	player.GameTable.NoticeGameFullStatus()
 
 	return &api.ResSuccess{}, nil
@@ -268,7 +270,7 @@ func HandleReqCancelReady(player *game.Player, msg *api.ReqCancelReady) (proto.M
 	if player.Status != 2 {
 		return &api.ResFail{Msg: "当前未准备"}, nil
 	}
-	player.Status = 1
+	player.SetStatus(1)
 	player.GameTable.NoticeGameFullStatus()
 	return &api.ResSuccess{}, nil
 }
@@ -353,7 +355,7 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 			p.Cards[i] = table.Dealer.Deal()
 		}
 		// 玩家状态置为等待
-		p.Status = 3
+		p.SetStatus(3)
 	}
 	// 发3张公共牌
 	for i := 0; i < 5; i++ {
@@ -365,7 +367,7 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 		table.PublicCards[i] = nil
 	}
 	// 待小盲注位玩家下注
-	table.Players[table.SmallBlindPos].Status = 4
+	table.Players[table.SmallBlindPos].SetStatus(4)
 
 	// 广播牌桌状态
 	table.NoticeGameFullStatus()

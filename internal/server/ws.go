@@ -8,9 +8,31 @@ import (
 	"log"
 	"net/http"
 	"texas-poker-bk/api"
+	"texas-poker-bk/internal/conf"
 	"texas-poker-bk/internal/session"
+	"texas-poker-bk/tool/ip"
 	"time"
 )
+
+var (
+	machineHost string
+	serverAddr  string
+)
+
+func init() {
+	machineHost = ip.InternalIP()
+	if conf.Conf.Http.Host != "" {
+		machineHost = conf.Conf.Http.Host
+	}
+	serverAddr = fmt.Sprintf("%s:%d", machineHost, conf.Conf.Http.Port)
+}
+
+// RouteWs 返回 websocket 路由地址
+func RouteWs(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{"data": gin.H{
+		"wsAddr": serverAddr,
+	}})
+}
 
 func Upgrade(ctx *gin.Context) {
 	//token, exists := ctx.GetQuery("t")

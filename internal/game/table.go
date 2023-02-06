@@ -41,7 +41,7 @@ func (t *Table) PlayerCount() int32 {
 }
 
 func (t *Table) NextPosPlayer(current int) int {
-	for i := current; i < len(t.Players); i++ {
+	for i := current + 1; i < len(t.Players); i++ {
 		if t.Players[i] == nil {
 			continue
 		}
@@ -79,12 +79,15 @@ func (t *Table) JoinPlayer(player *Player) error {
 
 // BuildResGameFullStatus 构建牌桌当前游戏状态消息
 func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
-	resGame := &api.ResGameFullStatus{}
-	resGame.InGame = collect.In(t.Stage, 2, 3, 4, 5, 6, 7)
-	resGame.TableNo = t.TableNo
-	resGame.GameStage = t.Stage
-	resGame.Chip = t.Chip
-	resGame.RoundTimes = t.RoundTimes
+	resGame := &api.ResGameFullStatus{
+		InGame:        collect.In(t.Stage, 2, 3, 4, 5, 6, 7),
+		TableNo:       t.TableNo,
+		GameStage:     t.Stage,
+		Chip:          t.Chip,
+		RoundTimes:    t.RoundTimes,
+		BigBlindPos:   int32(t.BigBlindPos),
+		SmallBlindPos: int32(t.SmallBlindPos),
+	}
 
 	// 公共牌
 	resGame.PublicCard = make([]*api.Card, len(t.PublicCards))
@@ -103,14 +106,15 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 			continue
 		}
 		player := &api.TablePlayer{
-			Robot:    false,
-			Id:       p.Id,
-			Username: p.Username,
-			Avatar:   p.Avatar,
-			Chip:     p.Chip,
-			Status:   p.Status,
-			Master:   t.MasterId == p.Id,
-			HandCard: make([]*api.Card, 2),
+			Robot:      false,
+			Id:         p.Id,
+			Username:   p.Username,
+			Avatar:     p.Avatar,
+			Chip:       p.Chip,
+			Status:     p.Status,
+			LastStatus: p.LastStatus,
+			Master:     t.MasterId == p.Id,
+			HandCard:   make([]*api.Card, 2),
 		}
 		// 玩家手牌
 		for j, card := range p.Cards {

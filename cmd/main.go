@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"texas-poker-bk/internal/conf"
 	"texas-poker-bk/internal/server"
@@ -12,7 +13,7 @@ func startServer() {
 	rand.Seed(time.Now().UnixNano())
 
 	httpServer := server.NewServer()
-	err := httpServer.Run(conf.Conf.Http.Addr)
+	err := httpServer.Run(fmt.Sprintf(":%d", conf.Conf.Http.Port))
 	if err != nil {
 		panic(err)
 	}

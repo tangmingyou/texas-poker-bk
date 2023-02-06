@@ -1,6 +1,7 @@
 
 [http]
-addr = ":9999"
+host = ""
+port = 9999
 
 [auth]
 aesTokenKey = "9Nz3Y6DES3msAFndz4QsJAECUIFkf+KKaRa+jRnNALk="

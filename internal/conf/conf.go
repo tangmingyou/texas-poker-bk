@@ -43,7 +43,8 @@ type Auth struct {
 }
 
 type Http struct {
-	Addr string
+	Host string
+	Port int
 }
 
 type Sqlite struct {

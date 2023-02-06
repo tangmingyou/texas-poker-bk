@@ -4772,6 +4772,8 @@ export const api = $root.api = (() => {
          * @property {number|null} [chip] ResGameFullStatus chip
          * @property {number|null} [roundTimes] ResGameFullStatus roundTimes
          * @property {number|Long|null} [playerId] ResGameFullStatus playerId
+         * @property {number|null} [bigBlindPos] ResGameFullStatus bigBlindPos
+         * @property {number|null} [smallBlindPos] ResGameFullStatus smallBlindPos
          * @property {Array.<api.ICard>|null} [publicCard] ResGameFullStatus publicCard
          * @property {Array.<api.ITablePlayer>|null} [players] ResGameFullStatus players
          */
@@ -4842,6 +4844,22 @@ export const api = $root.api = (() => {
         ResGameFullStatus.prototype.playerId = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
 
         /**
+         * ResGameFullStatus bigBlindPos.
+         * @member {number} bigBlindPos
+         * @memberof api.ResGameFullStatus
+         * @instance
+         */
+        ResGameFullStatus.prototype.bigBlindPos = 0;
+
+        /**
+         * ResGameFullStatus smallBlindPos.
+         * @member {number} smallBlindPos
+         * @memberof api.ResGameFullStatus
+         * @instance
+         */
+        ResGameFullStatus.prototype.smallBlindPos = 0;
+
+        /**
          * ResGameFullStatus publicCard.
          * @member {Array.<api.ICard>} publicCard
          * @memberof api.ResGameFullStatus
@@ -4893,12 +4911,16 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 5, wireType 0 =*/40).int32(message.roundTimes);
             if (message.playerId != null && Object.hasOwnProperty.call(message, "playerId"))
                 writer.uint32(/* id 6, wireType 0 =*/48).int64(message.playerId);
+            if (message.bigBlindPos != null && Object.hasOwnProperty.call(message, "bigBlindPos"))
+                writer.uint32(/* id 7, wireType 0 =*/56).int32(message.bigBlindPos);
+            if (message.smallBlindPos != null && Object.hasOwnProperty.call(message, "smallBlindPos"))
+                writer.uint32(/* id 8, wireType 0 =*/64).int32(message.smallBlindPos);
             if (message.publicCard != null && message.publicCard.length)
                 for (let i = 0; i < message.publicCard.length; ++i)
-                    $root.api.Card.encode(message.publicCard[i], writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
+                    $root.api.Card.encode(message.publicCard[i], writer.uint32(/* id 14, wireType 2 =*/114).fork()).ldelim();
             if (message.players != null && message.players.length)
                 for (let i = 0; i < message.players.length; ++i)
-                    $root.api.TablePlayer.encode(message.players[i], writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
+                    $root.api.TablePlayer.encode(message.players[i], writer.uint32(/* id 15, wireType 2 =*/122).fork()).ldelim();
             return writer;
         };
 
@@ -4957,13 +4979,21 @@ export const api = $root.api = (() => {
                         message.playerId = reader.int64();
                         break;
                     }
-                case 9: {
+                case 7: {
+                        message.bigBlindPos = reader.int32();
+                        break;
+                    }
+                case 8: {
+                        message.smallBlindPos = reader.int32();
+                        break;
+                    }
+                case 14: {
                         if (!(message.publicCard && message.publicCard.length))
                             message.publicCard = [];
                         message.publicCard.push($root.api.Card.decode(reader, reader.uint32()));
                         break;
                     }
-                case 10: {
+                case 15: {
                         if (!(message.players && message.players.length))
                             message.players = [];
                         message.players.push($root.api.TablePlayer.decode(reader, reader.uint32()));
@@ -5022,6 +5052,12 @@ export const api = $root.api = (() => {
             if (message.playerId != null && message.hasOwnProperty("playerId"))
                 if (!$util.isInteger(message.playerId) && !(message.playerId && $util.isInteger(message.playerId.low) && $util.isInteger(message.playerId.high)))
                     return "playerId: integer|Long expected";
+            if (message.bigBlindPos != null && message.hasOwnProperty("bigBlindPos"))
+                if (!$util.isInteger(message.bigBlindPos))
+                    return "bigBlindPos: integer expected";
+            if (message.smallBlindPos != null && message.hasOwnProperty("smallBlindPos"))
+                if (!$util.isInteger(message.smallBlindPos))
+                    return "smallBlindPos: integer expected";
             if (message.publicCard != null && message.hasOwnProperty("publicCard")) {
                 if (!Array.isArray(message.publicCard))
                     return "publicCard: array expected";
@@ -5074,6 +5110,10 @@ export const api = $root.api = (() => {
                     message.playerId = object.playerId;
                 else if (typeof object.playerId === "object")
                     message.playerId = new $util.LongBits(object.playerId.low >>> 0, object.playerId.high >>> 0).toNumber();
+            if (object.bigBlindPos != null)
+                message.bigBlindPos = object.bigBlindPos | 0;
+            if (object.smallBlindPos != null)
+                message.smallBlindPos = object.smallBlindPos | 0;
             if (object.publicCard) {
                 if (!Array.isArray(object.publicCard))
                     throw TypeError(".api.ResGameFullStatus.publicCard: array expected");
@@ -5125,6 +5165,8 @@ export const api = $root.api = (() => {
                     object.playerId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                 } else
                     object.playerId = options.longs === String ? "0" : 0;
+                object.bigBlindPos = 0;
+                object.smallBlindPos = 0;
             }
             if (message.inGame != null && message.hasOwnProperty("inGame"))
                 object.inGame = message.inGame;
@@ -5141,6 +5183,10 @@ export const api = $root.api = (() => {
                     object.playerId = options.longs === String ? String(message.playerId) : message.playerId;
                 else
                     object.playerId = options.longs === String ? $util.Long.prototype.toString.call(message.playerId) : options.longs === Number ? new $util.LongBits(message.playerId.low >>> 0, message.playerId.high >>> 0).toNumber() : message.playerId;
+            if (message.bigBlindPos != null && message.hasOwnProperty("bigBlindPos"))
+                object.bigBlindPos = message.bigBlindPos;
+            if (message.smallBlindPos != null && message.hasOwnProperty("smallBlindPos"))
+                object.smallBlindPos = message.smallBlindPos;
             if (message.publicCard && message.publicCard.length) {
                 object.publicCard = [];
                 for (let j = 0; j < message.publicCard.length; ++j)
@@ -5195,6 +5241,7 @@ export const api = $root.api = (() => {
          * @property {string|null} [avatar] TablePlayer avatar
          * @property {number|null} [chip] TablePlayer chip
          * @property {number|null} [status] TablePlayer status
+         * @property {number|null} [lastStatus] TablePlayer lastStatus
          * @property {boolean|null} [master] TablePlayer master
          * @property {Array.<api.ICard>|null} [handCard] TablePlayer handCard
          */
@@ -5264,6 +5311,14 @@ export const api = $root.api = (() => {
         TablePlayer.prototype.status = 0;
 
         /**
+         * TablePlayer lastStatus.
+         * @member {number} lastStatus
+         * @memberof api.TablePlayer
+         * @instance
+         */
+        TablePlayer.prototype.lastStatus = 0;
+
+        /**
          * TablePlayer master.
          * @member {boolean} master
          * @memberof api.TablePlayer
@@ -5315,11 +5370,13 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 5, wireType 0 =*/40).int32(message.chip);
             if (message.status != null && Object.hasOwnProperty.call(message, "status"))
                 writer.uint32(/* id 6, wireType 0 =*/48).int32(message.status);
+            if (message.lastStatus != null && Object.hasOwnProperty.call(message, "lastStatus"))
+                writer.uint32(/* id 7, wireType 0 =*/56).int32(message.lastStatus);
             if (message.master != null && Object.hasOwnProperty.call(message, "master"))
-                writer.uint32(/* id 7, wireType 0 =*/56).bool(message.master);
+                writer.uint32(/* id 8, wireType 0 =*/64).bool(message.master);
             if (message.handCard != null && message.handCard.length)
                 for (let i = 0; i < message.handCard.length; ++i)
-                    $root.api.Card.encode(message.handCard[i], writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+                    $root.api.Card.encode(message.handCard[i], writer.uint32(/* id 15, wireType 2 =*/122).fork()).ldelim();
             return writer;
         };
 
@@ -5379,10 +5436,14 @@ export const api = $root.api = (() => {
                         break;
                     }
                 case 7: {
-                        message.master = reader.bool();
+                        message.lastStatus = reader.int32();
                         break;
                     }
                 case 8: {
+                        message.master = reader.bool();
+                        break;
+                    }
+                case 15: {
                         if (!(message.handCard && message.handCard.length))
                             message.handCard = [];
                         message.handCard.push($root.api.Card.decode(reader, reader.uint32()));
@@ -5441,6 +5502,9 @@ export const api = $root.api = (() => {
             if (message.status != null && message.hasOwnProperty("status"))
                 if (!$util.isInteger(message.status))
                     return "status: integer expected";
+            if (message.lastStatus != null && message.hasOwnProperty("lastStatus"))
+                if (!$util.isInteger(message.lastStatus))
+                    return "lastStatus: integer expected";
             if (message.master != null && message.hasOwnProperty("master"))
                 if (typeof message.master !== "boolean")
                     return "master: boolean expected";
@@ -5487,6 +5551,8 @@ export const api = $root.api = (() => {
                 message.chip = object.chip | 0;
             if (object.status != null)
                 message.status = object.status | 0;
+            if (object.lastStatus != null)
+                message.lastStatus = object.lastStatus | 0;
             if (object.master != null)
                 message.master = Boolean(object.master);
             if (object.handCard) {
@@ -5528,6 +5594,7 @@ export const api = $root.api = (() => {
                 object.avatar = "";
                 object.chip = 0;
                 object.status = 0;
+                object.lastStatus = 0;
                 object.master = false;
             }
             if (message.robot != null && message.hasOwnProperty("robot"))
@@ -5545,6 +5612,8 @@ export const api = $root.api = (() => {
                 object.chip = message.chip;
             if (message.status != null && message.hasOwnProperty("status"))
                 object.status = message.status;
+            if (message.lastStatus != null && message.hasOwnProperty("lastStatus"))
+                object.lastStatus = message.lastStatus;
             if (message.master != null && message.hasOwnProperty("master"))
                 object.master = message.master;
             if (message.handCard && message.handCard.length) {

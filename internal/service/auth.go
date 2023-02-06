@@ -58,13 +58,25 @@ func Authorize(ctx *gin.Context) {
 		}
 	}
 
-	sub := &session.Subject{Id: user.Id, Name: user.Username, Time: time.Now().UnixMilli()}
+	sub := &session.Subject{
+		Id:   user.Id,
+		Name: user.Username,
+		Time: time.Now().UnixMilli(),
+	}
 	token, err := EncodeSubject(sub)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"msg": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"data": gin.H{"token": token}})
+
+	ctx.JSON(http.StatusOK, gin.H{"data": gin.H{
+		"token": token,
+		"user": gin.H{
+			"id":       user.Id,
+			"username": user.Username,
+			// TODO avatar...
+		},
+	}})
 }
 
 // 注册用户到DB
