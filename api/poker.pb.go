@@ -1253,11 +1253,11 @@ type TablePlayer struct {
 	Id         int64   `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
 	Username   string  `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
 	Avatar     string  `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
-	Chip       int32   `protobuf:"varint,5,opt,name=chip,proto3" json:"chip,omitempty"`     // 筹码
-	Status     int32   `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"` // 玩家状态: 1待准备开始,2已准备开始,已开始(3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃)
-	LastStatus int32   `protobuf:"varint,7,opt,name=lastStatus,proto3" json:"lastStatus,omitempty"`
-	Master     bool    `protobuf:"varint,8,opt,name=master,proto3" json:"master,omitempty"`     // 是否房主`
-	HandCard   []*Card `protobuf:"bytes,15,rep,name=handCard,proto3" json:"handCard,omitempty"` // 手牌
+	Chip       int32   `protobuf:"varint,5,opt,name=chip,proto3" json:"chip,omitempty"`             // 筹码
+	Status     int32   `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`         // 玩家状态: 1待准备开始,2已准备开始,已开始(3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃)
+	LastStatus int32   `protobuf:"varint,7,opt,name=lastStatus,proto3" json:"lastStatus,omitempty"` // TODO 删, 前端通过消息监听获取下注金额信息
+	Master     bool    `protobuf:"varint,8,opt,name=master,proto3" json:"master,omitempty"`         // 是否房主`
+	HandCard   []*Card `protobuf:"bytes,15,rep,name=handCard,proto3" json:"handCard,omitempty"`     // 手牌
 }
 
 func (x *TablePlayer) Reset() {
@@ -1622,6 +1622,132 @@ func (*ResDismissGameTable) Descriptor() ([]byte, []int) {
 	return file_poker_proto_rawDescGZIP(), []int{29}
 }
 
+// 下注
+type ReqPlaceBetChip struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Chip int32 `protobuf:"varint,1,opt,name=chip,proto3" json:"chip,omitempty"`
+}
+
+func (x *ReqPlaceBetChip) Reset() {
+	*x = ReqPlaceBetChip{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[30]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ReqPlaceBetChip) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReqPlaceBetChip) ProtoMessage() {}
+
+func (x *ReqPlaceBetChip) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[30]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReqPlaceBetChip.ProtoReflect.Descriptor instead.
+func (*ReqPlaceBetChip) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *ReqPlaceBetChip) GetChip() int32 {
+	if x != nil {
+		return x.Chip
+	}
+	return 0
+}
+
+// 让牌
+type ReqBetWeakHand struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ReqBetWeakHand) Reset() {
+	*x = ReqBetWeakHand{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[31]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ReqBetWeakHand) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReqBetWeakHand) ProtoMessage() {}
+
+func (x *ReqBetWeakHand) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[31]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReqBetWeakHand.ProtoReflect.Descriptor instead.
+func (*ReqBetWeakHand) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{31}
+}
+
+// 弃牌
+type ReqBetDiscard struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ReqBetDiscard) Reset() {
+	*x = ReqBetDiscard{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_poker_proto_msgTypes[32]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ReqBetDiscard) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReqBetDiscard) ProtoMessage() {}
+
+func (x *ReqBetDiscard) ProtoReflect() protoreflect.Message {
+	mi := &file_poker_proto_msgTypes[32]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReqBetDiscard.ProtoReflect.Descriptor instead.
+func (*ReqBetDiscard) Descriptor() ([]byte, []int) {
+	return file_poker_proto_rawDescGZIP(), []int{32}
+}
+
 var File_poker_proto protoreflect.FileDescriptor
 
 var file_poker_proto_rawDesc = []byte{
@@ -1741,8 +1867,13 @@ var file_poker_proto_rawDesc = []byte{
 	0x28, 0x05, 0x52, 0x04, 0x63, 0x68, 0x69, 0x70, 0x22, 0x15, 0x0a, 0x13, 0x52, 0x65, 0x71, 0x44,
 	0x69, 0x73, 0x6d, 0x69, 0x73, 0x73, 0x47, 0x61, 0x6d, 0x65, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x22,
 	0x15, 0x0a, 0x13, 0x52, 0x65, 0x73, 0x44, 0x69, 0x73, 0x6d, 0x69, 0x73, 0x73, 0x47, 0x61, 0x6d,
-	0x65, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x42, 0x0b, 0x5a, 0x09, 0x2e, 0x2f, 0x61, 0x70, 0x69, 0x3b,
-	0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x22, 0x25, 0x0a, 0x0f, 0x52, 0x65, 0x71, 0x50, 0x6c, 0x61,
+	0x63, 0x65, 0x42, 0x65, 0x74, 0x43, 0x68, 0x69, 0x70, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x68, 0x69,
+	0x70, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x63, 0x68, 0x69, 0x70, 0x22, 0x10, 0x0a,
+	0x0e, 0x52, 0x65, 0x71, 0x42, 0x65, 0x74, 0x57, 0x65, 0x61, 0x6b, 0x48, 0x61, 0x6e, 0x64, 0x22,
+	0x0f, 0x0a, 0x0d, 0x52, 0x65, 0x71, 0x42, 0x65, 0x74, 0x44, 0x69, 0x73, 0x63, 0x61, 0x72, 0x64,
+	0x42, 0x0b, 0x5a, 0x09, 0x2e, 0x2f, 0x61, 0x70, 0x69, 0x3b, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1757,7 +1888,7 @@ func file_poker_proto_rawDescGZIP() []byte {
 	return file_poker_proto_rawDescData
 }
 
-var file_poker_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_poker_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_poker_proto_goTypes = []interface{}{
 	(*ProtoWrap)(nil),           // 0: api.ProtoWrap
 	(*Ping)(nil),                // 1: api.Ping
@@ -1789,6 +1920,9 @@ var file_poker_proto_goTypes = []interface{}{
 	(*ResSmallBlindChip)(nil),   // 27: api.ResSmallBlindChip
 	(*ReqDismissGameTable)(nil), // 28: api.ReqDismissGameTable
 	(*ResDismissGameTable)(nil), // 29: api.ResDismissGameTable
+	(*ReqPlaceBetChip)(nil),     // 30: api.ReqPlaceBetChip
+	(*ReqBetWeakHand)(nil),      // 31: api.ReqBetWeakHand
+	(*ReqBetDiscard)(nil),       // 32: api.ReqBetDiscard
 }
 var file_poker_proto_depIdxs = []int32{
 	9,  // 0: api.ResLobbyView.tables:type_name -> api.LobbyTable
@@ -2169,6 +2303,42 @@ func file_poker_proto_init() {
 				return nil
 			}
 		}
+		file_poker_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ReqPlaceBetChip); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_poker_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ReqBetWeakHand); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_poker_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ReqBetDiscard); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -2176,7 +2346,7 @@ func file_poker_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_poker_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   30,
+			NumMessages:   33,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

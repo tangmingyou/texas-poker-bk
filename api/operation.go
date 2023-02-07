@@ -49,6 +49,10 @@ var protoInstances = []proto.Message{
 
 	&ResBigBlindChip{},
 	&ResSmallBlindChip{},
+
+	&ReqPlaceBetChip{},
+	&ReqBetWeakHand{},
+	&ReqBetDiscard{},
 }
 
 var (

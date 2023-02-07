@@ -12,7 +12,8 @@ type Player struct {
 	Avatar     string
 	Cards      [2]*Card // 手牌
 	Chip       int32    // 玩家筹码
-	Status     int32    // 状态: 1待准备开始,2已准备开始,3等待其他玩家动作,4小盲注跟注, [5待大盲注,5待小盲注,] 6待跟注,7已弃牌
+	RoundChip  int32    // 该回合已下注筹码
+	Status     int32    // 状态: 1待准备开始,2已准备开始,3等待其他玩家动作,4第一回合小盲注跟注, [5待大盲注,5待小盲注,] 6待跟注,7已弃牌
 	LastStatus int32    // 变化前一个状态
 
 	GameTable   *Table // 当前牌桌
@@ -24,6 +25,11 @@ type Player struct {
 func (p *Player) Init() {
 	p.Lock = new(sync.Mutex)
 	p.StatusLock = new(sync.Mutex)
+}
+
+// RoundInit 下一回合初始化
+func (p *Player) RoundInit() {
+	p.RoundChip = 0
 }
 
 func (p *Player) SetStatus(status int32) {

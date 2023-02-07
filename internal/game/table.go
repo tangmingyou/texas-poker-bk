@@ -22,8 +22,10 @@ type Table struct {
 	RobotNum      int32     // 机器人数
 	Players       []*Player // 玩家
 	Robots        []*Robot
-	BigBlindPos   int // 大盲注位
-	SmallBlindPos int // 小盲注位
+	BigBlindPos   int   // 大盲注位
+	SmallBlindPos int   // 小盲注位
+	BigBlindChip  int32 // 大盲注金额
+	TexasType     int32 // 德州扑克类型: (1限注德州扑克:你只能增加与大盲注相同的投注额; 2底池限制德州扑克：你只能增加当时台面最大额的投注额（已经完成所有投注）; 3无限制德州扑克：你可在手持额度下，增加任何额度的投注额，如果你投入所有筹码，就是“全押”)
 
 	PlayersLock *sync.Mutex
 	ChipLock    *sync.Mutex // 桌面筹码更新锁

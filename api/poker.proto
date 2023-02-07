@@ -147,12 +147,19 @@ message TablePlayer {
   int32 status = 6; // 玩家状态: 1待准备开始,2已准备开始,已开始(3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃)
   int32 lastStatus = 7; // TODO 删, 前端通过消息监听获取下注金额信息
   bool master = 8; // 是否房主`
+  BetRole betRole = 14; // 下注时规则限制
   repeated Card handCard = 15; // 手牌
 }
 
 message Card {
   int32 dot = 1; // 点数
   string suit = 2; // 花色, protobuf默认值0, string类型区分空白牌
+}
+
+// player status in (4,6) 跟注时规则
+message BetRole {
+  int32 minChip = 1; // 最低下注额：小盲注加注(按惯例至少2倍与大盲注)
+  int32 maxChip = 2; // 最高下注额：
 }
 
 // 加入游戏 ============= end
@@ -176,4 +183,20 @@ message ResSmallBlindChip {
 message ReqDismissGameTable {
 }
 message ResDismissGameTable {
+}
+
+// 下注
+message ReqPlaceBetChip {
+  int32 betChip = 1; // 跟注/加注金额
+  bool allIn = 2; // 是否 allIn
+}
+
+// 让牌
+message ReqBetWeakHand {
+
+}
+
+// 弃牌
+message ReqBetDiscard {
+
 }

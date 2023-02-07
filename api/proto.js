@@ -6811,6 +6811,559 @@ export const api = $root.api = (() => {
         return ResDismissGameTable;
     })();
 
+    api.ReqPlaceBetChip = (function() {
+
+        /**
+         * Properties of a ReqPlaceBetChip.
+         * @memberof api
+         * @interface IReqPlaceBetChip
+         * @property {number|null} [chip] ReqPlaceBetChip chip
+         */
+
+        /**
+         * Constructs a new ReqPlaceBetChip.
+         * @memberof api
+         * @classdesc Represents a ReqPlaceBetChip.
+         * @implements IReqPlaceBetChip
+         * @constructor
+         * @param {api.IReqPlaceBetChip=} [properties] Properties to set
+         */
+        function ReqPlaceBetChip(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * ReqPlaceBetChip chip.
+         * @member {number} chip
+         * @memberof api.ReqPlaceBetChip
+         * @instance
+         */
+        ReqPlaceBetChip.prototype.chip = 0;
+
+        /**
+         * Creates a new ReqPlaceBetChip instance using the specified properties.
+         * @function create
+         * @memberof api.ReqPlaceBetChip
+         * @static
+         * @param {api.IReqPlaceBetChip=} [properties] Properties to set
+         * @returns {api.ReqPlaceBetChip} ReqPlaceBetChip instance
+         */
+        ReqPlaceBetChip.create = function create(properties) {
+            return new ReqPlaceBetChip(properties);
+        };
+
+        /**
+         * Encodes the specified ReqPlaceBetChip message. Does not implicitly {@link api.ReqPlaceBetChip.verify|verify} messages.
+         * @function encode
+         * @memberof api.ReqPlaceBetChip
+         * @static
+         * @param {api.IReqPlaceBetChip} message ReqPlaceBetChip message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqPlaceBetChip.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.chip != null && Object.hasOwnProperty.call(message, "chip"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.chip);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ReqPlaceBetChip message, length delimited. Does not implicitly {@link api.ReqPlaceBetChip.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ReqPlaceBetChip
+         * @static
+         * @param {api.IReqPlaceBetChip} message ReqPlaceBetChip message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqPlaceBetChip.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ReqPlaceBetChip message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ReqPlaceBetChip
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ReqPlaceBetChip} ReqPlaceBetChip
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqPlaceBetChip.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqPlaceBetChip();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1: {
+                        message.chip = reader.int32();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ReqPlaceBetChip message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ReqPlaceBetChip
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ReqPlaceBetChip} ReqPlaceBetChip
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqPlaceBetChip.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ReqPlaceBetChip message.
+         * @function verify
+         * @memberof api.ReqPlaceBetChip
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ReqPlaceBetChip.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.chip != null && message.hasOwnProperty("chip"))
+                if (!$util.isInteger(message.chip))
+                    return "chip: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a ReqPlaceBetChip message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ReqPlaceBetChip
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ReqPlaceBetChip} ReqPlaceBetChip
+         */
+        ReqPlaceBetChip.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqPlaceBetChip)
+                return object;
+            let message = new $root.api.ReqPlaceBetChip();
+            if (object.chip != null)
+                message.chip = object.chip | 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a ReqPlaceBetChip message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ReqPlaceBetChip
+         * @static
+         * @param {api.ReqPlaceBetChip} message ReqPlaceBetChip
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ReqPlaceBetChip.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.chip = 0;
+            if (message.chip != null && message.hasOwnProperty("chip"))
+                object.chip = message.chip;
+            return object;
+        };
+
+        /**
+         * Converts this ReqPlaceBetChip to JSON.
+         * @function toJSON
+         * @memberof api.ReqPlaceBetChip
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ReqPlaceBetChip.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ReqPlaceBetChip
+         * @function getTypeUrl
+         * @memberof api.ReqPlaceBetChip
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ReqPlaceBetChip.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ReqPlaceBetChip";
+        };
+
+        return ReqPlaceBetChip;
+    })();
+
+    api.ReqBetWeakHand = (function() {
+
+        /**
+         * Properties of a ReqBetWeakHand.
+         * @memberof api
+         * @interface IReqBetWeakHand
+         */
+
+        /**
+         * Constructs a new ReqBetWeakHand.
+         * @memberof api
+         * @classdesc Represents a ReqBetWeakHand.
+         * @implements IReqBetWeakHand
+         * @constructor
+         * @param {api.IReqBetWeakHand=} [properties] Properties to set
+         */
+        function ReqBetWeakHand(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ReqBetWeakHand instance using the specified properties.
+         * @function create
+         * @memberof api.ReqBetWeakHand
+         * @static
+         * @param {api.IReqBetWeakHand=} [properties] Properties to set
+         * @returns {api.ReqBetWeakHand} ReqBetWeakHand instance
+         */
+        ReqBetWeakHand.create = function create(properties) {
+            return new ReqBetWeakHand(properties);
+        };
+
+        /**
+         * Encodes the specified ReqBetWeakHand message. Does not implicitly {@link api.ReqBetWeakHand.verify|verify} messages.
+         * @function encode
+         * @memberof api.ReqBetWeakHand
+         * @static
+         * @param {api.IReqBetWeakHand} message ReqBetWeakHand message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqBetWeakHand.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ReqBetWeakHand message, length delimited. Does not implicitly {@link api.ReqBetWeakHand.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ReqBetWeakHand
+         * @static
+         * @param {api.IReqBetWeakHand} message ReqBetWeakHand message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqBetWeakHand.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ReqBetWeakHand message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ReqBetWeakHand
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ReqBetWeakHand} ReqBetWeakHand
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqBetWeakHand.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqBetWeakHand();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ReqBetWeakHand message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ReqBetWeakHand
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ReqBetWeakHand} ReqBetWeakHand
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqBetWeakHand.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ReqBetWeakHand message.
+         * @function verify
+         * @memberof api.ReqBetWeakHand
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ReqBetWeakHand.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ReqBetWeakHand message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ReqBetWeakHand
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ReqBetWeakHand} ReqBetWeakHand
+         */
+        ReqBetWeakHand.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqBetWeakHand)
+                return object;
+            return new $root.api.ReqBetWeakHand();
+        };
+
+        /**
+         * Creates a plain object from a ReqBetWeakHand message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ReqBetWeakHand
+         * @static
+         * @param {api.ReqBetWeakHand} message ReqBetWeakHand
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ReqBetWeakHand.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ReqBetWeakHand to JSON.
+         * @function toJSON
+         * @memberof api.ReqBetWeakHand
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ReqBetWeakHand.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ReqBetWeakHand
+         * @function getTypeUrl
+         * @memberof api.ReqBetWeakHand
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ReqBetWeakHand.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ReqBetWeakHand";
+        };
+
+        return ReqBetWeakHand;
+    })();
+
+    api.ReqBetDiscard = (function() {
+
+        /**
+         * Properties of a ReqBetDiscard.
+         * @memberof api
+         * @interface IReqBetDiscard
+         */
+
+        /**
+         * Constructs a new ReqBetDiscard.
+         * @memberof api
+         * @classdesc Represents a ReqBetDiscard.
+         * @implements IReqBetDiscard
+         * @constructor
+         * @param {api.IReqBetDiscard=} [properties] Properties to set
+         */
+        function ReqBetDiscard(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ReqBetDiscard instance using the specified properties.
+         * @function create
+         * @memberof api.ReqBetDiscard
+         * @static
+         * @param {api.IReqBetDiscard=} [properties] Properties to set
+         * @returns {api.ReqBetDiscard} ReqBetDiscard instance
+         */
+        ReqBetDiscard.create = function create(properties) {
+            return new ReqBetDiscard(properties);
+        };
+
+        /**
+         * Encodes the specified ReqBetDiscard message. Does not implicitly {@link api.ReqBetDiscard.verify|verify} messages.
+         * @function encode
+         * @memberof api.ReqBetDiscard
+         * @static
+         * @param {api.IReqBetDiscard} message ReqBetDiscard message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqBetDiscard.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ReqBetDiscard message, length delimited. Does not implicitly {@link api.ReqBetDiscard.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ReqBetDiscard
+         * @static
+         * @param {api.IReqBetDiscard} message ReqBetDiscard message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqBetDiscard.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ReqBetDiscard message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ReqBetDiscard
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ReqBetDiscard} ReqBetDiscard
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqBetDiscard.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqBetDiscard();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ReqBetDiscard message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ReqBetDiscard
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ReqBetDiscard} ReqBetDiscard
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqBetDiscard.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ReqBetDiscard message.
+         * @function verify
+         * @memberof api.ReqBetDiscard
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ReqBetDiscard.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ReqBetDiscard message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ReqBetDiscard
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ReqBetDiscard} ReqBetDiscard
+         */
+        ReqBetDiscard.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqBetDiscard)
+                return object;
+            return new $root.api.ReqBetDiscard();
+        };
+
+        /**
+         * Creates a plain object from a ReqBetDiscard message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ReqBetDiscard
+         * @static
+         * @param {api.ReqBetDiscard} message ReqBetDiscard
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ReqBetDiscard.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ReqBetDiscard to JSON.
+         * @function toJSON
+         * @memberof api.ReqBetDiscard
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ReqBetDiscard.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ReqBetDiscard
+         * @function getTypeUrl
+         * @memberof api.ReqBetDiscard
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ReqBetDiscard.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ReqBetDiscard";
+        };
+
+        return ReqBetDiscard;
+    })();
+
     return api;
 })();
 
