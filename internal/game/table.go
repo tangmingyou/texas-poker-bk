@@ -2,6 +2,7 @@ package game
 
 import (
 	"errors"
+	"github.com/golang/protobuf/proto"
 	"sync"
 	"texas-poker-bk/api"
 	"texas-poker-bk/tool/collect"
@@ -18,18 +19,34 @@ type Table struct {
 	Dealer      *Dealer  // 发牌员
 	PublicCards [5]*Card // 公共牌
 
-	PlayerNum     int32     // 玩家数
-	RobotNum      int32     // 机器人数
-	Players       []*Player // 玩家
-	Robots        []*Robot
-	BigBlindPos   int   // 大盲注位
-	SmallBlindPos int   // 小盲注位
-	BigBlindChip  int32 // 大盲注金额
-	TexasType     int32 // 德州扑克类型: (1限注德州扑克:你只能增加与大盲注相同的投注额; 2底池限制德州扑克：你只能增加当时台面最大额的投注额（已经完成所有投注）; 3无限制德州扑克：你可在手持额度下，增加任何额度的投注额，如果你投入所有筹码，就是“全押”)
+	PlayerNum      int32     // 玩家数
+	RobotNum       int32     // 机器人数
+	Players        []*Player // 玩家
+	Robots         []*Robot
+	BigBlindPos    int   // 大盲注位
+	SmallBlindPos  int   // 小盲注位
+	BigBlindChip   int32 // 大盲注金额
+	SmallBlindChip int32 // 大盲注金额
+	TexasType      int32 // 德州扑克类型: (1限注德州扑克:你只能增加与大盲注相同的投注额; 2底池限制德州扑克：你只能增加当时台面最大额的投注额（已经完成所有投注）; 3无限制德州扑克：你可在手持额度下，增加任何额度的投注额，如果你投入所有筹码，就是“全押”)
+	LimitInAmount  int32 // 最低入场金额
+
+	LastPosBetChip int32 // 上家下注金额
 
 	PlayersLock *sync.Mutex
 	ChipLock    *sync.Mutex // 桌面筹码更新锁
 	// TODO game logs7
+}
+
+// Init 初始化桌面
+func (t *Table) Init() {
+	t.PlayersLock = &sync.Mutex{}
+	t.ChipLock = &sync.Mutex{}
+	t.PublicCards = [5]*Card{nil, nil, nil, nil, nil}
+	t.Dealer = NewDealer()
+	t.RoundTimes = 0
+	t.Stage = 1
+	t.BigBlindPos = 0
+	t.SmallBlindPos = 0
 }
 
 func (t *Table) PlayerCount() int32 {
@@ -42,7 +59,7 @@ func (t *Table) PlayerCount() int32 {
 	return count
 }
 
-func (t *Table) NextPosPlayer(current int) int {
+func (t *Table) NextPlayerPos(current int) int {
 	for i := current + 1; i < len(t.Players); i++ {
 		if t.Players[i] == nil {
 			continue
@@ -57,14 +74,14 @@ func (t *Table) NextPosPlayer(current int) int {
 	return 0
 }
 
-func (t *Table) FindPlayerPos(player *Player) int32 {
-	for i, p := range t.Players {
-		if p != nil && p.Id == player.Id {
-			return int32(i)
-		}
-	}
-	return -1
-}
+//func (t *Table) FindPlayerPos(player *Player) int32 {
+//	for i, p := range t.Players {
+//		if p != nil && p.Id == player.Id {
+//			return int32(i)
+//		}
+//	}
+//	return -1
+//}
 
 func (t *Table) JoinPlayer(player *Player) error {
 	t.PlayersLock.Lock()
@@ -147,6 +164,14 @@ func (t *Table) NoticeGameFullStatus() {
 				}
 			}
 			player.ProtoWriter.Write(resGame)
+		}
+	}
+}
+
+func (t *Table) NoticeAllPlayer(message proto.Message) {
+	for _, player := range t.Players {
+		if player != nil && player.ProtoWriter != nil {
+			player.ProtoWriter.Write(message)
 		}
 	}
 }

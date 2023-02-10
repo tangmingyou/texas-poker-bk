@@ -5,11 +5,6 @@ import (
 	"sync"
 )
 
-const (
-	BigBlindChip int32 = 2                // 大盲注金额
-	SmallBlinds  int32 = BigBlindChip / 2 // 小盲注金额
-)
-
 // Dealer 发牌员, 有打乱的一副牌
 type Dealer struct {
 	// 一副牌

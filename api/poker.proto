@@ -75,6 +75,8 @@ message LobbyPlayer {
 message ReqCreateTable {
   int32 players  = 1;
   int32 robots  = 2;
+  int32 texasType = 3; // 游戏类型
+  int32 bigBlind = 4; // 大盲注额
 }
 
 message ResCreateTable {
@@ -169,16 +171,6 @@ message ReqGameStart {
 
 }
 
-// 扣除大盲注
-message ResBigBlindChip {
-  int32 chip = 1;
-}
-
-// 扣除小盲注消息, 然后发牌
-message ResSmallBlindChip {
-  int32 chip = 1;
-}
-
 // 解散房间
 message ReqDismissGameTable {
 }
@@ -189,6 +181,7 @@ message ResDismissGameTable {
 message ReqPlaceBetChip {
   int32 betChip = 1; // 跟注/加注金额
   bool allIn = 2; // 是否 allIn
+
 }
 
 // 让牌
@@ -199,4 +192,13 @@ message ReqBetWeakHand {
 // 弃牌
 message ReqBetDiscard {
 
+}
+
+// 通知玩家某个其他玩家动作
+message ResNoticePlayerLine {
+  int64 playerId = 1;
+
+  string line1 = 11;
+  string line2 = 12;
+  string line3 = 13;
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"sort"
-	"sync"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/game"
 	"texas-poker-bk/internal/service/store"
@@ -12,50 +11,62 @@ import (
 	"texas-poker-bk/tool/collect"
 )
 
-// HandleReqCreateTable 创建桌面 TODO 当前在房间则不可创建房间了
+// HandleReqCreateTable 创建桌面
 func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) (proto.Message, error) {
+	account.Lock.Lock()
+	defer account.Lock.Unlock()
+
+	if account.Player != nil {
+		return &api.ResFail{Msg: fmt.Sprintf("您当前在#%d牌桌中", account.Player.GameTable.TableNo)}, nil
+	}
 	// 人数，机器人数
 	playerNum := msg.Players
 	robotNum := msg.Robots
 	if playerNum+robotNum <= 0 {
 		return &api.ResFail{Msg: "至少添加一个玩家或机器人"}, nil
 	}
+	if !collect.In(msg.TexasType, 1, 2, 3) {
+		return &api.ResFail{Msg: fmt.Sprintf("未知游戏类型%d", msg.TexasType)}, nil
+	}
+	if msg.BigBlind < 2 || msg.BigBlind > 200 || msg.BigBlind%2 == 1 {
+		return &api.ResFail{Msg: "大盲注金额需在2-200之间,且为偶数"}, nil
+	}
+	if account.GetBalance() < msg.BigBlind*100 {
+		return &api.ResFail{Msg: fmt.Sprintf("余额小于入场金额[%d]", msg.BigBlind*100)}, nil
+	}
 	// 初始化一个牌桌
 	table := &game.Table{
-		TableNo:    store.TableNo.Add(1),
-		MasterId:   account.Id,
-		RoundTimes: 0,
-		Stage:      1,
+		TableNo:  store.TableNo.Add(1),
+		MasterId: account.Id,
 
-		Dealer:      game.NewDealer(),
-		PublicCards: [5]*game.Card{nil, nil, nil, nil, nil}, //&game.Card{Dot: 0, Suit: 3}, &game.Card{Dot: 1, Suit: 3}
-
-		PlayerNum:     playerNum + 1,
-		RobotNum:      robotNum,
-		Players:       make([]*game.Player, playerNum+1),
-		Robots:        make([]*game.Robot, robotNum),
-		BigBlindPos:   0,
-		SmallBlindPos: 0,
-		PlayersLock:   &sync.Mutex{},
-		ChipLock:      &sync.Mutex{},
+		PlayerNum:      playerNum + 1,
+		RobotNum:       robotNum,
+		Players:        make([]*game.Player, playerNum+1),
+		Robots:         make([]*game.Robot, robotNum),
+		BigBlindChip:   msg.BigBlind,
+		SmallBlindChip: msg.BigBlind / 2,
+		LimitInAmount:  msg.BigBlind * 100,
+		TexasType:      msg.TexasType,
 	}
+	table.Init()
 
 	// 房主 [0]
+	// 扣除DB账户余额
+	account.DecrementBalance(table.LimitInAmount)
 	owner := &game.Player{
 		Id:          account.Id,
 		Username:    account.UserName,
 		Avatar:      account.Avatar,
 		Status:      1,
 		LastStatus:  0,
-		Chip:        500,
+		Chip:        table.LimitInAmount,
 		Cards:       [2]*game.Card{},
 		GameTable:   table,
 		ProtoWriter: account.Client,
 	}
 	owner.Init()
-	// 扣除DB账户余额 TODO 账户金额限制
-	account.DecrementBalance(500)
-	account.Player = owner // 挂载 player 到 account 上
+	// 挂载 player 到 account 上
+	account.Player = owner
 	table.Players[0] = owner
 
 	for i := 0; i < int(robotNum); i++ {
@@ -120,8 +131,6 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 	if account.Player != nil {
 		return &api.ResFail{Msg: fmt.Sprintf("当前已加入#%d牌桌", account.Player.GameTable.TableNo)}, nil
 	}
-	// account -> player
-	// TODO 账户余额限制
 
 	table := store.LobbyTables[msg.TableNo]
 	table.ChipLock.Lock()
@@ -132,13 +141,18 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 	if table.Stage != 1 {
 		return &api.ResFail{Msg: "牌桌正在进行中"}, nil
 	}
+	// 账户余额限制
+	if account.GetBalance() < table.LimitInAmount {
+		return &api.ResFail{Msg: fmt.Sprintf("余额小于入场金额[%d]", table.LimitInAmount)}, nil
+	}
+
 	player := &game.Player{
 		Id:          account.Id,
 		Username:    account.UserName,
 		Avatar:      account.Avatar,
 		Status:      1,
 		LastStatus:  0,
-		Chip:        500,
+		Chip:        0,
 		Cards:       [2]*game.Card{nil, nil},
 		GameTable:   table,
 		ProtoWriter: account.Client,
@@ -149,7 +163,8 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 		return nil, err
 	}
 	// 从账户扣除进入牌桌的金额
-	account.DecrementBalance(500)
+	account.DecrementBalance(table.LimitInAmount)
+	player.Chip = table.LimitInAmount
 	account.Player = player
 
 	// 通知其他玩家
@@ -275,6 +290,7 @@ func HandleReqCancelReady(player *game.Player, msg *api.ReqCancelReady) (proto.M
 	return &api.ResSuccess{}, nil
 }
 
+// HandleReqDismissGameTable 解散牌桌
 func HandleReqDismissGameTable(player *game.Player, msg *api.ReqDismissGameTable) (proto.Message, error) {
 	player.GameTable.ChipLock.Lock()
 	defer player.GameTable.ChipLock.Unlock()
@@ -299,6 +315,7 @@ func HandleReqDismissGameTable(player *game.Player, msg *api.ReqDismissGameTable
 	return &api.ResDismissGameTable{}, nil
 }
 
+// HandleReqGameStart 游戏开始,初始化,扣除大小盲注,每个玩家发2张牌
 func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Message, error) {
 	player.GameTable.ChipLock.Lock()
 	defer player.GameTable.ChipLock.Unlock()
@@ -326,24 +343,43 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 
 	// 游戏状态开始
 	table.Stage = 2
-	// 大盲注位
-	if table.RoundTimes == 0 {
-		table.BigBlindPos = 0
-	} else {
-		table.BigBlindPos = table.NextPosPlayer(table.BigBlindPos)
-	}
 	// 小盲注位
-	table.SmallBlindPos = table.NextPosPlayer(table.BigBlindPos)
+	if table.RoundTimes == 0 {
+		// 第一轮由庄家左手边第一个作为小盲注
+		table.SmallBlindPos = table.NextPlayerPos(0)
+	} else {
+		table.SmallBlindPos = table.NextPlayerPos(table.SmallBlindPos)
+	}
+	// 大盲注位
+	table.BigBlindPos = table.NextPlayerPos(table.SmallBlindPos)
 	// 回合数+1
 	table.RoundTimes++
 
 	// 扣除大小盲注金额
-	table.Players[table.BigBlindPos].Chip -= game.BigBlindChip
-	table.Players[table.SmallBlindPos].Chip -= game.SmallBlinds
-	table.Chip += game.BigBlindChip + game.SmallBlinds
+	table.Players[table.SmallBlindPos].Chip -= table.SmallBlindChip
+	table.Players[table.BigBlindPos].Chip -= table.BigBlindChip
+	table.Chip += table.BigBlindChip + table.SmallBlindChip
+	// 回合下注次数
+	table.Players[table.BigBlindPos].RoundBetTimes++
+	// table.Players[table.SmallBlindPos].RoundBetTimes++
 
-	table.Players[table.BigBlindPos].ProtoWriter.Write(&api.ResBigBlindChip{Chip: game.BigBlindChip})
-	table.Players[table.SmallBlindPos].ProtoWriter.Write(&api.ResSmallBlindChip{Chip: game.SmallBlinds})
+	// 初始上次下注金额为大盲注
+	table.LastPosBetChip = table.BigBlindChip
+
+	msgSmallBlind := &api.ResNoticePlayerLine{
+		PlayerId: table.Players[table.SmallBlindPos].Id,
+		Line1:    fmt.Sprintf("+%d", table.SmallBlindChip),
+		Line2:    "小盲注",
+	}
+	msgBigBlind := &api.ResNoticePlayerLine{
+		PlayerId: table.Players[table.BigBlindPos].Id,
+		Line1:    fmt.Sprintf("+%d", table.BigBlindChip),
+		Line2:    "大盲注",
+	}
+	table.NoticeAllPlayer(msgSmallBlind)
+	table.NoticeAllPlayer(msgBigBlind)
+	//table.Players[table.BigBlindPos].ProtoWriter.Write(&api.ResBigBlindChip{Chip: game.BigBlindChip})
+	//table.Players[table.SmallBlindPos].ProtoWriter.Write(&api.ResSmallBlindChip{Chip: game.SmallBlinds})
 
 	// 开始发牌(手牌，公共牌)
 	table.Dealer.Init() // 初始化发牌员
@@ -358,16 +394,59 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 		p.SetStatus(3)
 	}
 	// 发3张公共牌
-	for i := 0; i < 5; i++ {
-		if i < 3 {
-			table.PublicCards[i] = table.Dealer.Deal()
-			continue
-		}
-		// 第4,5张牌置空
-		table.PublicCards[i] = nil
+	//for i := 0; i < 5; i++ {
+	//	if i < 3 {
+	//		table.PublicCards[i] = table.Dealer.Deal()
+	//		continue
+	//	}
+	//	// 第4,5张牌置空
+	//	table.PublicCards[i] = nil
+	//}
+
+	// 待大盲注位下一位玩家下注
+	optPos := table.NextPlayerPos(table.BigBlindPos)
+	optPlayer := table.Players[optPos]
+	optPlayer.SetStatus(4)
+	optPlayer.BetOpts = []int32{1, 2, 4}
+	optPlayer.BetMax = table.BigBlindChip
+	// 游戏类型处理最大下注额
+	switch table.TexasType {
+	case 2: // 底池限注
+		optPlayer.BetMax = table.Chip + table.LastPosBetChip*2
+	case 3: // 无限注
+		optPlayer.BetOpts = append(optPlayer.BetOpts, 3) // 可 all in
+		optPlayer.BetMax = -1
+	case 1: // 限注
+		fallthrough
+	default:
+		// 第1,2回合跟注加注需和大盲注相同, 3,4回合两倍
+		optPlayer.BetMax = table.BigBlindChip * 2
 	}
-	// 待小盲注位玩家下注
-	table.Players[table.SmallBlindPos].SetStatus(4)
+	// 根据玩家类型计算最小下注额，最大下注额
+	switch optPos {
+	case table.SmallBlindPos:
+		optPlayer.BetMin = table.BigBlindChip - table.SmallBlindChip
+		if table.TexasType != 3 {
+			optPlayer.BetMax = optPlayer.BetMax - optPlayer.BetMin
+		}
+	case table.BigBlindPos:
+		optPlayer.BetMin = 0
+		optPlayer.BetOpts = append(optPlayer.BetOpts, 5)
+		if table.TexasType != 3 {
+			optPlayer.BetMax = optPlayer.BetMax - table.BigBlindChip
+		}
+	default:
+		optPlayer.BetMin = table.BigBlindChip
+	}
+	// 其他玩家暂不可操作
+	for pos, p := range table.Players {
+		if p != nil && pos != optPos {
+			p.Status = 3
+			p.BetOpts = make([]int32, 0)
+			p.BetMin = 0
+			p.BetMax = 0
+		}
+	}
 
 	// 广播牌桌状态
 	table.NoticeGameFullStatus()
@@ -393,11 +472,11 @@ func HandleReqPlaceBetChip(player *game.Player, msg *api.ReqPlaceBetChip) (proto
 	}
 	switch player.Status {
 	case 4: // 小盲注下注,下注金额最小大盲注1半,
-		if msg.Chip < player.GameTable.BigBlindChip/2 {
+		if msg.BetChip < player.GameTable.BigBlindChip/2 {
 			return &api.ResFail{Msg: fmt.Sprintf("您当前最小下注金额%d", player.GameTable.BigBlindChip/2)}, nil
 		}
 	case 6: // 轮流下注,下注金额最小大盲注
-		if msg.Chip < player.GameTable.BigBlindChip {
+		if msg.BetChip < player.GameTable.BigBlindChip {
 			return &api.ResFail{Msg: fmt.Sprintf("您当前最小下注金额%d", player.GameTable.BigBlindChip)}, nil
 		}
 	default:
@@ -424,17 +503,17 @@ func HandleReqPlaceBetChip(player *game.Player, msg *api.ReqPlaceBetChip) (proto
 
 	if player.GameTable.TexasType == 3 {
 		// 无限制可All In
-		allIn = msg.Chip == maxBetChip
+		allIn = msg.BetChip == maxBetChip
 
 	} else if player.Status == 4 {
 		// 最大金额减去小盲注金额
 		maxBetChip -= player.GameTable.BigBlindChip / 2
 	}
-	if msg.Chip > maxBetChip {
+	if msg.BetChip > maxBetChip {
 		return &api.ResFail{Msg: fmt.Sprintf("您当前最大下注金额%d", maxBetChip)}, nil
 	}
 
-	player.Chip -= msg.Chip
+	player.Chip -= msg.BetChip
 
 	return nil, nil
 }
