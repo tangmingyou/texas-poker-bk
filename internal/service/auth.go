@@ -186,7 +186,7 @@ func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.M
 		UserName:    subject.Name,
 		Avatar:      subject.Avatar,
 		Client:      client,
-		Balance:     0,
+		Balance:     1000,
 		BalanceLock: &sync.RWMutex{},
 		Lock:        &sync.Mutex{},
 	}

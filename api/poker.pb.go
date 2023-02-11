@@ -1607,17 +1607,17 @@ func (*ResDismissGameTable) Descriptor() ([]byte, []int) {
 }
 
 // 下注
-type ReqPlaceBetChip struct {
+type ReqPlaceBet struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	BetChip int32 `protobuf:"varint,1,opt,name=betChip,proto3" json:"betChip,omitempty"` // 跟注/加注金额
-	AllIn   bool  `protobuf:"varint,2,opt,name=allIn,proto3" json:"allIn,omitempty"`     // 是否 allIn
+	BetType int32 `protobuf:"varint,1,opt,name=betType,proto3" json:"betType,omitempty"` // 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
+	BetChip int32 `protobuf:"varint,2,opt,name=betChip,proto3" json:"betChip,omitempty"` // 跟注/加注金额
 }
 
-func (x *ReqPlaceBetChip) Reset() {
-	*x = ReqPlaceBetChip{}
+func (x *ReqPlaceBet) Reset() {
+	*x = ReqPlaceBet{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_poker_proto_msgTypes[29]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1625,13 +1625,13 @@ func (x *ReqPlaceBetChip) Reset() {
 	}
 }
 
-func (x *ReqPlaceBetChip) String() string {
+func (x *ReqPlaceBet) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ReqPlaceBetChip) ProtoMessage() {}
+func (*ReqPlaceBet) ProtoMessage() {}
 
-func (x *ReqPlaceBetChip) ProtoReflect() protoreflect.Message {
+func (x *ReqPlaceBet) ProtoReflect() protoreflect.Message {
 	mi := &file_poker_proto_msgTypes[29]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1643,101 +1643,23 @@ func (x *ReqPlaceBetChip) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ReqPlaceBetChip.ProtoReflect.Descriptor instead.
-func (*ReqPlaceBetChip) Descriptor() ([]byte, []int) {
+// Deprecated: Use ReqPlaceBet.ProtoReflect.Descriptor instead.
+func (*ReqPlaceBet) Descriptor() ([]byte, []int) {
 	return file_poker_proto_rawDescGZIP(), []int{29}
 }
 
-func (x *ReqPlaceBetChip) GetBetChip() int32 {
+func (x *ReqPlaceBet) GetBetType() int32 {
 	if x != nil {
-		return x.BetChip
+		return x.BetType
 	}
 	return 0
 }
 
-func (x *ReqPlaceBetChip) GetAllIn() bool {
+func (x *ReqPlaceBet) GetBetChip() int32 {
 	if x != nil {
-		return x.AllIn
+		return x.BetChip
 	}
-	return false
-}
-
-// 让牌
-type ReqBetWeakHand struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *ReqBetWeakHand) Reset() {
-	*x = ReqBetWeakHand{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_poker_proto_msgTypes[30]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ReqBetWeakHand) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ReqBetWeakHand) ProtoMessage() {}
-
-func (x *ReqBetWeakHand) ProtoReflect() protoreflect.Message {
-	mi := &file_poker_proto_msgTypes[30]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ReqBetWeakHand.ProtoReflect.Descriptor instead.
-func (*ReqBetWeakHand) Descriptor() ([]byte, []int) {
-	return file_poker_proto_rawDescGZIP(), []int{30}
-}
-
-// 弃牌
-type ReqBetDiscard struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *ReqBetDiscard) Reset() {
-	*x = ReqBetDiscard{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_poker_proto_msgTypes[31]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ReqBetDiscard) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ReqBetDiscard) ProtoMessage() {}
-
-func (x *ReqBetDiscard) ProtoReflect() protoreflect.Message {
-	mi := &file_poker_proto_msgTypes[31]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ReqBetDiscard.ProtoReflect.Descriptor instead.
-func (*ReqBetDiscard) Descriptor() ([]byte, []int) {
-	return file_poker_proto_rawDescGZIP(), []int{31}
+	return 0
 }
 
 // 通知玩家某个其他玩家动作
@@ -1755,7 +1677,7 @@ type ResNoticePlayerLine struct {
 func (x *ResNoticePlayerLine) Reset() {
 	*x = ResNoticePlayerLine{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_poker_proto_msgTypes[32]
+		mi := &file_poker_proto_msgTypes[30]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1768,7 +1690,7 @@ func (x *ResNoticePlayerLine) String() string {
 func (*ResNoticePlayerLine) ProtoMessage() {}
 
 func (x *ResNoticePlayerLine) ProtoReflect() protoreflect.Message {
-	mi := &file_poker_proto_msgTypes[32]
+	mi := &file_poker_proto_msgTypes[30]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1781,7 +1703,7 @@ func (x *ResNoticePlayerLine) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResNoticePlayerLine.ProtoReflect.Descriptor instead.
 func (*ResNoticePlayerLine) Descriptor() ([]byte, []int) {
-	return file_poker_proto_rawDescGZIP(), []int{32}
+	return file_poker_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ResNoticePlayerLine) GetPlayerId() int64 {
@@ -1936,22 +1858,20 @@ var file_poker_proto_rawDesc = []byte{
 	0x47, 0x61, 0x6d, 0x65, 0x53, 0x74, 0x61, 0x72, 0x74, 0x22, 0x15, 0x0a, 0x13, 0x52, 0x65, 0x71,
 	0x44, 0x69, 0x73, 0x6d, 0x69, 0x73, 0x73, 0x47, 0x61, 0x6d, 0x65, 0x54, 0x61, 0x62, 0x6c, 0x65,
 	0x22, 0x15, 0x0a, 0x13, 0x52, 0x65, 0x73, 0x44, 0x69, 0x73, 0x6d, 0x69, 0x73, 0x73, 0x47, 0x61,
-	0x6d, 0x65, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x22, 0x41, 0x0a, 0x0f, 0x52, 0x65, 0x71, 0x50, 0x6c,
-	0x61, 0x63, 0x65, 0x42, 0x65, 0x74, 0x43, 0x68, 0x69, 0x70, 0x12, 0x18, 0x0a, 0x07, 0x62, 0x65,
-	0x74, 0x43, 0x68, 0x69, 0x70, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x62, 0x65, 0x74,
-	0x43, 0x68, 0x69, 0x70, 0x12, 0x14, 0x0a, 0x05, 0x61, 0x6c, 0x6c, 0x49, 0x6e, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x08, 0x52, 0x05, 0x61, 0x6c, 0x6c, 0x49, 0x6e, 0x22, 0x10, 0x0a, 0x0e, 0x52, 0x65,
-	0x71, 0x42, 0x65, 0x74, 0x57, 0x65, 0x61, 0x6b, 0x48, 0x61, 0x6e, 0x64, 0x22, 0x0f, 0x0a, 0x0d,
-	0x52, 0x65, 0x71, 0x42, 0x65, 0x74, 0x44, 0x69, 0x73, 0x63, 0x61, 0x72, 0x64, 0x22, 0x73, 0x0a,
-	0x13, 0x52, 0x65, 0x73, 0x4e, 0x6f, 0x74, 0x69, 0x63, 0x65, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72,
-	0x4c, 0x69, 0x6e, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49, 0x64,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x08, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49, 0x64,
-	0x12, 0x14, 0x0a, 0x05, 0x6c, 0x69, 0x6e, 0x65, 0x31, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x05, 0x6c, 0x69, 0x6e, 0x65, 0x31, 0x12, 0x14, 0x0a, 0x05, 0x6c, 0x69, 0x6e, 0x65, 0x32, 0x18,
-	0x0c, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x6c, 0x69, 0x6e, 0x65, 0x32, 0x12, 0x14, 0x0a, 0x05,
-	0x6c, 0x69, 0x6e, 0x65, 0x33, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x6c, 0x69, 0x6e,
-	0x65, 0x33, 0x42, 0x0b, 0x5a, 0x09, 0x2e, 0x2f, 0x61, 0x70, 0x69, 0x3b, 0x61, 0x70, 0x69, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6d, 0x65, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x22, 0x41, 0x0a, 0x0b, 0x52, 0x65, 0x71, 0x50, 0x6c,
+	0x61, 0x63, 0x65, 0x42, 0x65, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x62, 0x65, 0x74, 0x54, 0x79, 0x70,
+	0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x62, 0x65, 0x74, 0x54, 0x79, 0x70, 0x65,
+	0x12, 0x18, 0x0a, 0x07, 0x62, 0x65, 0x74, 0x43, 0x68, 0x69, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x05, 0x52, 0x07, 0x62, 0x65, 0x74, 0x43, 0x68, 0x69, 0x70, 0x22, 0x73, 0x0a, 0x13, 0x52, 0x65,
+	0x73, 0x4e, 0x6f, 0x74, 0x69, 0x63, 0x65, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x4c, 0x69, 0x6e,
+	0x65, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x03, 0x52, 0x08, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49, 0x64, 0x12, 0x14, 0x0a,
+	0x05, 0x6c, 0x69, 0x6e, 0x65, 0x31, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x6c, 0x69,
+	0x6e, 0x65, 0x31, 0x12, 0x14, 0x0a, 0x05, 0x6c, 0x69, 0x6e, 0x65, 0x32, 0x18, 0x0c, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x05, 0x6c, 0x69, 0x6e, 0x65, 0x32, 0x12, 0x14, 0x0a, 0x05, 0x6c, 0x69, 0x6e,
+	0x65, 0x33, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x6c, 0x69, 0x6e, 0x65, 0x33, 0x42,
+	0x0b, 0x5a, 0x09, 0x2e, 0x2f, 0x61, 0x70, 0x69, 0x3b, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1966,7 +1886,7 @@ func file_poker_proto_rawDescGZIP() []byte {
 	return file_poker_proto_rawDescData
 }
 
-var file_poker_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
+var file_poker_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_poker_proto_goTypes = []interface{}{
 	(*ProtoWrap)(nil),           // 0: api.ProtoWrap
 	(*Ping)(nil),                // 1: api.Ping
@@ -1997,10 +1917,8 @@ var file_poker_proto_goTypes = []interface{}{
 	(*ReqGameStart)(nil),        // 26: api.ReqGameStart
 	(*ReqDismissGameTable)(nil), // 27: api.ReqDismissGameTable
 	(*ResDismissGameTable)(nil), // 28: api.ResDismissGameTable
-	(*ReqPlaceBetChip)(nil),     // 29: api.ReqPlaceBetChip
-	(*ReqBetWeakHand)(nil),      // 30: api.ReqBetWeakHand
-	(*ReqBetDiscard)(nil),       // 31: api.ReqBetDiscard
-	(*ResNoticePlayerLine)(nil), // 32: api.ResNoticePlayerLine
+	(*ReqPlaceBet)(nil),         // 29: api.ReqPlaceBet
+	(*ResNoticePlayerLine)(nil), // 30: api.ResNoticePlayerLine
 }
 var file_poker_proto_depIdxs = []int32{
 	9,  // 0: api.ResLobbyView.tables:type_name -> api.LobbyTable
@@ -2371,7 +2289,7 @@ func file_poker_proto_init() {
 			}
 		}
 		file_poker_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReqPlaceBetChip); i {
+			switch v := v.(*ReqPlaceBet); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2383,30 +2301,6 @@ func file_poker_proto_init() {
 			}
 		}
 		file_poker_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReqBetWeakHand); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_poker_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReqBetDiscard); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_poker_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ResNoticePlayerLine); i {
 			case 0:
 				return &v.state
@@ -2425,7 +2319,7 @@ func file_poker_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_poker_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   33,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -30,7 +30,8 @@ type Table struct {
 	TexasType      int32 // 德州扑克类型: (1限注德州扑克:你只能增加与大盲注相同的投注额; 2底池限制德州扑克：你只能增加当时台面最大额的投注额（已经完成所有投注）; 3无限制德州扑克：你可在手持额度下，增加任何额度的投注额，如果你投入所有筹码，就是“全押”)
 	LimitInAmount  int32 // 最低入场金额
 
-	LastPosBetChip int32 // 上家下注金额
+	LastPosBetChip  int32 // 上家下注金额
+	RoundRaiseTimes int32 // 该轮押注圈加注次数
 
 	PlayersLock *sync.Mutex
 	ChipLock    *sync.Mutex // 桌面筹码更新锁
@@ -60,18 +61,34 @@ func (t *Table) PlayerCount() int32 {
 }
 
 func (t *Table) NextPlayerPos(current int) int {
+	// 当前位置往后
 	for i := current + 1; i < len(t.Players); i++ {
 		if t.Players[i] == nil {
 			continue
 		}
 		return i
 	}
+	// 从头找
 	for i, p := range t.Players {
 		if p != nil {
 			return i
 		}
 	}
-	return 0
+	return current
+}
+
+// NextHoldingCardPlayerPos 下一个未弃牌玩家
+func (t *Table) NextHoldingCardPlayerPos(current int) int {
+	for i := 0; i < 999; i++ {
+		nextPos := t.NextPlayerPos(current)
+		if nextPos == current {
+			return current
+		}
+		if t.Players[nextPos].Status != 7 {
+			return nextPos
+		}
+	}
+	return current
 }
 
 //func (t *Table) FindPlayerPos(player *Player) int32 {
@@ -83,17 +100,17 @@ func (t *Table) NextPlayerPos(current int) int {
 //	return -1
 //}
 
-func (t *Table) JoinPlayer(player *Player) error {
+func (t *Table) JoinPlayer(player *Player) (int, error) {
 	t.PlayersLock.Lock()
 	defer t.PlayersLock.Unlock()
 	for i := range t.Players {
 		// 找个空位坐下
 		if t.Players[i] == nil {
 			t.Players[i] = player
-			return nil
+			return i, nil
 		}
 	}
-	return errors.New("牌桌玩家已满")
+	return -1, errors.New("牌桌玩家已满")
 }
 
 // BuildResGameFullStatus 构建牌桌当前游戏状态消息
@@ -174,6 +191,118 @@ func (t *Table) NoticeAllPlayer(message proto.Message) {
 			player.ProtoWriter.Write(message)
 		}
 	}
+}
+
+// CurrentRoundEnd 当前回合结束
+func (t *Table) CurrentRoundEnd() error {
+	// TODO 游戏结束,开牌结算
+	if t.RoundTimes >= 4 {
+		// 比牌
+		t.Stage = 7
+		var winners []*Player = nil
+		for _, p := range t.Players {
+			if p != nil {
+				continue
+			}
+			hand, err := AnalyzeMaxHand(p.Cards, t.PublicCards)
+			if err != nil {
+				return err
+			}
+			p.Hand = hand
+			if winners == nil {
+				winners = []*Player{p}
+			} else {
+				if p.Hand.point > winners[0].Hand.point {
+					winners[0] = p
+				} else if p.Hand.point == winners[0].Hand.point {
+					// 手牌相同
+					winners = append(winners, p)
+				}
+			}
+		}
+		winnerCount := int32(len(winners))
+		// TODO 所有玩家输赢消息 ResCalcWinnerChip
+		if winnerCount == 1 {
+			// 只有一个玩家获胜
+			winner := winners[0]
+			winner.Chip += t.Chip
+			t.Chip = 0
+		} else {
+			// 平分奖池
+			once := t.Chip / winnerCount
+			lessPos := winners[0].PosIndex
+			lessNear := lessPos - t.SmallBlindPos
+			for _, p := range winners {
+				p.Chip += once
+				// 计算最靠近发牌者的赢家
+				pNear := p.PosIndex - t.SmallBlindPos
+				if pNear*lessPos < 0 { // 一正一负, 正的近
+					if pNear >= 0 {
+						lessPos = p.PosIndex
+					}
+				} else if lessNear > pNear {
+					lessPos = p.PosIndex
+				}
+			}
+			// 无法平分之小额筹码,顺时针靠近发牌者得
+			less := t.Chip - once*winnerCount
+			if less > 0 {
+				t.Players[lessPos].Chip += less
+			}
+			t.Chip = 0
+		}
+
+		go func() {
+			// TODO 等前端展示3秒钟后,牌桌回到初始状态,剔除掉线玩家
+		}()
+		return nil
+	}
+
+	// 开启下一回合, 重置一些状态
+	t.RoundRaiseTimes = 0
+	t.RoundTimes++
+	for _, p := range t.Players {
+		if p != nil {
+			p.RoundBetTimes = 0
+			p.RoundChip = 0
+			p.BetMin = 0
+			p.BetMax = 0
+			p.BetOpts = []int32{}
+			p.SetStatus(3)
+		}
+	}
+	// 由小盲注或小盲注后第一个未弃牌玩家开始
+	nextBegin := t.SmallBlindPos
+	if t.Players[t.SmallBlindPos].Status == 7 {
+		nextBegin = t.NextHoldingCardPlayerPos(nextBegin)
+	}
+	begin := t.Players[nextBegin]
+	begin.SetStatus(6)
+	begin.BetOpts = []int32{1, 2, 4, 5}
+	// 根据回合发公共牌
+	switch t.RoundTimes {
+	case 2: // 发3张公共牌(翻牌)
+		for i := 0; i < 5; i++ {
+			if i < 3 {
+				t.PublicCards[i] = t.Dealer.Deal()
+				continue
+			}
+			// 第4,5张牌置空
+			t.PublicCards[i] = nil
+		}
+	case 3: // 发第4张公共牌(转牌turn)
+		t.PublicCards[3] = t.Dealer.Deal()
+		t.Stage = 5
+	case 4: // 发第5张公共牌(河牌river)
+		t.PublicCards[4] = t.Dealer.Deal()
+		t.Stage = 6
+	}
+	return nil
+}
+
+// DiscardAllPlayerWin 其他玩家弃牌,玩家赢
+func (t *Table) DiscardAllPlayerWin(player *Player) {
+
 }
 
 // NoticeGamePlayerCall TODO 发送(下注信息、下注人、下一位下注人)到牌桌所有用户

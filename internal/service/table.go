@@ -68,6 +68,7 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 	// 挂载 player 到 account 上
 	account.Player = owner
 	table.Players[0] = owner
+	owner.PosIndex = 0
 
 	for i := 0; i < int(robotNum); i++ {
 		table.Robots[i] = &game.Robot{}
@@ -158,10 +159,12 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 		ProtoWriter: account.Client,
 	}
 	player.Init()
-	err := table.JoinPlayer(player)
+	index, err := table.JoinPlayer(player)
 	if err != nil {
 		return nil, err
 	}
+	player.PosIndex = index
+
 	// 从账户扣除进入牌桌的金额
 	account.DecrementBalance(table.LimitInAmount)
 	player.Chip = table.LimitInAmount
@@ -393,15 +396,6 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 		// 玩家状态置为等待
 		p.SetStatus(3)
 	}
-	// 发3张公共牌
-	//for i := 0; i < 5; i++ {
-	//	if i < 3 {
-	//		table.PublicCards[i] = table.Dealer.Deal()
-	//		continue
-	//	}
-	//	// 第4,5张牌置空
-	//	table.PublicCards[i] = nil
-	//}
 
 	// 待大盲注位下一位玩家下注
 	optPos := table.NextPlayerPos(table.BigBlindPos)
@@ -453,7 +447,7 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 	return &api.ResSuccess{}, nil
 }
 
-// HandleReqPlaceBetChip 下注
+// HandleReqPlaceBet 下注
 // 网易德州扑克：http://sports.163.com/special/poker_rule/?ivk_sa=1025883k
 // 天天德州: http://game.people.com.cn/n/2014/0220/c40130-24413078.html
 // wiki: https://zh.wikipedia.org/wiki/%E5%BE%B7%E5%B7%9E%E6%92%B2%E5%85%8B
@@ -461,7 +455,11 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 // 德州扑克多名玩家ALL IN之后的筹码 如何分配？https://www.zhihu.com/question/32187371
 // All-in技巧：https://bac88.net/%E5%BE%B7%E5%B7%9E%E6%92%B2%E5%85%8B%E6%8A%80%E5%B7%A7-all-in%E7%9A%84%E6%8A%80%E5%B7%A7/
 // 起手牌组合概率：https://www.moshike.com/a/1011.html
-func HandleReqPlaceBetChip(player *game.Player, msg *api.ReqPlaceBetChip) (proto.Message, error) {
+// 各圈喊注将持续直至每个牌手都已为以下三种状态之一：
+// 盖牌（fold），即舍弃并覆盖手中的牌，放弃已投入底池的筹码退出该局。
+// 跟注（call）投入了与所有其他未盖牌的牌手等量的筹码。
+// 全下（all-in），投入了尚余的全部筹码。
+func HandleReqPlaceBet(player *game.Player, msg *api.ReqPlaceBet) (proto.Message, error) {
 	player.Lock.Lock()
 	defer player.Lock.Unlock()
 	player.GameTable.ChipLock.Lock()
@@ -470,62 +468,143 @@ func HandleReqPlaceBetChip(player *game.Player, msg *api.ReqPlaceBetChip) (proto
 	if !collect.In(player.Status, 4, 6) {
 		return &api.ResFail{Msg: "当前未轮到您下注"}, nil
 	}
-	switch player.Status {
-	case 4: // 小盲注下注,下注金额最小大盲注1半,
-		if msg.BetChip < player.GameTable.BigBlindChip/2 {
-			return &api.ResFail{Msg: fmt.Sprintf("您当前最小下注金额%d", player.GameTable.BigBlindChip/2)}, nil
-		}
-	case 6: // 轮流下注,下注金额最小大盲注
-		if msg.BetChip < player.GameTable.BigBlindChip {
-			return &api.ResFail{Msg: fmt.Sprintf("您当前最小下注金额%d", player.GameTable.BigBlindChip)}, nil
-		}
-	default:
-		return &api.ResFail{Msg: "当前未轮到您下注"}, nil
+	if !collect.In(msg.BetType, player.BetOpts...) {
+		return &api.ResFail{Msg: fmt.Sprintf("当前不可执行该操作#%d", msg.BetType)}, nil
 	}
-	// 检查最大下注金额
-	var maxBetChip int32 = 0
+
+	table := player.GameTable
+	var line1 string
+	var line2 string
+	var raise bool // 是否加注
+	switch msg.BetType {
+	case 1: // 跟注
+		if msg.BetChip != player.BetMin {
+			return &api.ResFail{Msg: fmt.Sprintf("投注大于应跟注金额#%d", player.BetMin)}, nil
+		}
+		fallthrough
+	case 2: // 加注
+		if table.LastPosBetChip < 0 {
+			return &api.ResFail{Msg: "您当前只能All-In或弃牌"}, nil
+		}
+		if msg.BetChip < player.BetMin {
+			return &api.ResFail{Msg: fmt.Sprintf("小于当前最低投注额#%d", player.BetMin)}, nil
+		}
+		if player.BetMax > 0 && msg.BetChip > player.BetMax {
+			return &api.ResFail{Msg: fmt.Sprintf("大于当前最大投注额#%d", player.BetMax)}, nil
+		}
+		// 限注式加注3次判断
+		if table.TexasType == 1 && msg.BetChip > player.BetMin && table.RoundRaiseTimes >= 3 {
+			return &api.ResFail{Msg: "该轮不可再加注"}, nil
+		}
+		// TODO 加注判断
+		if msg.BetChip > table.LastPosBetChip {
+			table.RoundRaiseTimes++
+		}
+		player.RoundBetTimes++
+		raise = msg.BetChip > player.BetMin
+		table.LastPosBetChip = msg.BetChip
+		table.Chip += msg.BetChip
+		player.Chip -= msg.BetChip
+
+	case 3: // All-In TODO 边池
+		player.RoundBetTimes++
+		table.LastPosBetChip = player.Chip
+		table.Chip += player.Chip
+		player.Chip = 0
+
+		table.LastPosBetChip = msg.BetChip
+
+	case 4: // 弃牌
+		player.SetStatus(7)
+		line1 = "弃牌"
+		// 剩余牌手数为1则结束
+		leftPlayers := collect.Filter(player.GameTable.Players, func(i int, p *game.Player) bool {
+			return p != nil && p.Status != 7
+		})
+		if len(leftPlayers) == 1 {
+			playerWin(leftPlayers[0])
+			return &api.ResSuccess{}, nil
+		}
+	case 5: // 过牌
+		player.RoundBetTimes++
+		line1 = "过牌"
+
+	default:
+		return &api.ResFail{Msg: fmt.Sprintf("未知操作#%d", msg.BetType)}, nil
+	}
+
+	// 通知下注结果
+	if line1 != "" {
+		notice := &api.ResNoticePlayerLine{PlayerId: player.Id, Line1: line1, Line2: line2}
+		player.GameTable.NoticeAllPlayer(notice)
+	}
+
+	player.SetStatus(3)
+
+	// 下注完成：若还有玩家未下注、加注，下一玩家继续下注；若该轮下注完成，发牌开启下一轮下注
+	// 下一位玩家：跟注
+	var nextPlayer *game.Player = player
+	for {
+		nextPlayerPos := table.NextPlayerPos(nextPlayer.PosIndex)
+		nextPlayer = table.Players[nextPlayerPos]
+		if nextPlayer.Id == player.Id {
+			// TODO 开启下一轮
+			break
+		}
+		if nextPlayer.Status == 7 { // 已弃牌..
+			continue
+		}
+		if !raise {
+			// 当前玩家未加注, 判断是否结束本轮下注
+			if nextPlayer.RoundBetTimes > 0 {
+				// TODO 开启下一轮
+			}
+		}
+		// 判断下一玩家是否需要再下注: 下一玩家是否已下注,当前玩家是否跟注,
+		nextPlayer.SetStatus(6)
+		nextPlayer.BetMin = msg.BetChip
+		nextPlayer.BetOpts = []int32{1, 4}
+
+		// 下一玩家需跟注
+		// 如果当前玩家是小盲注第一次下注
+		if player.RoundBetTimes == 1 && table.SmallBlindPos == player.PosIndex {
+			nextPlayer.BetMin += table.SmallBlindChip
+		}
+		// 如果下一玩家是大盲注第一次下注
+		if nextPlayer.RoundBetTimes == 0 && table.BigBlindPos == nextPlayerPos {
+			nextPlayer.BetMin -= table.BigBlindChip
+		}
+		// 游戏类型处理最大下注额
+		switch table.TexasType {
+		case 2: // 底池限注
+			nextPlayer.BetOpts = append(nextPlayer.BetOpts, 3)
+			nextPlayer.BetMax = table.Chip + table.LastPosBetChip*2
+		case 3: // 无限注
+			nextPlayer.BetOpts = append(nextPlayer.BetOpts, 2, 3) // 可 all in
+			nextPlayer.BetMax = -1
+		case 1: // 限注
+			fallthrough
+		default:
+			// 限注比赛只允许一次下注与三次加注
+			if table.RoundRaiseTimes < 3 {
+				nextPlayer.BetOpts = append(nextPlayer.BetOpts, 3)
+				// 第1,2回合跟注加注需和大盲注相同, 3,4回合两倍
+				nextPlayer.BetMax = table.BigBlindChip * ((table.RoundTimes+1)/2 + 1)
+			} else {
+				// 只能跟注
+				nextPlayer.BetMax = msg.BetChip
+			}
+		}
+	}
+
 	// 依赌场规则而异，
 	// 若所余筹码All-in后仍低于最低加注金额，则此注仅视为跟注（call）而不能被当成加注（raise），亦及该圈若未有其他人再加注，则原加注者（此例中的第一位牌手）仅可跟注补齐或盖牌，于此圈不可再行加注
 	// 亦有少部分赌场规定All-in后大于最低加注额的一半以上，原加注者即可重新加注。
 
-	allIn := false
-	fmt.Println(allIn)
-	switch player.GameTable.TexasType {
-	case 1: // 大盲注
-		maxBetChip = player.GameTable.BigBlindChip
-	case 2: // 台面最大额
-		maxBetChip = player.GameTable.Chip
-	case 3: // 最大All In
-		maxBetChip = player.Chip
-	default:
-		return &api.ResFail{Msg: "牌桌"}, nil
-	}
-
-	if player.GameTable.TexasType == 3 {
-		// 无限制可All In
-		allIn = msg.BetChip == maxBetChip
-
-	} else if player.Status == 4 {
-		// 最大金额减去小盲注金额
-		maxBetChip -= player.GameTable.BigBlindChip / 2
-	}
-	if msg.BetChip > maxBetChip {
-		return &api.ResFail{Msg: fmt.Sprintf("您当前最大下注金额%d", maxBetChip)}, nil
-	}
-
-	player.Chip -= msg.BetChip
-
-	return nil, nil
+	return &api.ResSuccess{}, nil
 }
 
-// HandleReqBetWeakHand 让牌
-func HandleReqBetWeakHand(player *game.Player, msg *api.ReqBetWeakHand) (proto.Message, error) {
+// playerWin 玩家获胜，结算牌局
+func playerWin(player *game.Player) {
 
-	return nil, nil
-}
-
-// HandleReqBetDiscard 弃牌
-func HandleReqBetDiscard(player *game.Player, msg *api.ReqBetDiscard) (proto.Message, error) {
-
-	return nil, nil
 }

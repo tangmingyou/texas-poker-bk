@@ -178,20 +178,9 @@ message ResDismissGameTable {
 }
 
 // 下注
-message ReqPlaceBetChip {
-  int32 betChip = 1; // 跟注/加注金额
-  bool allIn = 2; // 是否 allIn
-
-}
-
-// 让牌
-message ReqBetWeakHand {
-
-}
-
-// 弃牌
-message ReqBetDiscard {
-
+message ReqPlaceBet {
+  int32 betType = 1; // 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
+  int32 betChip = 2; // 跟注/加注金额
 }
 
 // 通知玩家某个其他玩家动作
@@ -201,4 +190,9 @@ message ResNoticePlayerLine {
   string line1 = 11;
   string line2 = 12;
   string line3 = 13;
+}
+
+// 玩家输赢筹码通知
+message ResCalcWinnerChip {
+  map<int64, int32> playersWinChip = 9;
 }

@@ -7,9 +7,11 @@ import (
 
 // Player 游戏玩家
 type Player struct {
-	Id            int64
-	Username      string
-	Avatar        string
+	PosIndex int // 座位索引
+	Id       int64
+	Username string
+	Avatar   string
+
 	Cards         [2]*Card // 手牌
 	Chip          int32    // 玩家筹码
 	RoundChip     int32    // 该回合已下注筹码
@@ -19,6 +21,7 @@ type Player struct {
 	BetMin        int32    // 最低下注额
 	BetMax        int32    // 最高下注额 -1不限
 	RoundBetTimes int32    // 当前回合下注次数
+	Hand          *Hand    // 手牌牌型
 
 	GameTable   *Table // 当前牌桌
 	ProtoWriter letter.ProtoWriter
