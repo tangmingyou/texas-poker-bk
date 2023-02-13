@@ -37,6 +37,8 @@ func init() {
 	HandleNetPlayerMsg(&api.ReqCancelReady{}, service.HandleReqCancelReady)
 	// 开始游戏
 	HandleNetPlayerMsg(&api.ReqGameStart{}, service.HandleReqGameStart)
+	// 筹码下注
+	HandleNetPlayerMsg(&api.ReqBetting{}, service.HandleReqBetting)
 }
 
 func checkExistsTypeHandler(op int32, err error) {

@@ -148,7 +148,10 @@ message TablePlayer {
   int32 chip = 5; // 筹码
   int32 status = 6; // 玩家状态: 1待准备开始,2已准备开始,已开始(3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃)
   int32 lastStatus = 7; // TODO 删, 前端通过消息监听获取下注金额信息
-  bool master = 8; // 是否房主`
+  bool master = 8; // 是否房主
+  int32 roundBetTimes = 11; // 该局下注次数
+  int32 totalBetChip = 13; // 该局牌已下注筹码
+
   BetRole betRole = 14; // 下注时规则限制
   repeated Card handCard = 15; // 手牌
 }
@@ -160,8 +163,9 @@ message Card {
 
 // player status in (4,6) 跟注时规则
 message BetRole {
-  int32 minChip = 1; // 最低下注额：小盲注加注(按惯例至少2倍与大盲注)
-  int32 maxChip = 2; // 最高下注额：
+  int32 betMin = 1; // 最低下注额
+  int32 betMax = 2; // 最高下注额
+  repeated int32 betOpts = 13; // status=[4,6]时下注可操作按钮: 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
 }
 
 // 加入游戏 ============= end
@@ -178,8 +182,8 @@ message ResDismissGameTable {
 }
 
 // 下注
-message ReqPlaceBet {
-  int32 betType = 1; // 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
+message ReqBetting {
+  int32 betType = 1; // 1跟注,2加注或跟注(-[0]+),3All-In,4弃牌,5过牌
   int32 betChip = 2; // 跟注/加注金额
 }
 
@@ -190,6 +194,10 @@ message ResNoticePlayerLine {
   string line1 = 11;
   string line2 = 12;
   string line3 = 13;
+}
+
+message ResGameEndSettle {
+  ResGameFullStatus game = 11;
 }
 
 // 玩家输赢筹码通知

@@ -47,9 +47,12 @@ var protoInstances = []proto.Message{
 	&ResDismissGameTable{},
 	&ReqGameStart{},
 
-	&ReqPlaceBet{},
+	&ReqBetting{},
 
 	&ResNoticePlayerLine{},
+	&ResCalcWinnerChip{},
+
+	&ResGameEndSettle{},
 }
 
 var (

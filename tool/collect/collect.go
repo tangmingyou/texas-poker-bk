@@ -20,7 +20,7 @@ func Count[T any](slice []T, isCount func(int, T) bool) int {
 }
 
 func Filter[T any](slice []T, predicate func(int, T) bool) []T {
-	res := []T{}
+	var res []T
 	for i, item := range slice {
 		if predicate(i, item) {
 			res = append(res, item)

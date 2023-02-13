@@ -38,16 +38,29 @@ type Table struct {
 	// TODO game logs7
 }
 
-// Init 初始化桌面
-func (t *Table) Init() {
-	t.PlayersLock = &sync.Mutex{}
-	t.ChipLock = &sync.Mutex{}
+// InitGameAndPlayerStatus 初始化桌面
+func (t *Table) InitGameAndPlayerStatus() {
+	if t.PlayersLock == nil {
+		t.PlayersLock = &sync.Mutex{}
+	}
+	if t.ChipLock == nil {
+		t.ChipLock = &sync.Mutex{}
+	}
 	t.PublicCards = [5]*Card{nil, nil, nil, nil, nil}
-	t.Dealer = NewDealer()
-	t.RoundTimes = 0
+	if t.Dealer == nil {
+		t.Dealer = NewDealer()
+	} else {
+		t.Dealer.Init()
+	}
 	t.Stage = 1
 	t.BigBlindPos = 0
 	t.SmallBlindPos = 0
+
+	for _, p := range t.Players {
+		if p != nil {
+			p.RoundInit()
+		}
+	}
 }
 
 func (t *Table) PlayerCount() int32 {
@@ -142,15 +155,22 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 			continue
 		}
 		player := &api.TablePlayer{
-			Robot:      false,
-			Id:         p.Id,
-			Username:   p.Username,
-			Avatar:     p.Avatar,
-			Chip:       p.Chip,
-			Status:     p.Status,
-			LastStatus: p.LastStatus,
-			Master:     t.MasterId == p.Id,
-			HandCard:   make([]*api.Card, 2),
+			Robot:         false,
+			Id:            p.Id,
+			Username:      p.Username,
+			Avatar:        p.Avatar,
+			Chip:          p.Chip,
+			Status:        p.Status,
+			LastStatus:    p.LastStatus,
+			Master:        t.MasterId == p.Id,
+			RoundBetTimes: p.RoundBetTimes,
+			TotalBetChip:  p.TotalBetChip,
+			HandCard:      make([]*api.Card, 2),
+			BetRole: &api.BetRole{
+				BetMin:  p.BetMin,
+				BetMax:  p.BetMax,
+				BetOpts: p.BetOpts,
+			},
 		}
 		// 玩家手牌
 		for j, card := range p.Cards {
@@ -162,8 +182,6 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 		}
 		resGame.Players[i] = player
 	}
-	// TODO 机器人
-
 	return resGame
 }
 
@@ -185,6 +203,7 @@ func (t *Table) NoticeGameFullStatus() {
 	}
 }
 
+// NoticeAllPlayer 发送消息到牌桌所有玩家
 func (t *Table) NoticeAllPlayer(message proto.Message) {
 	for _, player := range t.Players {
 		if player != nil && player.ProtoWriter != nil {
@@ -193,69 +212,13 @@ func (t *Table) NoticeAllPlayer(message proto.Message) {
 	}
 }
 
-// CurrentRoundEnd 当前回合结束
-func (t *Table) CurrentRoundEnd() error {
-	// TODO 游戏结束,开牌结算
-	if t.RoundTimes >= 4 {
-		// 比牌
-		t.Stage = 7
-		var winners []*Player = nil
-		for _, p := range t.Players {
-			if p != nil {
-				continue
-			}
-			hand, err := AnalyzeMaxHand(p.Cards, t.PublicCards)
-			if err != nil {
-				return err
-			}
-			p.Hand = hand
-			if winners == nil {
-				winners = []*Player{p}
-			} else {
-				if p.Hand.point > winners[0].Hand.point {
-					winners[0] = p
-				} else if p.Hand.point == winners[0].Hand.point {
-					// 手牌相同
-					winners = append(winners, p)
-				}
-			}
-		}
-		winnerCount := int32(len(winners))
-		// TODO 所有玩家输赢消息 ResCalcWinnerChip
-		if winnerCount == 1 {
-			// 只有一个玩家获胜
-			winner := winners[0]
-			winner.Chip += t.Chip
-			t.Chip = 0
-		} else {
-			// 平分奖池
-			once := t.Chip / winnerCount
-			lessPos := winners[0].PosIndex
-			lessNear := lessPos - t.SmallBlindPos
-			for _, p := range winners {
-				p.Chip += once
-				// 计算最靠近发牌者的赢家
-				pNear := p.PosIndex - t.SmallBlindPos
-				if pNear*lessPos < 0 { // 一正一负, 正的近
-					if pNear >= 0 {
-						lessPos = p.PosIndex
-					}
-				} else if lessNear > pNear {
-					lessPos = p.PosIndex
-				}
-			}
-			// 无法平分之小额筹码,顺时针靠近发牌者得
-			less := t.Chip - once*winnerCount
-			if less > 0 {
-				t.Players[lessPos].Chip += less
-			}
-			t.Chip = 0
-		}
-
-		go func() {
-			// TODO 等前端展示3秒钟后,牌桌回到初始状态,剔除掉线玩家
-		}()
-		return nil
+// RoundOver 当前回合结束
+func (t *Table) RoundOver() error {
+	// 游戏结束,开牌结算
+	if t.RoundTimes >= 4 || 1 == len(collect.Filter(t.Players, func(i int, p *Player) bool {
+		return p != nil && p.Status != 7
+	})) {
+		return t.cardFightAndSettle()
 	}
 
 	// 开启下一回合, 重置一些状态
@@ -264,7 +227,7 @@ func (t *Table) CurrentRoundEnd() error {
 	for _, p := range t.Players {
 		if p != nil {
 			p.RoundBetTimes = 0
-			p.RoundChip = 0
+			p.TotalBetChip = 0
 			p.BetMin = 0
 			p.BetMax = 0
 			p.BetOpts = []int32{}
@@ -279,6 +242,7 @@ func (t *Table) CurrentRoundEnd() error {
 	begin := t.Players[nextBegin]
 	begin.SetStatus(6)
 	begin.BetOpts = []int32{1, 2, 4, 5}
+
 	// 根据回合发公共牌
 	switch t.RoundTimes {
 	case 2: // 发3张公共牌(翻牌)
@@ -300,6 +264,87 @@ func (t *Table) CurrentRoundEnd() error {
 	return nil
 }
 
+// cardFightAndSettle 斗牌并结算
+func (t *Table) cardFightAndSettle() error {
+	var winners []*Player = nil
+	leftPlayers := collect.Filter(t.Players, func(i int, p *Player) bool {
+		return p != nil && p.Status != 7
+	})
+
+	if t.RoundTimes < 4 && 1 < len(leftPlayers) {
+		return errors.New("未到最后一轮下注且由1一个以上玩家持有牌")
+	}
+	t.Stage = 7
+
+	if 1 == len(leftPlayers) {
+		// 还剩一个玩家未弃牌
+		winners = leftPlayers
+	} else {
+		// 剩余玩家大于1: 比牌
+		for _, p := range t.Players {
+			if p != nil {
+				continue
+			}
+			hand, err := AnalyzeMaxHand(p.Cards, t.PublicCards)
+			if err != nil {
+				return err
+			}
+			p.Hand = hand
+			if winners == nil {
+				winners = []*Player{p}
+			} else {
+				if p.Hand.point > winners[0].Hand.point {
+					winners[0] = p
+				} else if p.Hand.point == winners[0].Hand.point {
+					// 手牌相同
+					winners = append(winners, p)
+				}
+			}
+		}
+	}
+	winnerCount := int32(len(winners))
+	// TODO 所有玩家输赢消息 ResCalcWinnerChip
+	if winnerCount == 1 {
+		// 只有一个玩家获胜
+		winner := winners[0]
+		winner.Chip += t.Chip
+		t.Chip = 0
+	} else {
+		// 平分奖池
+		once := t.Chip / winnerCount
+		lessPos := winners[0].PosIndex
+		lessNear := lessPos - t.SmallBlindPos
+		for _, p := range winners {
+			p.Chip += once
+			// 计算最靠近发牌者的赢家
+			pNear := p.PosIndex - t.SmallBlindPos
+			if pNear*lessPos < 0 { // 一正一负, 正的近
+				if pNear >= 0 {
+					lessPos = p.PosIndex
+				}
+			} else if lessNear > pNear {
+				lessPos = p.PosIndex
+			}
+		}
+		// 无法平分之小额筹码,顺时针靠近发牌者得
+		less := t.Chip - once*winnerCount
+		if less > 0 {
+			t.Players[lessPos].Chip += less
+		}
+		t.Chip = 0
+	}
+
+	// TODO 通知输赢金额
+
+	// TODO 初始化牌桌及状态
+	t.InitGameAndPlayerStatus();
+
+	go func() {
+		// TODO 等前端展示3秒钟后,牌桌回到初始状态,剔除掉线玩家
+	}()
+	return nil
+}
+
 // DiscardAllPlayerWin 其他玩家弃牌,玩家赢
 func (t *Table) DiscardAllPlayerWin(player *Player) {
 
@@ -310,20 +355,20 @@ func (t *Table) DiscardAllPlayerWin(player *Player) {
 //
 //}
 
-type Stage int
-
-func (s *Stage) String() string {
-	return stageNames[*s]
-}
-
-// 游戏阶段名称
-var stageNames = []string{"Stage00WaitBegin", "Stage10Perflop", "Stage20Flop", "Stage30Turn", "Stage40River"}
-
-// 游戏阶段
-const (
-	Stage00WaitBegin Stage = iota // 等待游戏开始
-	Stage10Perflop   Stage = iota // 下大小盲注，然后没人发2张底牌，大盲注后面第一个玩家跟注、加注或放弃，依次顺时针表态
-	Stage20Flop      Stage = iota // 发三张公牌，由小盲注开始顺时针表态
-	Stage30Turn      Stage = iota // 发第四张公共牌，由小盲注开始顺时针表态
-	Stage40River     Stage = iota // 发第五张牌，由小盲注开始顺时针表态，然后亮牌比大小
-)
+//type Stage int
+//
+//func (s *Stage) String() string {
+//	return stageNames[*s]
+//}
+//
+//// 游戏阶段名称
+//var stageNames = []string{"Stage00WaitBegin", "Stage10Perflop", "Stage20Flop", "Stage30Turn", "Stage40River"}
+//
+//// 游戏阶段
+//const (
+//	Stage00WaitBegin Stage = iota // 等待游戏开始
+//	Stage10Perflop   Stage = iota // 下大小盲注，然后没人发2张底牌，大盲注后面第一个玩家跟注、加注或放弃，依次顺时针表态
+//	Stage20Flop      Stage = iota // 发三张公牌，由小盲注开始顺时针表态
+//	Stage30Turn      Stage = iota // 发第四张公共牌，由小盲注开始顺时针表态
+//	Stage40River     Stage = iota // 发第五张牌，由小盲注开始顺时针表态，然后亮牌比大小
+//)
