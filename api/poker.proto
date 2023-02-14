@@ -130,7 +130,6 @@ message ResGameFullStatus { // 玩家当前游戏状态: 断线,重新登录....
   int32 tableNo = 2; // 所在桌面编号
   int32 gameStage = 3; // 游戏阶段？
   int32 chip = 4; // 牌桌筹码
-  int32 roundTimes = 5; // 回合次数
   int64 playerId = 6; // 当前玩家id
   int32 bigBlindPos = 7; // 大盲注位
   int32 smallBlindPos = 8; // 小盲注位
@@ -203,4 +202,9 @@ message ResGameEndSettle {
 // 玩家输赢筹码通知
 message ResCalcWinnerChip {
   map<int64, int32> playersWinChip = 9;
+}
+
+// 回合数变化时响应消息，前端等发牌动画结束后放开操作
+message ResGameNextRound {
+  int32 round = 1;
 }
