@@ -4816,7 +4816,6 @@ export const api = $root.api = (() => {
          * @property {number|null} [tableNo] ResGameFullStatus tableNo
          * @property {number|null} [gameStage] ResGameFullStatus gameStage
          * @property {number|null} [chip] ResGameFullStatus chip
-         * @property {number|null} [roundTimes] ResGameFullStatus roundTimes
          * @property {number|Long|null} [playerId] ResGameFullStatus playerId
          * @property {number|null} [bigBlindPos] ResGameFullStatus bigBlindPos
          * @property {number|null} [smallBlindPos] ResGameFullStatus smallBlindPos
@@ -4872,14 +4871,6 @@ export const api = $root.api = (() => {
          * @instance
          */
         ResGameFullStatus.prototype.chip = 0;
-
-        /**
-         * ResGameFullStatus roundTimes.
-         * @member {number} roundTimes
-         * @memberof api.ResGameFullStatus
-         * @instance
-         */
-        ResGameFullStatus.prototype.roundTimes = 0;
 
         /**
          * ResGameFullStatus playerId.
@@ -4953,8 +4944,6 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 3, wireType 0 =*/24).int32(message.gameStage);
             if (message.chip != null && Object.hasOwnProperty.call(message, "chip"))
                 writer.uint32(/* id 4, wireType 0 =*/32).int32(message.chip);
-            if (message.roundTimes != null && Object.hasOwnProperty.call(message, "roundTimes"))
-                writer.uint32(/* id 5, wireType 0 =*/40).int32(message.roundTimes);
             if (message.playerId != null && Object.hasOwnProperty.call(message, "playerId"))
                 writer.uint32(/* id 6, wireType 0 =*/48).int64(message.playerId);
             if (message.bigBlindPos != null && Object.hasOwnProperty.call(message, "bigBlindPos"))
@@ -5015,10 +5004,6 @@ export const api = $root.api = (() => {
                     }
                 case 4: {
                         message.chip = reader.int32();
-                        break;
-                    }
-                case 5: {
-                        message.roundTimes = reader.int32();
                         break;
                     }
                 case 6: {
@@ -5092,9 +5077,6 @@ export const api = $root.api = (() => {
             if (message.chip != null && message.hasOwnProperty("chip"))
                 if (!$util.isInteger(message.chip))
                     return "chip: integer expected";
-            if (message.roundTimes != null && message.hasOwnProperty("roundTimes"))
-                if (!$util.isInteger(message.roundTimes))
-                    return "roundTimes: integer expected";
             if (message.playerId != null && message.hasOwnProperty("playerId"))
                 if (!$util.isInteger(message.playerId) && !(message.playerId && $util.isInteger(message.playerId.low) && $util.isInteger(message.playerId.high)))
                     return "playerId: integer|Long expected";
@@ -5145,8 +5127,6 @@ export const api = $root.api = (() => {
                 message.gameStage = object.gameStage | 0;
             if (object.chip != null)
                 message.chip = object.chip | 0;
-            if (object.roundTimes != null)
-                message.roundTimes = object.roundTimes | 0;
             if (object.playerId != null)
                 if ($util.Long)
                     (message.playerId = $util.Long.fromValue(object.playerId)).unsigned = false;
@@ -5205,7 +5185,6 @@ export const api = $root.api = (() => {
                 object.tableNo = 0;
                 object.gameStage = 0;
                 object.chip = 0;
-                object.roundTimes = 0;
                 if ($util.Long) {
                     let long = new $util.Long(0, 0, false);
                     object.playerId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
@@ -5222,8 +5201,6 @@ export const api = $root.api = (() => {
                 object.gameStage = message.gameStage;
             if (message.chip != null && message.hasOwnProperty("chip"))
                 object.chip = message.chip;
-            if (message.roundTimes != null && message.hasOwnProperty("roundTimes"))
-                object.roundTimes = message.roundTimes;
             if (message.playerId != null && message.hasOwnProperty("playerId"))
                 if (typeof message.playerId === "number")
                     object.playerId = options.longs === String ? String(message.playerId) : message.playerId;
@@ -7528,7 +7505,7 @@ export const api = $root.api = (() => {
          * Properties of a ResCalcWinnerChip.
          * @memberof api
          * @interface IResCalcWinnerChip
-         * @property {Object.<string,number>|null} [playersWinChip] ResCalcWinnerChip playersWinChip
+         * @property {Object.<string,number>|null} [winsChip] ResCalcWinnerChip winsChip
          */
 
         /**
@@ -7540,7 +7517,7 @@ export const api = $root.api = (() => {
          * @param {api.IResCalcWinnerChip=} [properties] Properties to set
          */
         function ResCalcWinnerChip(properties) {
-            this.playersWinChip = {};
+            this.winsChip = {};
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
@@ -7548,12 +7525,12 @@ export const api = $root.api = (() => {
         }
 
         /**
-         * ResCalcWinnerChip playersWinChip.
-         * @member {Object.<string,number>} playersWinChip
+         * ResCalcWinnerChip winsChip.
+         * @member {Object.<string,number>} winsChip
          * @memberof api.ResCalcWinnerChip
          * @instance
          */
-        ResCalcWinnerChip.prototype.playersWinChip = $util.emptyObject;
+        ResCalcWinnerChip.prototype.winsChip = $util.emptyObject;
 
         /**
          * Creates a new ResCalcWinnerChip instance using the specified properties.
@@ -7579,9 +7556,9 @@ export const api = $root.api = (() => {
         ResCalcWinnerChip.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.playersWinChip != null && Object.hasOwnProperty.call(message, "playersWinChip"))
-                for (let keys = Object.keys(message.playersWinChip), i = 0; i < keys.length; ++i)
-                    writer.uint32(/* id 9, wireType 2 =*/74).fork().uint32(/* id 1, wireType 0 =*/8).int64(keys[i]).uint32(/* id 2, wireType 0 =*/16).int32(message.playersWinChip[keys[i]]).ldelim();
+            if (message.winsChip != null && Object.hasOwnProperty.call(message, "winsChip"))
+                for (let keys = Object.keys(message.winsChip), i = 0; i < keys.length; ++i)
+                    writer.uint32(/* id 9, wireType 2 =*/74).fork().uint32(/* id 1, wireType 0 =*/8).int64(keys[i]).uint32(/* id 2, wireType 0 =*/16).int32(message.winsChip[keys[i]]).ldelim();
             return writer;
         };
 
@@ -7617,8 +7594,8 @@ export const api = $root.api = (() => {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 9: {
-                        if (message.playersWinChip === $util.emptyObject)
-                            message.playersWinChip = {};
+                        if (message.winsChip === $util.emptyObject)
+                            message.winsChip = {};
                         let end2 = reader.uint32() + reader.pos;
                         key = 0;
                         value = 0;
@@ -7636,7 +7613,7 @@ export const api = $root.api = (() => {
                                 break;
                             }
                         }
-                        message.playersWinChip[typeof key === "object" ? $util.longToHash(key) : key] = value;
+                        message.winsChip[typeof key === "object" ? $util.longToHash(key) : key] = value;
                         break;
                     }
                 default:
@@ -7674,15 +7651,15 @@ export const api = $root.api = (() => {
         ResCalcWinnerChip.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.playersWinChip != null && message.hasOwnProperty("playersWinChip")) {
-                if (!$util.isObject(message.playersWinChip))
-                    return "playersWinChip: object expected";
-                let key = Object.keys(message.playersWinChip);
+            if (message.winsChip != null && message.hasOwnProperty("winsChip")) {
+                if (!$util.isObject(message.winsChip))
+                    return "winsChip: object expected";
+                let key = Object.keys(message.winsChip);
                 for (let i = 0; i < key.length; ++i) {
                     if (!$util.key64Re.test(key[i]))
-                        return "playersWinChip: integer|Long key{k:int64} expected";
-                    if (!$util.isInteger(message.playersWinChip[key[i]]))
-                        return "playersWinChip: integer{k:int64} expected";
+                        return "winsChip: integer|Long key{k:int64} expected";
+                    if (!$util.isInteger(message.winsChip[key[i]]))
+                        return "winsChip: integer{k:int64} expected";
                 }
             }
             return null;
@@ -7700,12 +7677,12 @@ export const api = $root.api = (() => {
             if (object instanceof $root.api.ResCalcWinnerChip)
                 return object;
             let message = new $root.api.ResCalcWinnerChip();
-            if (object.playersWinChip) {
-                if (typeof object.playersWinChip !== "object")
-                    throw TypeError(".api.ResCalcWinnerChip.playersWinChip: object expected");
-                message.playersWinChip = {};
-                for (let keys = Object.keys(object.playersWinChip), i = 0; i < keys.length; ++i)
-                    message.playersWinChip[keys[i]] = object.playersWinChip[keys[i]] | 0;
+            if (object.winsChip) {
+                if (typeof object.winsChip !== "object")
+                    throw TypeError(".api.ResCalcWinnerChip.winsChip: object expected");
+                message.winsChip = {};
+                for (let keys = Object.keys(object.winsChip), i = 0; i < keys.length; ++i)
+                    message.winsChip[keys[i]] = object.winsChip[keys[i]] | 0;
             }
             return message;
         };
@@ -7724,12 +7701,12 @@ export const api = $root.api = (() => {
                 options = {};
             let object = {};
             if (options.objects || options.defaults)
-                object.playersWinChip = {};
+                object.winsChip = {};
             let keys2;
-            if (message.playersWinChip && (keys2 = Object.keys(message.playersWinChip)).length) {
-                object.playersWinChip = {};
+            if (message.winsChip && (keys2 = Object.keys(message.winsChip)).length) {
+                object.winsChip = {};
                 for (let j = 0; j < keys2.length; ++j)
-                    object.playersWinChip[keys2[j]] = message.playersWinChip[keys2[j]];
+                    object.winsChip[keys2[j]] = message.winsChip[keys2[j]];
             }
             return object;
         };
@@ -7761,6 +7738,209 @@ export const api = $root.api = (() => {
         };
 
         return ResCalcWinnerChip;
+    })();
+
+    api.ResGameNextRound = (function() {
+
+        /**
+         * Properties of a ResGameNextRound.
+         * @memberof api
+         * @interface IResGameNextRound
+         * @property {number|null} [round] ResGameNextRound round
+         */
+
+        /**
+         * Constructs a new ResGameNextRound.
+         * @memberof api
+         * @classdesc Represents a ResGameNextRound.
+         * @implements IResGameNextRound
+         * @constructor
+         * @param {api.IResGameNextRound=} [properties] Properties to set
+         */
+        function ResGameNextRound(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * ResGameNextRound round.
+         * @member {number} round
+         * @memberof api.ResGameNextRound
+         * @instance
+         */
+        ResGameNextRound.prototype.round = 0;
+
+        /**
+         * Creates a new ResGameNextRound instance using the specified properties.
+         * @function create
+         * @memberof api.ResGameNextRound
+         * @static
+         * @param {api.IResGameNextRound=} [properties] Properties to set
+         * @returns {api.ResGameNextRound} ResGameNextRound instance
+         */
+        ResGameNextRound.create = function create(properties) {
+            return new ResGameNextRound(properties);
+        };
+
+        /**
+         * Encodes the specified ResGameNextRound message. Does not implicitly {@link api.ResGameNextRound.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResGameNextRound
+         * @static
+         * @param {api.IResGameNextRound} message ResGameNextRound message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResGameNextRound.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.round != null && Object.hasOwnProperty.call(message, "round"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.round);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResGameNextRound message, length delimited. Does not implicitly {@link api.ResGameNextRound.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResGameNextRound
+         * @static
+         * @param {api.IResGameNextRound} message ResGameNextRound message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResGameNextRound.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResGameNextRound message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResGameNextRound
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResGameNextRound} ResGameNextRound
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResGameNextRound.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResGameNextRound();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1: {
+                        message.round = reader.int32();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResGameNextRound message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResGameNextRound
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResGameNextRound} ResGameNextRound
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResGameNextRound.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResGameNextRound message.
+         * @function verify
+         * @memberof api.ResGameNextRound
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResGameNextRound.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.round != null && message.hasOwnProperty("round"))
+                if (!$util.isInteger(message.round))
+                    return "round: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResGameNextRound message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResGameNextRound
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResGameNextRound} ResGameNextRound
+         */
+        ResGameNextRound.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResGameNextRound)
+                return object;
+            let message = new $root.api.ResGameNextRound();
+            if (object.round != null)
+                message.round = object.round | 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a ResGameNextRound message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResGameNextRound
+         * @static
+         * @param {api.ResGameNextRound} message ResGameNextRound
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResGameNextRound.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.round = 0;
+            if (message.round != null && message.hasOwnProperty("round"))
+                object.round = message.round;
+            return object;
+        };
+
+        /**
+         * Converts this ResGameNextRound to JSON.
+         * @function toJSON
+         * @memberof api.ResGameNextRound
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResGameNextRound.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResGameNextRound
+         * @function getTypeUrl
+         * @memberof api.ResGameNextRound
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResGameNextRound.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResGameNextRound";
+        };
+
+        return ResGameNextRound;
     })();
 
     return api;

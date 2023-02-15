@@ -346,6 +346,9 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 		}
 	}
 
+	// 初始化桌面和玩家状态
+	table.InitGameAndPlayerStatus()
+
 	// 游戏状态开始
 	table.Stage = 2
 	// 小盲注位
@@ -402,10 +405,7 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 	}
 
 	// 待大盲注位下一位玩家下注
-	optPos := table.NextPlayerPos(table.BigBlindPos)
-	optPlayer := table.Players[optPos]
-	optPlayer.SetStatus(3)
-	optPlayer.BetOpts = []int32{2, 4}
+	table.SetNextPlayerWithRoundStart()
 
 	// 广播牌桌状态
 	table.NoticeGameFullStatus()
@@ -479,9 +479,12 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 		raise = msg.BetChip > player.BetMin
 		if raise {
 			table.RoundRaiseTimes++
+			table.LastPosBetType = 2
+		} else {
+			table.LastPosBetType = 1
 		}
 		player.RoundBetTimes++
-		table.LastPosBetChip = msg.BetChip
+		table.LastPosBetChip = playerBettingChip
 		table.Chip += msg.BetChip
 		player.Chip -= msg.BetChip
 		player.TotalBetChip += msg.BetChip
@@ -497,6 +500,7 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 		}
 
 	case 3: // All-In TODO 边池
+		table.LastPosBetType = 3
 		player.RoundBetTimes++
 		table.LastPosBetChip = player.Chip
 		table.Chip += player.Chip
@@ -520,6 +524,7 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 			return &api.ResSuccess{}, nil
 		}
 	case 5: // 过牌
+		table.LastPosBetType = 5
 		player.RoundBetTimes++
 		betNotice.Line2 = "过牌"
 
@@ -532,12 +537,7 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 		player.GameTable.NoticeAllPlayer(betNotice)
 	}
 
-	if player.Status != 7 {
-		player.SetStatus(3)
-	}
-
 	// 下注完成：若还有玩家未下注、加注，下一玩家继续下注；若该轮下注完成，发牌开启下一轮下注
-	// 下一位玩家：跟注
 	nextPlayerPos := table.NextHoldingCardPlayerPos(player.PosIndex)
 	nextPlayer := table.Players[nextPlayerPos]
 	//if nextPlayer.Id == player.Id {
@@ -561,45 +561,9 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 		}
 	}
 
-	// 判断该轮下一玩家可下注情况    : 下一玩家是否已下注,当前玩家是否跟注,
-	nextPlayer.SetStatus(6)
-	nextPlayer.BetMin = playerBettingChip
-	nextPlayer.BetOpts = []int32{1, 4}
+	// 查找下一位下注玩家
+	table.SetNextPlayer(player.PosIndex)
 
-	// 下一玩家需跟注
-	// 游戏类型处理最大下注额
-	switch table.TexasType {
-	case 2: // 底池限注
-		nextPlayer.BetOpts = append(nextPlayer.BetOpts, 3)
-		nextPlayer.BetMax = table.Chip + table.LastPosBetChip*2
-	case 3: // 无限注
-		nextPlayer.BetOpts = append(nextPlayer.BetOpts, 2, 3) // 可 all in
-		nextPlayer.BetMax = -1
-	case 1: // 限注
-		fallthrough
-	default:
-		// 限注比赛只允许一次下注与三次加注
-		if table.RoundRaiseTimes < 3 {
-			nextPlayer.BetOpts = append(nextPlayer.BetOpts, 3)
-			// 第1,2回合跟注加注需和大盲注相同, 3,4回合两倍
-			nextPlayer.BetMax = table.BigBlindChip * (table.Stage/2 + 1)
-		} else {
-			// 只能跟注
-			nextPlayer.BetMax = playerBettingChip
-		}
-	}
-
-	// 如果下一玩家是大小盲注第一次下注
-	if table.Stage == 2 && nextPlayer.RoundBetTimes == 0 {
-		switch nextPlayer.PosIndex {
-		case table.SmallBlindPos:
-			nextPlayer.BetMin -= table.SmallBlindChip
-			nextPlayer.BetMax -= table.SmallBlindChip
-		case table.BigBlindPos:
-			nextPlayer.BetMin -= table.BigBlindChip
-			nextPlayer.BetMax -= table.BigBlindChip
-		}
-	}
 	// 依赌场规则而异，
 	// 若所余筹码All-in后仍低于最低加注金额，则此注仅视为跟注（call）而不能被当成加注（raise），亦及该圈若未有其他人再加注，则原加注者（此例中的第一位牌手）仅可跟注补齐或盖牌，于此圈不可再行加注
 	// 亦有少部分赌场规定All-in后大于最低加注额的一半以上，原加注者即可重新加注。

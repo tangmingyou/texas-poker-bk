@@ -201,7 +201,7 @@ message ResGameEndSettle {
 
 // 玩家输赢筹码通知
 message ResCalcWinnerChip {
-  map<int64, int32> playersWinChip = 9;
+  map<int64, int32> winsChip = 9;
 }
 
 // 回合数变化时响应消息，前端等发牌动画结束后放开操作

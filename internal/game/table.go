@@ -30,6 +30,7 @@ type Table struct {
 	TexasType      int32 // 德州扑克类型: (1限注德州扑克:你只能增加与大盲注相同的投注额; 2底池限制德州扑克：你只能增加当时台面最大额的投注额（已经完成所有投注）; 3无限制德州扑克：你可在手持额度下，增加任何额度的投注额，如果你投入所有筹码，就是“全押”)
 	LimitInAmount  int32 // 最低入场金额
 
+	LastPosBetType  int32 // 上家下注类型(弃牌不记录跳过) -> player.BetOpts
 	LastPosBetChip  int32 // 上家下注金额
 	RoundRaiseTimes int32 // 该轮押注圈加注次数
 
@@ -130,7 +131,7 @@ func (t *Table) JoinPlayer(player *Player) (int, error) {
 // BuildResGameFullStatus 构建牌桌当前游戏状态消息
 func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 	resGame := &api.ResGameFullStatus{
-		InGame:        collect.In(t.Stage, 2, 3, 4, 5, 6, 7),
+		InGame:        collect.In(t.Stage, 2, 3, 4, 5, 7),
 		TableNo:       t.TableNo,
 		GameStage:     t.Stage,
 		Chip:          t.Chip,
@@ -172,15 +173,13 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 				BetOpts: p.BetOpts,
 			},
 		}
-		// 未到结算时不展示其他玩家手牌
-		if !collect.In(t.Stage, 7, 9) {
-			for j, card := range p.Cards {
-				if card == nil {
-					player.HandCard[j] = nil
-					continue
-				}
-				player.HandCard[j] = &api.Card{Dot: int32(card.Dot), Suit: CardColors[card.Suit]}
+		// 玩家手牌
+		for j, card := range p.Cards {
+			if card == nil {
+				player.HandCard[j] = nil
+				continue
 			}
+			player.HandCard[j] = &api.Card{Dot: int32(card.Dot), Suit: CardColors[card.Suit]}
 		}
 		resGame.Players[i] = player
 	}
@@ -189,15 +188,20 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 
 func (t *Table) NoticeGameFullStatus() {
 	// 发送当前游戏状态消息到牌桌所有用户
+	resGame := t.BuildResGameFullStatus()
+	gameEnd := collect.In(t.Stage, 1, 7, 9)
 	for _, player := range t.Players {
 		if player != nil && player.ProtoWriter != nil {
-			resGame := t.BuildResGameFullStatus()
 			resGame.PlayerId = player.Id
-			// 只返回自己的手牌 TODO 结算时全部返回
-			for _, p := range resGame.Players {
-				if p != nil && p.Id != player.Id {
-					p.HandCard[0] = nil
-					p.HandCard[1] = nil
+			// 除结算时,只返回自己的手牌
+			if !gameEnd {
+				resGame = t.BuildResGameFullStatus()
+				resGame.PlayerId = player.Id
+				for _, p := range resGame.Players {
+					if p != nil && p.Id != player.Id {
+						p.HandCard[0] = nil
+						p.HandCard[1] = nil
+					}
 				}
 			}
 			player.ProtoWriter.Write(resGame)
@@ -244,32 +248,21 @@ func (t *Table) RoundOver() error {
 	}
 
 	// 重置一些状态
+	t.LastPosBetChip = 0
 	t.RoundRaiseTimes = 0
-	for _, p := range t.Players {
-		if p != nil {
-			p.RoundBetTimes = 0
-			p.WaitBet()
-		}
-	}
-	// 由小盲注或小盲注后第一个未弃牌玩家开始
-	nextPos := t.SmallBlindPos
-	if t.Players[t.SmallBlindPos].Status == 7 {
-		nextPos = t.NextHoldingCardPlayerPos(nextPos)
-	}
-	nextPlayer := t.Players[nextPos]
-	nextPlayer.SetStatus(6)
-	nextPlayer.BetOpts = []int32{1, 2, 4, 5}
 
+	// 由小盲注或小盲注后第一个未弃牌玩家开始
+	t.SetNextPlayerWithRoundStart()
 	return nil
 }
 
 // SetNextPlayerWithRoundStart 回合开始, 设置下一个下注玩家
 func (t *Table) SetNextPlayerWithRoundStart() {
 	nextPos := t.SmallBlindPos
-	if t.Stage == 2 { // TODO 第一回合第一轮由大盲注后一个玩家下注
+	if t.Stage == 2 { // 第一回合第一轮由大盲注后一个玩家下注
 		nextPos = t.NextPlayerPos(t.BigBlindPos)
 	}
-	if t.Players[nextPos].Status == 7 {
+	if t.Players[nextPos].Status == 7 { // 其他回合由小盲注或其后第一个未弃牌玩家开始下注
 		nextPos = t.NextHoldingCardPlayerPos(nextPos)
 	}
 	// 重置其他玩家状态为等待
@@ -286,6 +279,11 @@ func (t *Table) SetNextPlayerWithRoundStart() {
 	nextP.SetStatus(6)
 	nextP.BetOpts = []int32{2, 4}
 	nextP.BetMin = t.BigBlindChip
+
+	// 回合第一个玩家可过牌
+	if t.Stage != 2 {
+		nextP.BetOpts = append(nextP.BetOpts, 5)
+	}
 
 	switch t.TexasType {
 	case 2: // 底池限注
@@ -318,7 +316,7 @@ func (t *Table) SetNextPlayerWithRoundStart() {
 	}
 }
 
-// SetNextPlayer 查找下一个下注玩家, TODO 并计算最大最小下注额
+// SetNextPlayer 查找下一个下注玩家, 并计算最大最小下注额
 func (t *Table) SetNextPlayer(current int) {
 	// 找下一个拿牌玩家
 	var nextPos = t.NextHoldingCardPlayerPos(current)
@@ -332,10 +330,56 @@ func (t *Table) SetNextPlayer(current int) {
 		}
 	}
 	nextP := t.Players[nextPos]
+
+	// 判断该轮下一玩家可下注情况    : 下一玩家是否已下注,当前玩家是否跟注,
 	nextP.SetStatus(6)
 
 	// 最大最小下注额
 	nextP.BetMin = t.LastPosBetChip
+	nextP.BetOpts = []int32{1, 4}
+	// 可过牌
+	if t.LastPosBetType == 5 {
+		nextP.BetOpts = append(nextP.BetOpts, 5)
+	}
+	// 下一玩家需跟注
+	// 游戏类型处理最大下注额
+	switch t.TexasType {
+	case 2: // 底池限注
+		nextP.BetOpts = append(nextP.BetOpts, 2)
+		nextP.BetMax = t.Chip + t.LastPosBetChip*2
+	case 3: // 无限注
+		nextP.BetOpts = append(nextP.BetOpts, 2, 3) // 可 all in
+		nextP.BetMax = -1
+	case 1: // 限注
+		fallthrough
+	default:
+		// 限注比赛只允许一次下注与三次加注
+		if t.RoundRaiseTimes < 3 {
+			nextP.BetOpts = append(nextP.BetOpts, 2)
+			// 第1,2回合跟注加注需和大盲注相同, 3,4回合两倍
+			nextP.BetMax = t.BigBlindChip * (t.Stage/2 + 1)
+		} else {
+			// 只能跟注
+			nextP.BetMax = t.LastPosBetChip
+		}
+	}
+
+	// 如果下一玩家是大小盲注第一次下注
+	if t.Stage == 2 && nextP.RoundBetTimes == 0 {
+		switch nextP.PosIndex {
+		case t.SmallBlindPos:
+			nextP.BetMin -= t.SmallBlindChip
+			if t.TexasType != 3 {
+				nextP.BetMax -= t.SmallBlindChip
+			}
+		case t.BigBlindPos:
+			nextP.BetMin -= t.BigBlindChip
+			nextP.BetOpts = append(nextP.BetOpts, 5)
+			if t.TexasType != 3 {
+				nextP.BetMax -= t.BigBlindChip
+			}
+		}
+	}
 }
 
 // cardFightAndSettle 斗牌并结算
@@ -355,7 +399,7 @@ func (t *Table) cardFightAndSettle() error {
 	} else {
 		// 剩余玩家大于1: 比牌
 		for _, p := range t.Players {
-			if p == nil {
+			if p == nil || p.Status == 7 {
 				continue
 			}
 			hand, err := AnalyzeMaxHand(p.Cards, t.PublicCards)
@@ -375,12 +419,21 @@ func (t *Table) cardFightAndSettle() error {
 			}
 		}
 	}
+
+	// 向所有玩家输赢消息 ResCalcWinnerChip
 	winnerCount := int32(len(winners))
-	// TODO 所有玩家输赢消息 ResCalcWinnerChip
+	resWin := &api.ResCalcWinnerChip{}
+	resWin.WinsChip = make(map[int64]int32, 11)
+	for _, p := range t.Players {
+		if p != nil {
+			resWin.WinsChip[p.Id] = -p.TotalBetChip
+		}
+	}
 	if winnerCount == 1 {
 		// 只有一个玩家获胜
 		winner := winners[0]
 		winner.Chip += t.Chip
+		resWin.WinsChip[winner.Id] += t.Chip
 		t.Chip = 0
 	} else {
 		// 平分奖池
@@ -389,6 +442,8 @@ func (t *Table) cardFightAndSettle() error {
 		lessNear := lessPos - t.SmallBlindPos
 		for _, p := range winners {
 			p.Chip += once
+			resWin.WinsChip[p.Id] += once
+
 			// 计算最靠近发牌者的赢家
 			pNear := p.PosIndex - t.SmallBlindPos
 			if pNear*lessPos < 0 { // 一正一负, 正的近
@@ -403,24 +458,26 @@ func (t *Table) cardFightAndSettle() error {
 		less := t.Chip - once*winnerCount
 		if less > 0 {
 			t.Players[lessPos].Chip += less
+			resWin.WinsChip[t.Players[lessPos].Id] += less
 		}
 		t.Chip = 0
 	}
 
-	// TODO 通知输赢金额
+	// 玩家置为待操作状态
+
+	// 手牌: stage(1,2) other
+	// 1.展示其他玩家手牌(组合牌型)
+	// 2.展示玩家输赢金额(动画) ResCalcWinnerChip
+	t.NoticeAllPlayer(resWin)
+	// 3.主动准备 (重置) ready card[2]hold, pub[5]hold, self not show
 
 	// TODO 初始化牌桌及状态
-	t.InitGameAndPlayerStatus()
+	// t.InitGameAndPlayerStatus()
 
 	go func() {
 		// TODO 等前端展示3秒钟后,牌桌回到初始状态,剔除掉线玩家
 	}()
 	return nil
-}
-
-// DiscardAllPlayerWin 其他玩家弃牌,玩家赢
-func (t *Table) DiscardAllPlayerWin(player *Player) {
-
 }
 
 // NoticeGamePlayerCall TODO 发送(下注信息、下注人、下一位下注人)到牌桌所有用户
