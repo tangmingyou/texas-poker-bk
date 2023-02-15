@@ -5268,6 +5268,7 @@ export const api = $root.api = (() => {
          * @property {boolean|null} [master] TablePlayer master
          * @property {number|null} [roundBetTimes] TablePlayer roundBetTimes
          * @property {number|null} [totalBetChip] TablePlayer totalBetChip
+         * @property {api.IHandType|null} [handType] TablePlayer handType
          * @property {api.IBetRole|null} [betRole] TablePlayer betRole
          * @property {Array.<api.ICard>|null} [handCard] TablePlayer handCard
          */
@@ -5369,6 +5370,14 @@ export const api = $root.api = (() => {
         TablePlayer.prototype.totalBetChip = 0;
 
         /**
+         * TablePlayer handType.
+         * @member {api.IHandType|null|undefined} handType
+         * @memberof api.TablePlayer
+         * @instance
+         */
+        TablePlayer.prototype.handType = null;
+
+        /**
          * TablePlayer betRole.
          * @member {api.IBetRole|null|undefined} betRole
          * @memberof api.TablePlayer
@@ -5426,6 +5435,8 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 8, wireType 0 =*/64).bool(message.master);
             if (message.roundBetTimes != null && Object.hasOwnProperty.call(message, "roundBetTimes"))
                 writer.uint32(/* id 11, wireType 0 =*/88).int32(message.roundBetTimes);
+            if (message.handType != null && Object.hasOwnProperty.call(message, "handType"))
+                $root.api.HandType.encode(message.handType, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
             if (message.totalBetChip != null && Object.hasOwnProperty.call(message, "totalBetChip"))
                 writer.uint32(/* id 13, wireType 0 =*/104).int32(message.totalBetChip);
             if (message.betRole != null && Object.hasOwnProperty.call(message, "betRole"))
@@ -5507,6 +5518,10 @@ export const api = $root.api = (() => {
                         message.totalBetChip = reader.int32();
                         break;
                     }
+                case 12: {
+                        message.handType = $root.api.HandType.decode(reader, reader.uint32());
+                        break;
+                    }
                 case 14: {
                         message.betRole = $root.api.BetRole.decode(reader, reader.uint32());
                         break;
@@ -5582,6 +5597,11 @@ export const api = $root.api = (() => {
             if (message.totalBetChip != null && message.hasOwnProperty("totalBetChip"))
                 if (!$util.isInteger(message.totalBetChip))
                     return "totalBetChip: integer expected";
+            if (message.handType != null && message.hasOwnProperty("handType")) {
+                let error = $root.api.HandType.verify(message.handType);
+                if (error)
+                    return "handType." + error;
+            }
             if (message.betRole != null && message.hasOwnProperty("betRole")) {
                 let error = $root.api.BetRole.verify(message.betRole);
                 if (error)
@@ -5638,6 +5658,11 @@ export const api = $root.api = (() => {
                 message.roundBetTimes = object.roundBetTimes | 0;
             if (object.totalBetChip != null)
                 message.totalBetChip = object.totalBetChip | 0;
+            if (object.handType != null) {
+                if (typeof object.handType !== "object")
+                    throw TypeError(".api.TablePlayer.handType: object expected");
+                message.handType = $root.api.HandType.fromObject(object.handType);
+            }
             if (object.betRole != null) {
                 if (typeof object.betRole !== "object")
                     throw TypeError(".api.TablePlayer.betRole: object expected");
@@ -5685,6 +5710,7 @@ export const api = $root.api = (() => {
                 object.lastStatus = 0;
                 object.master = false;
                 object.roundBetTimes = 0;
+                object.handType = null;
                 object.totalBetChip = 0;
                 object.betRole = null;
             }
@@ -5709,6 +5735,8 @@ export const api = $root.api = (() => {
                 object.master = message.master;
             if (message.roundBetTimes != null && message.hasOwnProperty("roundBetTimes"))
                 object.roundBetTimes = message.roundBetTimes;
+            if (message.handType != null && message.hasOwnProperty("handType"))
+                object.handType = $root.api.HandType.toObject(message.handType, options);
             if (message.totalBetChip != null && message.hasOwnProperty("totalBetChip"))
                 object.totalBetChip = message.totalBetChip;
             if (message.betRole != null && message.hasOwnProperty("betRole"))
@@ -6250,6 +6278,270 @@ export const api = $root.api = (() => {
         };
 
         return BetRole;
+    })();
+
+    api.HandType = (function() {
+
+        /**
+         * Properties of a HandType.
+         * @memberof api
+         * @interface IHandType
+         * @property {string|null} [hand] HandType hand
+         * @property {string|null} [handZh] HandType handZh
+         * @property {number|Long|null} [point] HandType point
+         */
+
+        /**
+         * Constructs a new HandType.
+         * @memberof api
+         * @classdesc Represents a HandType.
+         * @implements IHandType
+         * @constructor
+         * @param {api.IHandType=} [properties] Properties to set
+         */
+        function HandType(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * HandType hand.
+         * @member {string} hand
+         * @memberof api.HandType
+         * @instance
+         */
+        HandType.prototype.hand = "";
+
+        /**
+         * HandType handZh.
+         * @member {string} handZh
+         * @memberof api.HandType
+         * @instance
+         */
+        HandType.prototype.handZh = "";
+
+        /**
+         * HandType point.
+         * @member {number|Long} point
+         * @memberof api.HandType
+         * @instance
+         */
+        HandType.prototype.point = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+
+        /**
+         * Creates a new HandType instance using the specified properties.
+         * @function create
+         * @memberof api.HandType
+         * @static
+         * @param {api.IHandType=} [properties] Properties to set
+         * @returns {api.HandType} HandType instance
+         */
+        HandType.create = function create(properties) {
+            return new HandType(properties);
+        };
+
+        /**
+         * Encodes the specified HandType message. Does not implicitly {@link api.HandType.verify|verify} messages.
+         * @function encode
+         * @memberof api.HandType
+         * @static
+         * @param {api.IHandType} message HandType message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        HandType.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.hand != null && Object.hasOwnProperty.call(message, "hand"))
+                writer.uint32(/* id 1, wireType 2 =*/10).string(message.hand);
+            if (message.handZh != null && Object.hasOwnProperty.call(message, "handZh"))
+                writer.uint32(/* id 2, wireType 2 =*/18).string(message.handZh);
+            if (message.point != null && Object.hasOwnProperty.call(message, "point"))
+                writer.uint32(/* id 3, wireType 0 =*/24).int64(message.point);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified HandType message, length delimited. Does not implicitly {@link api.HandType.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.HandType
+         * @static
+         * @param {api.IHandType} message HandType message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        HandType.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a HandType message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.HandType
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.HandType} HandType
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        HandType.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.HandType();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1: {
+                        message.hand = reader.string();
+                        break;
+                    }
+                case 2: {
+                        message.handZh = reader.string();
+                        break;
+                    }
+                case 3: {
+                        message.point = reader.int64();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a HandType message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.HandType
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.HandType} HandType
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        HandType.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a HandType message.
+         * @function verify
+         * @memberof api.HandType
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        HandType.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.hand != null && message.hasOwnProperty("hand"))
+                if (!$util.isString(message.hand))
+                    return "hand: string expected";
+            if (message.handZh != null && message.hasOwnProperty("handZh"))
+                if (!$util.isString(message.handZh))
+                    return "handZh: string expected";
+            if (message.point != null && message.hasOwnProperty("point"))
+                if (!$util.isInteger(message.point) && !(message.point && $util.isInteger(message.point.low) && $util.isInteger(message.point.high)))
+                    return "point: integer|Long expected";
+            return null;
+        };
+
+        /**
+         * Creates a HandType message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.HandType
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.HandType} HandType
+         */
+        HandType.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.HandType)
+                return object;
+            let message = new $root.api.HandType();
+            if (object.hand != null)
+                message.hand = String(object.hand);
+            if (object.handZh != null)
+                message.handZh = String(object.handZh);
+            if (object.point != null)
+                if ($util.Long)
+                    (message.point = $util.Long.fromValue(object.point)).unsigned = false;
+                else if (typeof object.point === "string")
+                    message.point = parseInt(object.point, 10);
+                else if (typeof object.point === "number")
+                    message.point = object.point;
+                else if (typeof object.point === "object")
+                    message.point = new $util.LongBits(object.point.low >>> 0, object.point.high >>> 0).toNumber();
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a HandType message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.HandType
+         * @static
+         * @param {api.HandType} message HandType
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        HandType.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults) {
+                object.hand = "";
+                object.handZh = "";
+                if ($util.Long) {
+                    let long = new $util.Long(0, 0, false);
+                    object.point = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.point = options.longs === String ? "0" : 0;
+            }
+            if (message.hand != null && message.hasOwnProperty("hand"))
+                object.hand = message.hand;
+            if (message.handZh != null && message.hasOwnProperty("handZh"))
+                object.handZh = message.handZh;
+            if (message.point != null && message.hasOwnProperty("point"))
+                if (typeof message.point === "number")
+                    object.point = options.longs === String ? String(message.point) : message.point;
+                else
+                    object.point = options.longs === String ? $util.Long.prototype.toString.call(message.point) : options.longs === Number ? new $util.LongBits(message.point.low >>> 0, message.point.high >>> 0).toNumber() : message.point;
+            return object;
+        };
+
+        /**
+         * Converts this HandType to JSON.
+         * @function toJSON
+         * @memberof api.HandType
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        HandType.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for HandType
+         * @function getTypeUrl
+         * @memberof api.HandType
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        HandType.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.HandType";
+        };
+
+        return HandType;
     })();
 
     api.ReqGameStart = (function() {

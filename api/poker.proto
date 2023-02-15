@@ -151,6 +151,7 @@ message TablePlayer {
   int32 roundBetTimes = 11; // 该局下注次数
   int32 totalBetChip = 13; // 该局牌已下注筹码
 
+  HandType handType = 12; // 手牌组合牌型
   BetRole betRole = 14; // 下注时规则限制
   repeated Card handCard = 15; // 手牌
 }
@@ -165,6 +166,12 @@ message BetRole {
   int32 betMin = 1; // 最低下注额
   int32 betMax = 2; // 最高下注额
   repeated int32 betOpts = 13; // status=[4,6]时下注可操作按钮: 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
+}
+
+message HandType {
+  string hand = 1;
+  string handZh = 2;
+  int64 point = 3;
 }
 
 // 加入游戏 ============= end

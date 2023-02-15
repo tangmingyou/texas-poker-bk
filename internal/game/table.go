@@ -173,6 +173,13 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 				BetOpts: p.BetOpts,
 			},
 		}
+		if p.Hand != nil {
+			player.HandType = &api.HandType{
+				Hand:   p.Hand.CardType.Name(),
+				HandZh: p.Hand.CardType.NameZh(),
+				Point:  int64(p.Hand.GetPoint()),
+			}
+		}
 		// 玩家手牌
 		for j, card := range p.Cards {
 			if card == nil {

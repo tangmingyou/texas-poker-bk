@@ -46,6 +46,10 @@ func (h *Hand) Init(cards [5]*Card) *Hand {
 	return h
 }
 
+func (h *Hand) GetPoint() int {
+	return h.point
+}
+
 type CardType int
 
 func (ct CardType) String() string {
@@ -53,7 +57,17 @@ func (ct CardType) String() string {
 	return cardTypeNames[int(math.Log2(f))]
 }
 
+func (ct CardType) Name() string {
+	return ct.String()
+}
+
+func (ct CardType) NameZh() string {
+	f, _ := strconv.ParseFloat(strconv.Itoa(int(ct)>>13), 32)
+	return cardTypeZhNames[int(math.Log2(f))]
+}
+
 var cardTypeNames = []string{"HighCard", "OnePair", "TwoPairs", "ThreeOfKind", "Straight", "Flush", "FullHouse", "FourOfKind", "StraightFlush", "RoyalFlush"}
+var cardTypeZhNames = []string{"高牌", "对子", "两对", "三条", "顺子", "同花", "葫芦", "四条", "同花顺", "皇家同花顺"}
 
 const (
 	HighCard      CardType = 1 << 13 << iota // 高牌
