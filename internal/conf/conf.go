@@ -15,7 +15,7 @@ func init() {
 	flag.StringVar(&confPath, "conf", "etc/config.toml", "default config path.")
 
 	Conf = Default()
-	_, err := toml.DecodeFile("etc/config.toml", Conf)
+	_, err := toml.DecodeFile(confPath, Conf)
 	if err != nil {
 		panic(err)
 	}
