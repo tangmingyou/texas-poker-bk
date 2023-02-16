@@ -178,7 +178,7 @@ func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.M
 	subject, err := DecodeSubject(msg.Token)
 	if err != nil {
 		// client.Close("authorize failed!")
-		return nil, err
+		return &api.ResFail{Code: 401, Msg: err.Error()}, nil
 	}
 
 	account := &session.NetAccount{

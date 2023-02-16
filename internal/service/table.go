@@ -247,11 +247,14 @@ func HandleReqGameFullStatus(player *game.Player, msg *api.ReqGameFullStatus) (p
 	}
 	resGame := player.GameTable.BuildResGameFullStatus()
 	resGame.PlayerId = player.Id
+	gameEnd := collect.In(player.GameTable.Stage, 1, 7, 9)
 	// 其他玩家手牌不返回，TODO 计算自己的5张推荐牌
-	for _, p := range resGame.Players {
-		if p != nil && p.Id != player.Id {
-			p.HandCard[0] = nil
-			p.HandCard[1] = nil
+	if !gameEnd {
+		for _, p := range resGame.Players {
+			if p != nil && p.Id != player.Id {
+				p.HandCard[0] = nil
+				p.HandCard[1] = nil
+			}
 		}
 	}
 	return resGame, nil
@@ -264,7 +267,7 @@ func HandleReqReadyStart(player *game.Player, msg *api.ReqReadyStart) (proto.Mes
 	if player.Id == player.GameTable.MasterId {
 		return &api.ResFail{Msg: "房主不用准备"}, nil
 	}
-	if player.Status != 1 {
+	if !collect.In(player.Status, 1, 8) {
 		msg := ""
 		switch player.Status {
 		case 2:
@@ -299,7 +302,7 @@ func HandleReqCancelReady(player *game.Player, msg *api.ReqCancelReady) (proto.M
 func HandleReqDismissGameTable(player *game.Player, msg *api.ReqDismissGameTable) (proto.Message, error) {
 	player.GameTable.Lock.Lock()
 	defer player.GameTable.Lock.Unlock()
-	if player.GameTable.Stage != 1 {
+	if !collect.In(player.GameTable.Stage, 1, 7) {
 		return &api.ResFail{Msg: fmt.Sprintf("#%d,牌局进行中", player.GameTable.Stage)}, nil
 	}
 	player.GameTable.Stage = 9
@@ -336,7 +339,7 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 	if player.Id != table.MasterId {
 		return &api.ResFail{Msg: "你不是房主"}, nil
 	}
-	if table.Stage != 1 {
+	if !collect.In(table.Stage, 1, 7) {
 		return &api.ResFail{Msg: fmt.Sprintf("牌局状态有误%d", table.Stage)}, nil
 	}
 	// 检查所有玩家准备状态
@@ -436,6 +439,9 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 	if !collect.In(msg.BetType, player.BetOpts...) {
 		return &api.ResFail{Msg: fmt.Sprintf("当前不可执行该操作#%d", msg.BetType)}, nil
 	}
+	if !collect.In(player.GameTable.Stage, 2, 3, 4, 5) {
+		return &api.ResFail{Msg: fmt.Sprintf("当前阶段不可下注#%d", msg.BetType)}, nil
+	}
 
 	// 投注结束广播牌桌状态
 	defer player.GameTable.NoticeGameFullStatus()
@@ -491,11 +497,11 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 
 		betNotice.Line1 = fmt.Sprintf("+%d", msg.BetChip)
 		if playerBettingChip == player.BetMin {
-			betNotice.Line2 = "跟注"
+			betNotice.Line2 = fmt.Sprintf("跟注%d", player.BetMin)
 		} else {
 			betNotice.Line2 = fmt.Sprintf("加注:%d", msg.BetChip-player.BetMin)
 			if player.BetMin > 0 {
-				betNotice.Line2 = fmt.Sprintf("跟注:%d", player.BetMin)
+				betNotice.Line3 = fmt.Sprintf("跟注:%d", player.BetMin)
 			}
 		}
 

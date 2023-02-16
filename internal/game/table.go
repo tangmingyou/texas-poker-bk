@@ -225,44 +225,6 @@ func (t *Table) NoticeAllPlayer(message proto.Message) {
 	}
 }
 
-// RoundOver 当前回合结束
-func (t *Table) RoundOver() error {
-	// 游戏结束,开牌结算
-	if t.Stage == 5 || 1 == len(collect.Filter(t.Players, func(i int, p *Player) bool {
-		return p != nil && p.Status != 7
-	})) {
-		return t.cardFightAndSettle()
-	}
-
-	// 开启下一回合, 根据回合发公共牌
-	switch t.Stage {
-	case 2: // 发3张公共牌(翻牌)
-		t.Stage = 3
-		for i := 0; i < 5; i++ {
-			if i < 3 {
-				t.PublicCards[i] = t.Dealer.Deal()
-				continue
-			}
-			// 第4,5张牌置空
-			t.PublicCards[i] = nil
-		}
-	case 3: // 发第4张公共牌(转牌turn)
-		t.Stage = 4
-		t.PublicCards[3] = t.Dealer.Deal()
-	case 4: // 发第5张公共牌(河牌river)
-		t.Stage = 5
-		t.PublicCards[4] = t.Dealer.Deal()
-	}
-
-	// 重置一些状态
-	t.LastPosBetChip = 0
-	t.RoundRaiseTimes = 0
-
-	// 由小盲注或小盲注后第一个未弃牌玩家开始
-	t.SetNextPlayerWithRoundStart()
-	return nil
-}
-
 // SetNextPlayerWithRoundStart 回合开始, 设置下一个下注玩家
 func (t *Table) SetNextPlayerWithRoundStart() {
 	nextPos := t.SmallBlindPos
@@ -389,6 +351,44 @@ func (t *Table) SetNextPlayer(current int) {
 	}
 }
 
+// RoundOver 当前回合结束
+func (t *Table) RoundOver() error {
+	// 游戏结束,开牌结算
+	if t.Stage == 5 || 1 == len(collect.Filter(t.Players, func(i int, p *Player) bool {
+		return p != nil && p.Status != 7
+	})) {
+		return t.cardFightAndSettle()
+	}
+
+	// 开启下一回合, 根据回合发公共牌
+	switch t.Stage {
+	case 2: // 发3张公共牌(翻牌)
+		t.Stage = 3
+		for i := 0; i < 5; i++ {
+			if i < 3 {
+				t.PublicCards[i] = t.Dealer.Deal()
+				continue
+			}
+			// 第4,5张牌置空
+			t.PublicCards[i] = nil
+		}
+	case 3: // 发第4张公共牌(转牌turn)
+		t.Stage = 4
+		t.PublicCards[3] = t.Dealer.Deal()
+	case 4: // 发第5张公共牌(河牌river)
+		t.Stage = 5
+		t.PublicCards[4] = t.Dealer.Deal()
+	}
+
+	// 重置一些状态
+	t.LastPosBetChip = 0
+	t.RoundRaiseTimes = 0
+
+	// 由小盲注或小盲注后第一个未弃牌玩家开始
+	t.SetNextPlayerWithRoundStart()
+	return nil
+}
+
 // cardFightAndSettle 斗牌并结算
 func (t *Table) cardFightAndSettle() error {
 	var winners []*Player = nil
@@ -470,7 +470,13 @@ func (t *Table) cardFightAndSettle() error {
 		t.Chip = 0
 	}
 
-	// 玩家置为待操作状态
+	// 斗牌结束, 玩家置为待操作状态
+	for _, p := range t.Players {
+		if p != nil {
+			p.WaitBet()
+			p.SetStatus(8)
+		}
+	}
 
 	// 手牌: stage(1,2) other
 	// 1.展示其他玩家手牌(组合牌型)
