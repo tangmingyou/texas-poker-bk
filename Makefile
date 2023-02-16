@@ -19,3 +19,4 @@ run:
 
 stop:
 	pkill -f target/texas
+

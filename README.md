@@ -16,3 +16,6 @@ pbjs -t json api/*.proto > jsproto.json
 
 [网易德州扑克规则](http://sports.163.com/special/poker_rule/?ivk_sa=1025883k)
 
+cd target
+nohup ./texas -conf=config.toml -region=sh -zone=sh001 -deploy.env=dev -weight=10 2>&1 > texas.log &
+pkill -f ./texas
