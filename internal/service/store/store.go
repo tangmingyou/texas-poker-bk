@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
+	"texas-poker-bk/api"
 	"texas-poker-bk/internal/game"
 	"texas-poker-bk/internal/session"
 )
@@ -49,6 +50,7 @@ func SaveAndTryRecoverNetAccounts(account *session.NetAccount) *session.NetAccou
 		return account
 	}
 	// 掉线重连的用户, TODO 重复登录的用户
+	current.Client.Write(&api.ResFail{Code: 403, Msg: "该账号在其他地方登录，您已下线"})
 	current.Client = account.Client
 	if current.Player != nil {
 		current.Player.ProtoWriter = account.Client

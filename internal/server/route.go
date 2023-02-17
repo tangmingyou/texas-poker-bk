@@ -33,7 +33,7 @@ func NewServer() *gin.Engine {
 	user := base.Group("/user")
 	user.GET("/findByName", dao.FindUserByName)
 
-	_ = base.Group("/game")
-
+	gm := base.Group("/gm")
+	gm.GET("/avatar/:avatar", service.Avatar)
 	return server
 }

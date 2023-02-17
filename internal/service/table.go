@@ -140,7 +140,7 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 	if table == nil {
 		return &api.ResFail{Msg: "牌桌不存在"}, nil
 	}
-	if table.Stage != 1 {
+	if !collect.In(table.Stage, 1, 7) {
 		return &api.ResFail{Msg: "牌桌正在进行中"}, nil
 	}
 	// 账户余额限制

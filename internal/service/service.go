@@ -6,8 +6,15 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"texas-poker-bk/internal/conf"
 	"time"
 )
+
+func Avatar(ctx *gin.Context) {
+	avatar := ctx.Param("avatar")
+	ctx.Header("Cache-Control", "private, max-age=86400")
+	ctx.File(conf.Conf.Game.AvatarPath + avatar)
+}
 
 // Captcha 获取验证码
 func Captcha(ctx *gin.Context) {

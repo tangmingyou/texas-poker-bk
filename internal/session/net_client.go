@@ -40,7 +40,7 @@ func (c *NetClient) WriteSeq(success bool, seq int32, msg proto.Message) {
 	// 序列化 protobuf 消息
 	op, err := api.GetProtoOp(msg)
 	if err != nil {
-		fmt.Println("write msg match op err:", err)
+		fmt.Println("write msg match op err:", err, msg.String())
 		return
 	}
 	bytes, err := proto.Marshal(msg)

@@ -126,7 +126,7 @@ message ReqGameFullStatus {
 }
 
 message ResGameFullStatus { // 玩家当前游戏状态: 断线,重新登录....
-  bool inGame = 1; // 游戏是否进行中
+//  bool inGame = 1; // 游戏是否进行中
   int32 tableNo = 2; // 所在桌面编号
   int32 gameStage = 3; // 游戏阶段？
   int32 chip = 4; // 牌桌筹码

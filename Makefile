@@ -6,9 +6,9 @@ GOTEST=$(GOCMD) test
 
 all: build
 build:
-	rm -rf target/
+	rm -rf target/texas
 	mkdir target/
-	cp etc/config.toml target/config.toml
+	#cp etc/config.toml target/config.toml
 	$(GOBUILD) -o target/texas cmd/main.go
 
 clean:

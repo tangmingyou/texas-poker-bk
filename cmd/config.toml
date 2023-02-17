@@ -11,6 +11,7 @@ ignoreUrl = [
     "/api/auth/captcha",
     "/api/auth/authorize",
     "/api/user/findByName",
+    "/api/gm/avatar",
 ]
 # 需要输入图形验证码的url
 captchaUrl = [
@@ -23,3 +24,4 @@ dbPath = "etc/texas-poker.db"
 [game]
 # 新用户赠送筹码
 GiftChip = 10000
+AvatarPath = "cmd/avatar/"

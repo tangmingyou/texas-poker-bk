@@ -131,7 +131,7 @@ func (t *Table) JoinPlayer(player *Player) (int, error) {
 // BuildResGameFullStatus 构建牌桌当前游戏状态消息
 func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 	resGame := &api.ResGameFullStatus{
-		InGame:        collect.In(t.Stage, 2, 3, 4, 5, 7),
+		//InGame:        collect.In(t.Stage, 2, 3, 4, 5),
 		TableNo:       t.TableNo,
 		GameStage:     t.Stage,
 		Chip:          t.Chip,

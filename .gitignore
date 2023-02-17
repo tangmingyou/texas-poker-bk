@@ -21,10 +21,8 @@
 Thumbs.db
 
 # build
-/cmd/comet/comet
-/cmd/logic/logic
-/cmd/job/job
 /target
 /configs
 /dist
 /etc/texas-poker.db
+/cmd/avatar

@@ -85,13 +85,13 @@ const (
 
 // 处理新建的websocket
 func handleNetClient(client *session.NetClient) {
-	//defer (func() {
-	//	client.Close("conn finish")
-	//})()
-
-	//var account *session.NetAccount
-	//var player *session.Player
-
+	defer func() {
+		// 捕获aes解析错误
+		if r := recover(); r != nil {
+			fmt.Println(r)
+			client.Write(&api.ResFail{Code: 401, Msg: r.(error).Error()})
+		}
+	}()
 	// https://github.com/gorilla/websocket/blob/a68708917c6a4f06314ab4e52493cc61359c9d42/examples/chat/conn.go#L50
 	client.Conn.SetReadLimit(maxMessageSize)
 	// TODO readDeadLine 读取超时后关闭连接

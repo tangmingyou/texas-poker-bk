@@ -6,7 +6,11 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/protobuf/proto"
+	"github.com/o1egl/govatar"
+	"math/rand"
 	"net/http"
+	"os"
+	"strings"
 	"sync"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/conf"
@@ -33,6 +37,9 @@ func init() {
 		panic(err)
 	}
 	aesTokenKeyBytes = keyBytes
+
+	// 头像文件夹
+	_ = os.MkdirAll(conf.Conf.Game.AvatarPath, os.ModePerm)
 }
 
 // Authorize 登录或注册
@@ -48,8 +55,13 @@ func Authorize(ctx *gin.Context) {
 	}
 	user := dao.UserDao.FindUserByName(username)
 	if user == nil {
+		var err error = nil
 		// 注册
-		user = registerUser(username, password)
+		user, err = registerUser(username, password)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"msg": err.Error()})
+			return
+		}
 	} else {
 		// 校验密码
 		if user.Password != password {
@@ -59,9 +71,10 @@ func Authorize(ctx *gin.Context) {
 	}
 
 	sub := &session.Subject{
-		Id:   user.Id,
-		Name: user.Username,
-		Time: time.Now().UnixMilli(),
+		Id:     user.Id,
+		Name:   user.Username,
+		Time:   time.Now().UnixMilli(),
+		Avatar: user.Avatar,
 	}
 	token, err := EncodeSubject(sub)
 	if err != nil {
@@ -74,22 +87,29 @@ func Authorize(ctx *gin.Context) {
 		"user": gin.H{
 			"id":       user.Id,
 			"username": user.Username,
-			// TODO avatar...
+			"avatar":   user.Avatar,
 		},
 	}})
 }
 
 // 注册用户到DB
-func registerUser(username string, password string) *entity.User {
+func registerUser(username string, password string) (*entity.User, error) {
+	// 生成头像
+	avatar := fmt.Sprintf("%d%d%s", time.Now().UnixMilli(), rand.Intn(99), ".jpg")
+	err := govatar.GenerateFile(govatar.MALE, conf.Conf.Game.AvatarPath+avatar)
+	if err != nil {
+		return nil, err
+	}
 	user := &entity.User{
 		Username: username,
 		Password: password,
-		Nickname: username,
 		Balance:  conf.Conf.Game.GiftChip,
+		Avatar:   avatar,
+		Version:  0,
 	}
 	// TODO error
 	dao.UserDao.DB.Save(user)
-	return user
+	return user, nil
 }
 
 // SubjectAuthFilter 认证过滤器
@@ -99,7 +119,7 @@ func SubjectAuthFilter(ctx *gin.Context) {
 	// ignore auth urls
 	if collect.IsNotEmptySlice(conf.Conf.Auth.IgnoreUrl) {
 		for _, ignoreUrl := range conf.Conf.Auth.IgnoreUrl {
-			if ignoreUrl == ctx.Request.URL.Path {
+			if strings.HasPrefix(ctx.Request.URL.Path, ignoreUrl) {
 				return
 			}
 		}

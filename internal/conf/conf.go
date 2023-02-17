@@ -2,6 +2,7 @@ package conf
 
 import (
 	"flag"
+	"fmt"
 	"github.com/BurntSushi/toml"
 )
 
@@ -12,14 +13,14 @@ var (
 
 func init() {
 	// go run xx -conf=xx.toml
-	flag.StringVar(&confPath, "conf", "etc/config.toml", "default config path.")
+	flag.StringVar(&confPath, "conf", "cmd/config.toml", "default config path.")
+	fmt.Printf("confPath: %v\n", confPath)
 
 	Conf = Default()
 	_, err := toml.DecodeFile(confPath, Conf)
 	if err != nil {
 		panic(err)
 	}
-	// fmt.Printf("%v", Conf)
 }
 
 func Default() *Config {
@@ -52,5 +53,6 @@ type Sqlite struct {
 }
 
 type Game struct {
-	GiftChip int32
+	GiftChip   int32
+	AvatarPath string
 }

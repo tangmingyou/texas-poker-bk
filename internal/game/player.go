@@ -41,11 +41,12 @@ func (p *Player) Init() {
 // RoundInit 下一回合初始化
 func (p *Player) RoundInit() {
 	p.SetStatus(1)
+	p.BetOpts = emptyOpts
+	p.Hand = nil
 	p.BetMin = 0
 	p.BetMax = 0
-	p.BetOpts = emptyOpts
+	p.RoundBetTimes = 0
 	p.TotalBetChip = 0
-	p.Hand = nil
 	p.Cards[0] = nil
 	p.Cards[1] = nil
 }
