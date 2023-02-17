@@ -13,7 +13,7 @@ var (
 
 func init() {
 	// go run xx -conf=xx.toml
-	flag.StringVar(&confPath, "conf", "cmd/config.toml", "default config path.")
+	flag.StringVar(&confPath, "conf", "data/config.toml", "default config path.")
 	fmt.Printf("confPath: %v\n", confPath)
 
 	Conf = Default()

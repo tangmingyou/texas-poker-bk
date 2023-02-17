@@ -67,7 +67,7 @@ func (ct CardType) NameZh() string {
 }
 
 var cardTypeNames = []string{"HighCard", "OnePair", "TwoPairs", "ThreeOfKind", "Straight", "Flush", "FullHouse", "FourOfKind", "StraightFlush", "RoyalFlush"}
-var cardTypeZhNames = []string{"高牌", "对子", "两对", "三条", "顺子", "同花", "葫芦", "四条", "同花顺", "皇家同花顺"}
+var cardTypeZhNames = []string{"散牌", "对子", "两对", "三条", "顺子", "同花", "葫芦", "四条", "同花顺", "皇家同花顺"}
 
 const (
 	HighCard      CardType = 1 << 13 << iota // 高牌

@@ -19,9 +19,9 @@ captchaUrl = [
 ]
 
 [sqlite]
-dbPath = "etc/texas-poker.db"
+dbPath = "data/texas-poker.db"
 
 [game]
 # 新用户赠送筹码
 GiftChip = 10000
-AvatarPath = "cmd/avatar/"
+AvatarPath = "data/avatar/"

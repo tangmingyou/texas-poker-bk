@@ -54,7 +54,8 @@ func Authorize(ctx *gin.Context) {
 		return
 	}
 	user := dao.UserDao.FindUserByName(username)
-	if user == nil {
+	unregister := user == nil
+	if unregister {
 		var err error = nil
 		// 注册
 		user, err = registerUser(username, password)
@@ -82,7 +83,11 @@ func Authorize(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": gin.H{
+	msg := "登录成功"
+	if unregister {
+		msg = "注册成功"
+	}
+	ctx.JSON(http.StatusOK, gin.H{"msg": msg, "data": gin.H{
 		"token": token,
 		"user": gin.H{
 			"id":       user.Id,
@@ -95,7 +100,7 @@ func Authorize(ctx *gin.Context) {
 // 注册用户到DB
 func registerUser(username string, password string) (*entity.User, error) {
 	// 生成头像
-	avatar := fmt.Sprintf("%d%d%s", time.Now().UnixMilli(), rand.Intn(99), ".jpg")
+	avatar := fmt.Sprintf("%d%d%s", time.Now().UnixMilli(), rand.Intn(90)+10, ".jpg")
 	err := govatar.GenerateFile(govatar.MALE, conf.Conf.Game.AvatarPath+avatar)
 	if err != nil {
 		return nil, err
