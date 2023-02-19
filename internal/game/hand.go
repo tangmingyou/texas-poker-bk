@@ -53,12 +53,12 @@ func (h *Hand) GetPoint() int {
 type CardType int
 
 func (ct CardType) String() string {
-	f, _ := strconv.ParseFloat(strconv.Itoa(int(ct)>>13), 32)
-	return cardTypeNames[int(math.Log2(f))]
+	return ct.NameZh()
 }
 
 func (ct CardType) Name() string {
-	return ct.String()
+	f, _ := strconv.ParseFloat(strconv.Itoa(int(ct)>>13), 32)
+	return cardTypeNames[int(math.Log2(f))]
 }
 
 func (ct CardType) NameZh() string {
@@ -108,17 +108,26 @@ func AnalyzeMaxHand(handCards [2]*Card, publicCards [5]*Card) (*Hand, error) {
 		return new(Hand).Init(cards), nil
 	}
 	// 查找最大分数组合
-	// tempCards := allCards[:5]
-	copy(cards[:], allCards[:5])
-
-	maxHand := new(Hand).Init(cards)
-	for i := 0; i < len(cards); i++ {
-		for j := 5; j < len(allCards); j++ {
-			var tempCards = cards
-			tempCards[i] = allCards[j]
-			h := new(Hand).Init(tempCards)
-			if h.point > maxHand.point {
-				maxHand = h
+	cardsLen := len(allCards)
+	tempCards := [5]*Card{}
+	var maxHand *Hand
+	// 遍历和公共牌的所有组合
+	for i := 0; i < cardsLen; i++ {
+		tempCards[0] = allCards[i]
+		for j := i + 1; j < cardsLen; j++ {
+			tempCards[1] = allCards[j]
+			for k := j + 1; k < cardsLen; k++ {
+				tempCards[2] = allCards[k]
+				for m := k + 1; m < cardsLen; m++ {
+					tempCards[3] = allCards[m]
+					for n := m + 1; n < cardsLen; n++ {
+						tempCards[4] = allCards[n]
+						tempHand := new(Hand).Init(tempCards)
+						if maxHand == nil || tempHand.point > maxHand.point {
+							maxHand = tempHand
+						}
+					}
+				}
 			}
 		}
 	}

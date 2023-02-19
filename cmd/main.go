@@ -21,4 +21,18 @@ func startServer() {
 
 func main() {
 	startServer()
+	//hand := [2]*game.Card{
+	//	{Dot: game.PokerK, Suit: game.Diamond},
+	//	{Dot: game.Poker10, Suit: game.Heart},
+	//}
+	//public := [5]*game.Card{
+	//	{Dot: game.Poker4, Suit: game.Diamond},
+	//	{Dot: game.Poker9, Suit: game.Club},
+	//	{Dot: game.PokerJ, Suit: game.Diamond},
+	//	{Dot: game.Poker2, Suit: game.Diamond},
+	//	{Dot: game.Poker2, Suit: game.Spade},
+	//}
+	//maxHand, err := game.AnalyzeMaxHand(hand, public)
+	//fmt.Println(err, maxHand)
+
 }
