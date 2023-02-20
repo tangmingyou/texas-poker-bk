@@ -160,7 +160,6 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 			Avatar:        p.Avatar,
 			Chip:          p.Chip,
 			Status:        p.Status,
-			LastStatus:    p.LastStatus,
 			Master:        t.MasterId == p.Id,
 			RoundBetTimes: p.RoundBetTimes,
 			TotalBetChip:  p.TotalBetChip,

@@ -147,7 +147,6 @@ message TablePlayer {
   string avatar = 4;
   int32 chip = 5; // 筹码
   int32 status = 6; // 玩家状态: 1待准备开始,2已准备开始,已开始(3等待其他玩家动作,4待大盲注,5待小盲注,6待跟注,7已弃)
-  int32 lastStatus = 7; // TODO 删, 前端通过消息监听获取下注金额信息
   bool master = 8; // 是否房主
   int32 roundBetTimes = 11; // 该局下注次数
   int32 totalBetChip = 13; // 该局牌已下注筹码

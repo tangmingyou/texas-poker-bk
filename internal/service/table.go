@@ -58,7 +58,6 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		Username:     account.UserName,
 		Avatar:       account.Avatar,
 		Status:       1,
-		LastStatus:   0,
 		Chip:         table.LimitInAmount,
 		TotalBetChip: 0,
 		Cards:        [2]*game.Card{},
@@ -156,7 +155,6 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 		Username:     account.UserName,
 		Avatar:       account.Avatar,
 		Status:       1,
-		LastStatus:   0,
 		Chip:         0,
 		TotalBetChip: 0,
 		Cards:        [2]*game.Card{nil, nil},
@@ -534,7 +532,7 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 		}
 	case 5: // 过牌
 		table.LastPosBetType = 5
-		player.RoundBetTimes++
+		// player.RoundBetTimes++
 		betNotice.Line2 = "过牌"
 
 	default:
@@ -559,6 +557,7 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 	//}
 
 	if !raise {
+
 		// 当前玩家未加注, 判断是否结束本轮下注
 		if nextPlayer.RoundBetTimes == player.RoundBetTimes {
 			// 开启下一轮
