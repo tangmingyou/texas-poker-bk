@@ -88,6 +88,9 @@ func HandleReqLobbyView(account *session.NetAccount, msg *api.ReqLobbyView) (pro
 		return res, nil
 	}
 	tables := make([]*api.LobbyTable, len(store.LobbyTables))
+	if account.Player != nil {
+		res.CurTableNo = account.Player.GameTable.TableNo
+	}
 	res.Tables = tables
 
 	// 遍历 store tables 转换为视图层结构体

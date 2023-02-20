@@ -1833,6 +1833,7 @@ export const api = $root.api = (() => {
          * Properties of a ResLobbyView.
          * @memberof api
          * @interface IResLobbyView
+         * @property {number|null} [curTableNo] ResLobbyView curTableNo
          * @property {Array.<api.ILobbyTable>|null} [tables] ResLobbyView tables
          */
 
@@ -1851,6 +1852,14 @@ export const api = $root.api = (() => {
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
+
+        /**
+         * ResLobbyView curTableNo.
+         * @member {number} curTableNo
+         * @memberof api.ResLobbyView
+         * @instance
+         */
+        ResLobbyView.prototype.curTableNo = 0;
 
         /**
          * ResLobbyView tables.
@@ -1884,6 +1893,8 @@ export const api = $root.api = (() => {
         ResLobbyView.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.curTableNo != null && Object.hasOwnProperty.call(message, "curTableNo"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.curTableNo);
             if (message.tables != null && message.tables.length)
                 for (let i = 0; i < message.tables.length; ++i)
                     $root.api.LobbyTable.encode(message.tables[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
@@ -1921,6 +1932,10 @@ export const api = $root.api = (() => {
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
+                case 1: {
+                        message.curTableNo = reader.int32();
+                        break;
+                    }
                 case 3: {
                         if (!(message.tables && message.tables.length))
                             message.tables = [];
@@ -1962,6 +1977,9 @@ export const api = $root.api = (() => {
         ResLobbyView.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (message.curTableNo != null && message.hasOwnProperty("curTableNo"))
+                if (!$util.isInteger(message.curTableNo))
+                    return "curTableNo: integer expected";
             if (message.tables != null && message.hasOwnProperty("tables")) {
                 if (!Array.isArray(message.tables))
                     return "tables: array expected";
@@ -1986,6 +2004,8 @@ export const api = $root.api = (() => {
             if (object instanceof $root.api.ResLobbyView)
                 return object;
             let message = new $root.api.ResLobbyView();
+            if (object.curTableNo != null)
+                message.curTableNo = object.curTableNo | 0;
             if (object.tables) {
                 if (!Array.isArray(object.tables))
                     throw TypeError(".api.ResLobbyView.tables: array expected");
@@ -2014,6 +2034,10 @@ export const api = $root.api = (() => {
             let object = {};
             if (options.arrays || options.defaults)
                 object.tables = [];
+            if (options.defaults)
+                object.curTableNo = 0;
+            if (message.curTableNo != null && message.hasOwnProperty("curTableNo"))
+                object.curTableNo = message.curTableNo;
             if (message.tables && message.tables.length) {
                 object.tables = [];
                 for (let j = 0; j < message.tables.length; ++j)
@@ -4812,7 +4836,6 @@ export const api = $root.api = (() => {
          * Properties of a ResGameFullStatus.
          * @memberof api
          * @interface IResGameFullStatus
-         * @property {boolean|null} [inGame] ResGameFullStatus inGame
          * @property {number|null} [tableNo] ResGameFullStatus tableNo
          * @property {number|null} [gameStage] ResGameFullStatus gameStage
          * @property {number|null} [chip] ResGameFullStatus chip
@@ -4839,14 +4862,6 @@ export const api = $root.api = (() => {
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
-
-        /**
-         * ResGameFullStatus inGame.
-         * @member {boolean} inGame
-         * @memberof api.ResGameFullStatus
-         * @instance
-         */
-        ResGameFullStatus.prototype.inGame = false;
 
         /**
          * ResGameFullStatus tableNo.
@@ -4936,8 +4951,6 @@ export const api = $root.api = (() => {
         ResGameFullStatus.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.inGame != null && Object.hasOwnProperty.call(message, "inGame"))
-                writer.uint32(/* id 1, wireType 0 =*/8).bool(message.inGame);
             if (message.tableNo != null && Object.hasOwnProperty.call(message, "tableNo"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.tableNo);
             if (message.gameStage != null && Object.hasOwnProperty.call(message, "gameStage"))
@@ -4990,10 +5003,6 @@ export const api = $root.api = (() => {
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
-                case 1: {
-                        message.inGame = reader.bool();
-                        break;
-                    }
                 case 2: {
                         message.tableNo = reader.int32();
                         break;
@@ -5065,9 +5074,6 @@ export const api = $root.api = (() => {
         ResGameFullStatus.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.inGame != null && message.hasOwnProperty("inGame"))
-                if (typeof message.inGame !== "boolean")
-                    return "inGame: boolean expected";
             if (message.tableNo != null && message.hasOwnProperty("tableNo"))
                 if (!$util.isInteger(message.tableNo))
                     return "tableNo: integer expected";
@@ -5119,8 +5125,6 @@ export const api = $root.api = (() => {
             if (object instanceof $root.api.ResGameFullStatus)
                 return object;
             let message = new $root.api.ResGameFullStatus();
-            if (object.inGame != null)
-                message.inGame = Boolean(object.inGame);
             if (object.tableNo != null)
                 message.tableNo = object.tableNo | 0;
             if (object.gameStage != null)
@@ -5181,7 +5185,6 @@ export const api = $root.api = (() => {
                 object.players = [];
             }
             if (options.defaults) {
-                object.inGame = false;
                 object.tableNo = 0;
                 object.gameStage = 0;
                 object.chip = 0;
@@ -5193,8 +5196,6 @@ export const api = $root.api = (() => {
                 object.bigBlindPos = 0;
                 object.smallBlindPos = 0;
             }
-            if (message.inGame != null && message.hasOwnProperty("inGame"))
-                object.inGame = message.inGame;
             if (message.tableNo != null && message.hasOwnProperty("tableNo"))
                 object.tableNo = message.tableNo;
             if (message.gameStage != null && message.hasOwnProperty("gameStage"))

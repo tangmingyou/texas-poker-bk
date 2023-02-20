@@ -52,6 +52,7 @@ message ReqLobbyView {
 }
 
 message ResLobbyView {
+  int32 curTableNo = 1;
   repeated LobbyTable tables = 3;
 }
 

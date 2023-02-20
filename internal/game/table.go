@@ -54,8 +54,6 @@ func (t *Table) InitGameAndPlayerStatus() {
 		t.Dealer.Init()
 	}
 	t.Stage = 1
-	t.BigBlindPos = 0
-	t.SmallBlindPos = 0
 
 	for _, p := range t.Players {
 		if p != nil {
@@ -277,7 +275,9 @@ func (t *Table) SetNextPlayerWithRoundStart() {
 			}
 		case t.BigBlindPos:
 			nextP.BetMin -= t.BigBlindChip
-			nextP.BetOpts = append(nextP.BetOpts, 5)
+			if t.LastPosBetChip == t.BigBlindChip { // 下注额未超过大盲注可过牌
+				nextP.BetOpts = append(nextP.BetOpts, 5)
+			}
 			if t.TexasType != 3 {
 				nextP.BetMax -= t.BigBlindChip
 			}
@@ -305,10 +305,14 @@ func (t *Table) SetNextPlayer(current int) {
 
 	// 最大最小下注额
 	nextP.BetMin = t.LastPosBetChip
-	nextP.BetOpts = []int32{1, 4}
+	nextP.BetOpts = []int32{4}
 	// 可过牌
 	if t.LastPosBetType == 5 {
+		nextP.BetMin = t.BigBlindChip
 		nextP.BetOpts = append(nextP.BetOpts, 5)
+	} else {
+		// 非过牌时可跟注
+		nextP.BetOpts = append(nextP.BetOpts, 1)
 	}
 	// 下一玩家需跟注
 	// 游戏类型处理最大下注额
@@ -343,7 +347,9 @@ func (t *Table) SetNextPlayer(current int) {
 			}
 		case t.BigBlindPos:
 			nextP.BetMin -= t.BigBlindChip
-			nextP.BetOpts = append(nextP.BetOpts, 5)
+			if t.LastPosBetChip == t.BigBlindChip { // 下注额未超过大盲注可过牌
+				nextP.BetOpts = append(nextP.BetOpts, 5)
+			}
 			if t.TexasType != 3 {
 				nextP.BetMax -= t.BigBlindChip
 			}
@@ -418,7 +424,7 @@ func (t *Table) cardFightAndSettle() error {
 				winners = []*Player{p}
 			} else {
 				if p.Hand.point > winners[0].Hand.point {
-					winners[0] = p
+					winners = []*Player{p}
 				} else if p.Hand.point == winners[0].Hand.point {
 					// 手牌相同
 					winners = append(winners, p)
