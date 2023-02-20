@@ -16,15 +16,16 @@ type Player struct {
 	Username string
 	Avatar   string
 
-	Cards         [2]*Card // 手牌
-	Chip          int32    // 玩家筹码
-	TotalBetChip  int32    // 本次游戏已下注筹码
-	Status        int32    // 状态: 1待准备开始,2已准备开始,3等待其他玩家动作,[4第一回合小盲注跟注,5待大盲注,5待小盲注,] 6待跟注,7已弃牌,8结算中
-	BetOpts       []int32  // status=[4,6]时下注可操作按钮: 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
-	BetMin        int32    // 最低下注额
-	BetMax        int32    // 最高下注额 -1不限
-	RoundBetTimes int32    // 当前回合下注次数
-	Hand          *Hand    // 手牌牌型
+	Cards               [2]*Card // 手牌
+	Chip                int32    // 玩家筹码
+	TotalBetChip        int32    // 本次游戏已下注筹码
+	Status              int32    // 状态: 1待准备开始,2已准备开始,3等待其他玩家动作,[4第一回合小盲注跟注,5待大盲注,5待小盲注,] 6待跟注,7已弃牌,8结算中
+	BetOpts             []int32  // status=[4,6]时下注可操作按钮: 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
+	BetMin              int32    // 最低下注额
+	BetMax              int32    // 最高下注额 -1不限
+	RoundBetTimes       int32    // 当前回合下注次数
+	Hand                *Hand    // 手牌牌型
+	RoundCheckRaiseOnly bool     // 该回合仅过牌下注
 
 	GameTable   *Table // 当前牌桌
 	ProtoWriter letter.ProtoWriter
@@ -48,6 +49,7 @@ func (p *Player) RoundInit() {
 	p.TotalBetChip = 0
 	p.Cards[0] = nil
 	p.Cards[1] = nil
+	p.RoundCheckRaiseOnly = false
 }
 
 // WaitBet 将状态置为:3等待下注

@@ -215,7 +215,7 @@ func HandleReqLeaveTable(player *game.Player, msg *api.ReqLeaveTable) (proto.Mes
 	player.GameTable.PlayersLock.Lock()
 	defer player.GameTable.PlayersLock.Unlock()
 
-	if player.GameTable.Stage != 1 {
+	if !collect.In(player.GameTable.Stage, 1, 7, 9) {
 		return &api.ResFail{Msg: "牌局进行中不能退出"}, nil
 	}
 	if player.Status != 1 {
@@ -532,12 +532,15 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 		}
 	case 5: // 过牌
 		table.LastPosBetType = 5
-		// player.RoundBetTimes++
+		player.RoundBetTimes++
 		betNotice.Line2 = "过牌"
 
 	default:
 		return &api.ResFail{Msg: fmt.Sprintf("未知操作#%d", msg.BetType)}, nil
 	}
+
+	// 第一轮只有未加注时大盲注可过牌,大盲注了不算只过牌
+	player.RoundCheckRaiseOnly = msg.BetType == 5 && table.Stage != 2
 
 	// 通知下注结果
 	if betNotice.Line1 != "" || betNotice.Line2 != "" {
@@ -556,16 +559,21 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 	//	return &api.ResSuccess{}, nil
 	//}
 
-	if !raise {
-
+	if !raise { // 判断该轮开始过牌玩家
 		// 当前玩家未加注, 判断是否结束本轮下注
 		if nextPlayer.RoundBetTimes == player.RoundBetTimes {
-			// 开启下一轮
-			err := table.RoundOver()
-			if err != nil {
-				return &api.ResFail{Code: 500, Msg: err.Error()}, nil
+			// 5 true -> next; !5 false -> next; !5 true -> continue
+			if !nextPlayer.RoundCheckRaiseOnly || table.LastPosBetType == 5 {
+				// 开启下一轮
+				err := table.RoundOver()
+				if err != nil {
+					return &api.ResFail{Code: 500, Msg: err.Error()}, nil
+				}
+				return &api.ResSuccess{}, nil
+			} else {
+				// 下个玩家为过牌玩家,当前玩家已下注
+				nextPlayer.RoundBetTimes--
 			}
-			return &api.ResSuccess{}, nil
 		}
 	}
 
