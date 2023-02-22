@@ -16,7 +16,7 @@ type Hand struct {
 func (h *Hand) Init(cards [5]*Card) *Hand {
 	SortCards(&cards)
 	// 牌型排序降序
-	face := GetCardFace(cards)
+	face := GetCardFace(&cards) // TODO 牌权重排序
 	// 计算牌型
 	switch true {
 	case isRoyalFlush(cards):
@@ -147,12 +147,12 @@ func SortCards(cards *[5]*Card) {
 
 // GetCardFace 分析相同点数的牌个数
 // return 0:单牌个数 1:对子个数 2:三条个数 3四条个数
-func GetCardFace(cards [5]*Card) [4]int {
+func GetCardFace(cards *[5]*Card) [4]int {
 	var faceMap = make(map[PokerDot]int, 5)
 	for _, c := range cards {
 		faceMap[c.Dot]++
 	}
-	// 0:单牌个数 1:对子个数 2:三条个数 3四条个数
+	// 0:单牌个数 1:对子个数 2:三条个数 3四条个数 TODO 将对子三条四条排序到前面
 	var face = [4]int{}
 	for dot := range faceMap {
 		face[faceMap[dot]-1]++
@@ -219,11 +219,13 @@ func isOnePair(face [4]int) bool {
 }
 
 // getHighCardPoint 高牌,返回散牌点数
+// max = 4432 = 13<<8 + 13<<6 + 13<<4 + 13<<2 + 12
+// example: (1<<8 + 1<<6 + 13<<4)对2+A < (2<<8 + 2<<6 + 1<<4)对3+2
 func getHighCardPoint(cards [5]*Card) int {
 	totalPoint := 0
 	for i, c := range cards {
 		// 牌权重降序
-		totalPoint += int(c.Dot) << (4 - i)
+		totalPoint += int(c.Dot+1) << (8 - i*2)
 	}
 	return totalPoint
 }

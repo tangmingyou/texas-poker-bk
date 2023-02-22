@@ -21,18 +21,31 @@ func startServer() {
 
 func main() {
 	startServer()
-	//hand := [2]*game.Card{
+
+	//public := [5]*game.Card{
+	//	{Dot: game.Poker10, Suit: game.Club},
+	//	{Dot: game.Poker6, Suit: game.Spade},
+	//	{Dot: game.Poker7, Suit: game.Diamond},
+	//	{Dot: game.Poker5, Suit: game.Heart},
 	//	{Dot: game.PokerK, Suit: game.Diamond},
+	//}
+	//h1 := [2]*game.Card{
+	//	{Dot: game.PokerA, Suit: game.Spade},
+	//	{Dot: game.Poker5, Suit: game.Spade},
+	//}
+	//h2 := [2]*game.Card{
+	//	{Dot: game.Poker6, Suit: game.Club},
+	//	{Dot: game.Poker3, Suit: game.Diamond},
+	//}
+	//h3 := [2]*game.Card{
+	//	{Dot: game.Poker9, Suit: game.Club},
 	//	{Dot: game.Poker10, Suit: game.Heart},
 	//}
-	//public := [5]*game.Card{
-	//	{Dot: game.Poker4, Suit: game.Diamond},
-	//	{Dot: game.Poker9, Suit: game.Club},
-	//	{Dot: game.PokerJ, Suit: game.Diamond},
-	//	{Dot: game.Poker2, Suit: game.Diamond},
-	//	{Dot: game.Poker2, Suit: game.Spade},
-	//}
-	//maxHand, err := game.AnalyzeMaxHand(hand, public)
-	//fmt.Println(err, maxHand)
+	//hand1, err := game.AnalyzeMaxHand(h1, public)
+	//hand2, err := game.AnalyzeMaxHand(h2, public)
+	//hand3, err := game.AnalyzeMaxHand(h3, public)
+	//fmt.Println(err, hand1)
+	//fmt.Println(err, hand2)
+	//fmt.Println(err, hand3)
 
 }

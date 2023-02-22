@@ -8,3 +8,7 @@ func IsEmptySlice[T any](slice []T) bool {
 func IsNotEmptySlice[T any](slice []T) bool {
 	return !IsEmptySlice(slice)
 }
+
+func IsEmptyMap[K comparable, V any](kvs map[K]V) bool {
+	return kvs == nil || len(kvs) == 0
+}

@@ -20,7 +20,7 @@ type Player struct {
 	Chip                int32    // 玩家筹码
 	TotalBetChip        int32    // 本次游戏已下注筹码
 	Status              int32    // 状态: 1待准备开始,2已准备开始,3等待其他玩家动作,[4第一回合小盲注跟注,5待大盲注,5待小盲注,] 6待跟注,7已弃牌,8结算中
-	BetOpts             []int32  // status=[4,6]时下注可操作按钮: 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
+	BetOpts             []int32  // status=[4,6]时下注可操作按钮: (-2大盲注,-1小盲注) 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
 	BetMin              int32    // 最低下注额
 	BetMax              int32    // 最高下注额 -1不限
 	RoundBetTimes       int32    // 当前回合下注次数

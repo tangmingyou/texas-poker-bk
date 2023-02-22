@@ -32,7 +32,7 @@ message ResSuccess {
 
 // 失败响应
 message ResFail {
-  int32 code = 1;
+  int32 code = 1; // 401跳登录,402未加入牌桌,403挤号
   string msg = 3; // 失败消息
 }
 

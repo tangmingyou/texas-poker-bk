@@ -14,6 +14,8 @@ type Table struct {
 	GameTimes int32 // 游戏次数
 	Stage     int32 // 游戏阶段: 1等待玩家准备;2游戏开始(自动扣大小盲注,发手牌,轮流下注); 3:发3张公共牌 4:发第四张公共牌,轮流下注;5:发第五张公共牌,轮流下注,7比牌结算,9已解散
 
+	PlayerBetting *PlayerBetting // 限注/不限制 规则处理
+
 	Chip        int32    // 牌桌当前筹码
 	robotChip   int32    // 牌桌当前机器人下注筹码
 	Dealer      *Dealer  // 发牌员
@@ -30,13 +32,17 @@ type Table struct {
 	TexasType      int32 // 德州扑克类型: (1限注德州扑克:你只能增加与大盲注相同的投注额; 2底池限制德州扑克：你只能增加当时台面最大额的投注额（已经完成所有投注）; 3无限制德州扑克：你可在手持额度下，增加任何额度的投注额，如果你投入所有筹码，就是“全押”)
 	LimitInAmount  int32 // 最低入场金额
 
-	LastPosBetType  int32 // 上家下注类型(弃牌不记录跳过) -> player.BetOpts
+	LastPosBetOp    int32 // 上家下注类型(弃牌不记录跳过) -> player.BetOpts
 	LastPosBetChip  int32 // 上家下注金额
 	RoundRaiseTimes int32 // 该轮押注圈加注次数
 
+	RoundBetTotal map[int64]int32         // 该轮玩家投注金额
+	RoundBetChips map[int64][]int32       // 该轮玩家投注队列
+	RoundBetOps   map[int64][]int32       // 该轮投注玩家选项队列
+	RoundBetLogs  [4][2]map[int64][]int32 // 投注日志,回合结束可存到DB [[op,chip],[op,chip]]
+
 	Lock        *sync.Mutex // 牌桌锁
 	PlayersLock *sync.Mutex
-	// TODO game logs7
 }
 
 // InitGameAndPlayerStatus 初始化桌面
@@ -53,13 +59,52 @@ func (t *Table) InitGameAndPlayerStatus() {
 	} else {
 		t.Dealer.Init()
 	}
+	// 重置一些状态
 	t.Stage = 1
+	t.LastPosBetOp = 0
+	t.LastPosBetChip = 0
+	t.RoundRaiseTimes = 0
+	t.RoundBetOps = nil
+	t.RoundBetChips = nil
+	t.RoundBetTotal = nil
 
 	for _, p := range t.Players {
 		if p != nil {
 			p.RoundInit()
 		}
 	}
+}
+
+func (t *Table) PlayerBet(player *Player, betOp int32, betChip int32) {
+	if t.RoundBetOps == nil {
+		t.RoundBetOps = make(map[int64][]int32)
+	}
+	if t.RoundBetChips == nil {
+		t.RoundBetChips = make(map[int64][]int32)
+	}
+	if t.RoundBetTotal == nil {
+		t.RoundBetTotal = make(map[int64]int32)
+	}
+	if t.RoundBetOps[player.Id] == nil {
+		t.RoundBetOps[player.Id] = []int32{}
+	}
+	if t.RoundBetChips[player.Id] == nil {
+		t.RoundBetChips[player.Id] = []int32{}
+	}
+
+	t.RoundBetOps[player.Id] = append(t.RoundBetOps[player.Id], betOp)
+	t.RoundBetChips[player.Id] = append(t.RoundBetChips[player.Id], betChip)
+	t.RoundBetTotal[player.Id] += betChip
+	//fmt.Println("betChip:", player.Id, betOp, betChip)
+}
+
+func (t *Table) GetPlayerById(id int64) *Player {
+	for _, p := range t.Players {
+		if p.Id == id {
+			return p
+		}
+	}
+	return nil
 }
 
 func (t *Table) PlayerCount() int32 {
@@ -222,6 +267,13 @@ func (t *Table) NoticeAllPlayer(message proto.Message) {
 	}
 }
 
+// HoldingCardPlayers 当前未弃牌玩家
+func (t *Table) HoldingCardPlayers() []*Player {
+	return collect.Filter(t.Players, func(i int, p *Player) bool {
+		return p != nil && p.Status != 7
+	})
+}
+
 // SetNextPlayerWithRoundStart 回合开始, 设置下一个下注玩家
 func (t *Table) SetNextPlayerWithRoundStart() {
 	nextPos := t.SmallBlindPos
@@ -306,7 +358,7 @@ func (t *Table) SetNextPlayer(current int) {
 	nextP.BetMin = t.LastPosBetChip
 	nextP.BetOpts = []int32{4}
 	// 可过牌
-	if t.LastPosBetType == 5 {
+	if t.LastPosBetOp == 5 {
 		nextP.BetMin = t.BigBlindChip
 		nextP.BetOpts = append(nextP.BetOpts, 5)
 	} else {
@@ -358,6 +410,8 @@ func (t *Table) SetNextPlayer(current int) {
 
 // RoundOver 当前回合结束
 func (t *Table) RoundOver() error {
+	// TODO 记录 t.RoundBetLogs[]
+
 	// 游戏结束,开牌结算
 	if t.Stage == 5 || 1 == len(collect.Filter(t.Players, func(i int, p *Player) bool {
 		return p != nil && p.Status != 7
@@ -386,11 +440,17 @@ func (t *Table) RoundOver() error {
 	}
 
 	// 重置一些状态
+	t.LastPosBetOp = 0
 	t.LastPosBetChip = 0
 	t.RoundRaiseTimes = 0
+	t.RoundBetOps = nil
+	t.RoundBetChips = nil
+	t.RoundBetTotal = nil
 
 	// 由小盲注或小盲注后第一个未弃牌玩家开始
-	t.SetNextPlayerWithRoundStart()
+	t.PlayerBetting.SetNextPlayer(true, t, nil)
+	// t.SetNextPlayerWithRoundStart()
+
 	return nil
 }
 
