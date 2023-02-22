@@ -1,8 +1,17 @@
 package game
 
+import (
+	"fmt"
+	"texas-poker-bk/tool/strings"
+)
+
 type Card struct {
 	Dot  PokerDot  // 点数
 	Suit PokerSuit // 花色
+}
+
+func (c *Card) String() string {
+	return fmt.Sprintf("{%s %s}", strings.FullLeft(c.Dot.String(), 2, " "), c.Suit.Pattern())
 }
 
 // Compare 比较点数和花色
@@ -24,8 +33,13 @@ func (c PokerSuit) String() string {
 	return colors[c]
 }
 
+func (c PokerSuit) Pattern() string {
+	return cardPatterns[c]
+}
+
 // 常量在编译期就要确定值，只能将一些基本类型声明为常量
 var colors = [4]string{"diamond", "club", "heart", "spade"}
+var cardPatterns = [4]string{"♦", "♣", "♥", "♠"}
 var CardColors = [4]string{"D", "C", "H", "S"}
 
 const (

@@ -2,6 +2,7 @@ package game
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"strconv"
 )
@@ -48,6 +49,15 @@ func (h *Hand) Init(cards [5]*Card) *Hand {
 
 func (h *Hand) GetPoint() int {
 	return h.point
+}
+
+func (h *Hand) String() string {
+	return fmt.Sprintf("%s(%s)[%d] [%s,%s,%s,%s,%s]",
+		h.CardType.Name(),
+		h.CardType.NameZh(),
+		h.point,
+		h.cards[0], h.cards[1], h.cards[2], h.cards[3], h.cards[4],
+	)
 }
 
 type CardType int
@@ -152,12 +162,33 @@ func GetCardFace(cards *[5]*Card) [4]int {
 	for _, c := range cards {
 		faceMap[c.Dot]++
 	}
-	// 0:单牌个数 1:对子个数 2:三条个数 3四条个数 TODO 将对子三条四条排序到前面
+	// 0:单牌个数 1:对子个数 2:三条个数 3四条个数
 	var face = [4]int{}
 	for dot := range faceMap {
 		face[faceMap[dot]-1]++
 	}
+	// 将对子三条四条排序到前面
+	for i := 0; i < len(cards); i++ {
+		for j := i + 1; j < len(cards); j++ {
+			l, r := faceMap[cards[i].Dot], faceMap[cards[j].Dot]
+			if l < r || (l == r && cards[i].Dot < cards[j].Dot) { // 同点数牌张数多的 或 张数相同点数大的排到前面
+				cards[i], cards[j] = cards[j], cards[i]
+			}
+		}
+	}
 	return face
+}
+
+// getHighCardPoint 高牌,返回散牌点数
+// max = 4432 = 13<<8 + 13<<6 + 13<<4 + 13<<2 + 12
+// example: (1<<8 + 1<<6 + 13<<4)对2+A < (2<<8 + 2<<6 + 1<<4)对3+2
+func getHighCardPoint(cards [5]*Card) int {
+	totalPoint := 0
+	for i, c := range cards {
+		// 牌权重降序
+		totalPoint += int(c.Dot+1) << (8 - i*2)
+	}
+	return totalPoint
 }
 
 // isRoyalFlush 皇家同花顺
@@ -216,16 +247,4 @@ func isTwoPairs(face [4]int) bool {
 // isOnePair 对子
 func isOnePair(face [4]int) bool {
 	return face[1] > 0
-}
-
-// getHighCardPoint 高牌,返回散牌点数
-// max = 4432 = 13<<8 + 13<<6 + 13<<4 + 13<<2 + 12
-// example: (1<<8 + 1<<6 + 13<<4)对2+A < (2<<8 + 2<<6 + 1<<4)对3+2
-func getHighCardPoint(cards [5]*Card) int {
-	totalPoint := 0
-	for i, c := range cards {
-		// 牌权重降序
-		totalPoint += int(c.Dot+1) << (8 - i*2)
-	}
-	return totalPoint
 }
