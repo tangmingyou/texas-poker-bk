@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"texas-poker-bk/tool/collect"
 )
 
 // Hand 5张牌的牌型
@@ -15,9 +16,10 @@ type Hand struct {
 }
 
 func (h *Hand) Init(cards [5]*Card) *Hand {
-	SortCards(&cards)
-	// 牌型排序降序
-	face := GetCardFace(&cards) // TODO 牌权重排序
+	// 5张牌点数大小排序
+	sortCards(&cards)
+	// 计算点数相同牌组数,牌型权重降序
+	face := getCardFaceAndTidyCards(&cards)
 	// 计算牌型
 	switch true {
 	case isRoyalFlush(cards):
@@ -118,34 +120,21 @@ func AnalyzeMaxHand(handCards [2]*Card, publicCards [5]*Card) (*Hand, error) {
 		return new(Hand).Init(cards), nil
 	}
 	// 查找最大分数组合
-	cardsLen := len(allCards)
 	tempCards := [5]*Card{}
 	var maxHand *Hand
 	// 遍历和公共牌的所有组合
-	for i := 0; i < cardsLen; i++ {
-		tempCards[0] = allCards[i]
-		for j := i + 1; j < cardsLen; j++ {
-			tempCards[1] = allCards[j]
-			for k := j + 1; k < cardsLen; k++ {
-				tempCards[2] = allCards[k]
-				for m := k + 1; m < cardsLen; m++ {
-					tempCards[3] = allCards[m]
-					for n := m + 1; n < cardsLen; n++ {
-						tempCards[4] = allCards[n]
-						tempHand := new(Hand).Init(tempCards)
-						if maxHand == nil || tempHand.point > maxHand.point {
-							maxHand = tempHand
-						}
-					}
-				}
-			}
+	collect.Combination(allCards, 5, func(temp []*Card) {
+		copy(tempCards[:], temp)
+		tempHand := new(Hand).Init(tempCards)
+		if maxHand == nil || tempHand.point > maxHand.point {
+			maxHand = tempHand
 		}
-	}
+	})
 	return maxHand, nil
 }
 
-// SortCards 5张牌降序排序
-func SortCards(cards *[5]*Card) {
+// sortCards 5张牌降序排序
+func sortCards(cards *[5]*Card) {
 	for i := 0; i < len(cards); i++ {
 		for j := i + 1; j < len(cards); j++ {
 			if cards[i].Compare(cards[j]) < 0 {
@@ -155,9 +144,9 @@ func SortCards(cards *[5]*Card) {
 	}
 }
 
-// GetCardFace 分析相同点数的牌个数
+// getCardFaceAndTidyCards 分析相同点数的牌个数
 // return 0:单牌个数 1:对子个数 2:三条个数 3四条个数
-func GetCardFace(cards *[5]*Card) [4]int {
+func getCardFaceAndTidyCards(cards *[5]*Card) [4]int {
 	var faceMap = make(map[PokerDot]int, 5)
 	for _, c := range cards {
 		faceMap[c.Dot]++

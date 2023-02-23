@@ -75,3 +75,25 @@ func Max[T int32 | int64 | int](nums []T, dv T) T {
 	}
 	return max
 }
+
+// Combination 列出切片的所有count个元素组合情况
+func Combination[T any](origin []T, count int, consumer func(once []T)) {
+	if count > len(origin) {
+		return
+	}
+	temp := make([]T, count)
+	combination0(origin, 0, count, temp, consumer)
+}
+
+// combination0
+func combination0[T any](arr []T, start int, count int, temp []T, consumer func(once []T)) {
+	if count == 0 {
+		consumer(temp)
+		return
+	}
+
+	for i := start; i < len(arr); i++ {
+		temp[len(temp)-count] = arr[i] // 对于每个组合，按照索引大小，先取第一个，此时要取的个数减 1，
+		combination0(arr, i+1, count-1, temp, consumer)
+	}
+}

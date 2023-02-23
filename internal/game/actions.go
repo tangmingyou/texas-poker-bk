@@ -38,7 +38,7 @@ func init() {
 	LimitedActions[1] = Call4Limited
 	LimitedActions[2] = Raise4Limited
 	LimitedActions[3] = AllIn4Limited
-	LimitedActions[4] = Discard4Limited
+	LimitedActions[4] = Fold4Limited
 	LimitedActions[5] = Check4Limited
 	LimitedBetting = &PlayerBetting{
 		betHandlers:   LimitedActions,
@@ -113,7 +113,8 @@ func AllIn4Limited(player *Player, betChip int32) proto.Message {
 	return &api.ResFail{Msg: "限注牌桌不可AllIn"}
 }
 
-func Discard4Limited(player *Player, betChip int32) proto.Message {
+// Fold4Limited 弃牌限注局
+func Fold4Limited(player *Player, betChip int32) proto.Message {
 	table := player.GameTable
 	table.LastPosBetOp = 4
 	table.LastPosBetChip = 0
