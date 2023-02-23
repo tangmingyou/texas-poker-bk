@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	"reflect"
 	"sort"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/game"
@@ -431,7 +432,6 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 }
 
 // HandleReqBetting 下注
-// TODO 过牌轮第一个加注玩家 需跟注次数,下注金额错误
 func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, error) {
 	if player.Status != 6 {
 		return &api.ResFail{Msg: "当前未轮到您下注"}, nil
@@ -451,7 +451,10 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 	res := handler(player, msg.BetChip)
 	if res == nil {
 		res = &api.ResSuccess{}
+	} else if reflect.TypeOf(res) == reflect.TypeOf(&api.ResFail{}) {
+		return res, nil
 	}
+
 	// 记录操作
 	table.PlayerBet(player, table.LastPosBetOp, table.LastPosBetChip)
 
@@ -471,28 +474,6 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 	// 查找下一位下注玩家
 	table.PlayerBetting.SetNextPlayer(false, table, player)
 
-	//nextPlayerPos := table.NextHoldingCardPlayerPos(player.PosIndex)
-	//nextPlayer := table.Players[nextPlayerPos]
-	//if table.LastPosBetOp != 2 {
-	//	// 当前玩家未加注, 判断是否结束本轮下注
-	//	if nextPlayer.RoundBetTimes == player.RoundBetTimes {
-	//		// 5 true -> next; !5 false -> next; !5 true -> continue
-	//		if !nextPlayer.RoundCheckRaiseOnly || table.LastPosBetOp == 5 {
-	//			// 开启下一轮
-	//			err := table.RoundOver()
-	//			if err != nil {
-	//				return &api.ResFail{Code: 500, Msg: err.Error()}, nil
-	//			}
-	//			return res, nil
-	//		} else {
-	//			// 下个玩家为过牌玩家,当前玩家已下注
-	//			nextPlayer.RoundBetTimes--
-	//		}
-	//	}
-	//}
-	//// 查找下一位下注玩家
-	//table.SetNextPlayer(player.PosIndex)
-
 	return res, nil
 }
 
@@ -508,6 +489,7 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 // 盖牌（fold），即舍弃并覆盖手中的牌，放弃已投入底池的筹码退出该局。
 // 跟注（call）投入了与所有其他未盖牌的牌手等量的筹码。
 // 全下（all-in），投入了尚余的全部筹码。
+// 德州扑克20条最有用的扑克概率: http://news.sohu.com/a/427106754_120099888
 //func HandleReqBettingDep(player *game.Player, msg *api.ReqBetting) (proto.Message, error) {
 //	player.Lock.Lock()
 //	defer player.Lock.Unlock()

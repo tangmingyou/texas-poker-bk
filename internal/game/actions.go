@@ -273,3 +273,8 @@ func SetNextPlayer4Limited(roundStart bool, t *Table, current *Player) {
 		nextP.BetOpts = append(nextP.BetOpts, 2)
 	}
 }
+
+func AllIn4NoLimited(player *Player, betChip int32) proto.Message {
+
+	return nil
+}
