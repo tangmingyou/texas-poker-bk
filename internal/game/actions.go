@@ -272,6 +272,8 @@ func SetNextPlayer4Limited(roundStart bool, t *Table, current *Player) {
 	if nextP.BetMax > nextP.BetMin { // 加注
 		nextP.BetOpts = append(nextP.BetOpts, 2)
 	}
+	// TODO 筹码不够跟注时可 all in
+
 }
 
 func AllIn4NoLimited(player *Player, betChip int32) proto.Message {
