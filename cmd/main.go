@@ -20,5 +20,15 @@ func startServer() {
 }
 
 func main() {
-	startServer()
+	//startServer()
+	ms := time.Now().UnixMilli()
+	now := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	fmt.Println(ms)
+	fmt.Println(ms << 22)
+	fmt.Println(ms - now.UnixMilli())
+	key := (ms-now.UnixMilli())<<22 + 138
+	fmt.Println(key >> 22)
+	fmt.Println(key << 42 >> 42)
+
 }
