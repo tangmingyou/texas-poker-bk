@@ -6,11 +6,10 @@ VERSION=1.0.0
 
 all: build
 build:
-	rm -rf target/texas target/data/config.toml target/data/localtime
+	rm -rf target/texas target/data/config.toml
 	mkdir -p target/data/
-	cp data/config.toml target/data/config.toml
+	cp data/config.toml target/data/
 	$(GOBUILD) -o target/texas cmd/main.go
-	cp /usr/share/zoneinfo/Asia/Shanghai target/data/localtime
 	docker build -t texas:$(VERSION) .
 
 clean:

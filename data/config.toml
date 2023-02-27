@@ -1,7 +1,7 @@
 
 [http]
 host = ""
-port = 9999
+port = 3999
 
 [auth]
 aesTokenKey = "9Nz3Y6DES3msAFndz4QsJAECUIFkf+KKaRa+jRnNALk="
