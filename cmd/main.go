@@ -20,15 +20,33 @@ func startServer() {
 }
 
 func main() {
-	//startServer()
-	ms := time.Now().UnixMilli()
-	now := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+	startServer()
 
-	fmt.Println(ms)
-	fmt.Println(ms << 22)
-	fmt.Println(ms - now.UnixMilli())
-	key := (ms-now.UnixMilli())<<22 + 138
-	fmt.Println(key >> 22)
-	fmt.Println(key << 42 >> 42)
+	//m := treemap.NewWithIntComparator()
+	//k, v := m.Min()
+	//fmt.Println(k, v)
 
+	//wait := &sync.WaitGroup{}
+	//wait.Add(1)
+	//
+	//times := 100
+	//
+	//q := collect.NewDelayQueue(func(data int, now time.Time) {
+	//	fmt.Println(data, now)
+	//	if data == times-1 {
+	//		wait.Done()
+	//	}
+	//})
+	//for i := 0; i < times; i++ {
+	//	key := q.Add(time.Second*time.Duration(i), i)
+	//	if i%5 == 0 {
+	//		go func(k int64, idx int) {
+	//			<-time.After(time.Second * 3)
+	//			q.Cancel(k)
+	//			fmt.Println("cancel", idx, k)
+	//		}(key, i)
+	//	}
+	//}
+	//
+	//wait.Wait()
 }
