@@ -1,7 +1,9 @@
 package collect
 
 import (
+	"fmt"
 	"github.com/emirpasic/gods/maps/treemap"
+	"runtime/debug"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -36,7 +38,16 @@ func NewDelayQueue[T any](handler func(data T, now time.Time)) *DelayQueue[T] {
 				continue
 			}
 			for _, data := range values {
-				q.handler(data, time.Now())
+				func() {
+					defer func() {
+						if err := recover(); err != nil {
+							fmt.Printf("consumer handler error: %v \n", err)
+							// 输出堆栈信息
+							fmt.Println(string(debug.Stack()))
+						}
+					}()
+					q.handler(data, time.Now())
+				}()
 			}
 		}
 	}()

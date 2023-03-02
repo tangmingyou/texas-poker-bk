@@ -30,20 +30,37 @@ func main() {
 	//wait.Add(1)
 	//
 	//times := 100
+	//counter := atomic.Int32{}
+	//counter.Store(int32(times))
 	//
-	//q := collect.NewDelayQueue(func(data int, now time.Time) {
-	//	fmt.Println(data, now)
-	//	if data == times-1 {
+	//q := collect.NewDelayQueue(func(data func(time.Time), now time.Time) {
+	//	// fmt.Println(data, now)
+	//	data(now)
+	//	counter.Add(-1)
+	//	if int(counter.Load()) <= 0 {
 	//		wait.Done()
+	//	}
+	//
+	//	if counter.Load() == 62 {
+	//		panic("test error!!!")
 	//	}
 	//})
 	//for i := 0; i < times; i++ {
-	//	key := q.Add(time.Second*time.Duration(i), i)
+	//	key := q.Add(time.Second*time.Duration(i), func(idx int) func(t time.Time) {
+	//		return func(t time.Time) {
+	//			fmt.Println("handler:", idx, t)
+	//		}
+	//	}(i))
 	//	if i%5 == 0 {
 	//		go func(k int64, idx int) {
 	//			<-time.After(time.Second * 3)
 	//			q.Cancel(k)
 	//			fmt.Println("cancel", idx, k)
+	//
+	//			counter.Add(-1)
+	//			if int(counter.Load()) <= 0 {
+	//				wait.Done()
+	//			}
 	//		}(key, i)
 	//	}
 	//}

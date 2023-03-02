@@ -23,5 +23,10 @@ dbPath = "data/texas-poker.db"
 
 [game]
 # 新用户赠送筹码
-GiftChip = 10000
-AvatarPath = "data/avatar/"
+giftChip = 10000
+avatarPath = "data/avatar/"
+
+[game.offline] # 玩家掉线配置
+# 在房间中
+outRoom = 15
+
