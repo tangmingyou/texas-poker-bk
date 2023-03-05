@@ -16,7 +16,7 @@ clean:
 	rm -rf target/
 
 run:
-	nohup target/texas -conf=target/data/config.toml -region=sh -zone=sh001 -deploy.env=dev -weight=10 2>&1 > target/data/texas.log &
+	nohup target/texas -conf=target/data/config.toml 2>&1 > target/data/texas.log &
 
 stop:
 	pkill -f target/texas
