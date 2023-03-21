@@ -77,6 +77,7 @@ func Authorize(ctx *gin.Context) {
 		Time:   time.Now().UnixMilli(),
 		Avatar: user.Avatar,
 	}
+
 	token, err := EncodeSubject(sub)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"msg": err.Error()})

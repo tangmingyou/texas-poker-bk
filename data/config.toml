@@ -29,4 +29,3 @@ avatarPath = "data/avatar/"
 [game.offline] # 玩家掉线配置
 # 在房间中
 outRoom = 15
-
