@@ -80,20 +80,21 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 	for i := 0; i < int(robotNum); i++ {
 		table.Robots[i] = &game.Robot{}
 	}
-	err := store.SaveNewTable(table)
-	if err != nil {
-		return &api.ResFail{Msg: err.Error()}, nil
-	}
+	store.LobbyTables.SetDefault(table.TableNo, table)
+	//err := store.SaveNewTable(table)
+	//if err != nil {
+	//	return &api.ResFail{Msg: err.Error()}, nil
+	//}
 	return &api.ResCreateTable{TableNo: table.TableNo}, nil
 }
 
 // HandleReqLobbyView 返回当前所有桌面和玩家数量
 func HandleReqLobbyView(account *session.NetAccount, msg *api.ReqLobbyView) (proto.Message, error) {
 	res := &api.ResLobbyView{}
-	if store.LobbyTables == nil || len(store.LobbyTables) == 0 {
+	if store.LobbyTables.Count() == 0 {
 		return res, nil
 	}
-	tables := make([]*api.LobbyTable, len(store.LobbyTables))
+	tables := make([]*api.LobbyTable, store.LobbyTables.Count())
 	if account.Player != nil {
 		res.CurTableNo = account.Player.GameTable.TableNo
 	}
@@ -101,7 +102,7 @@ func HandleReqLobbyView(account *session.NetAccount, msg *api.ReqLobbyView) (pro
 
 	// 遍历 store tables 转换为视图层结构体
 	idx := 0
-	for _, t := range store.LobbyTables {
+	store.LobbyTables.ForEach(func(k string, t *game.Table) {
 		table := &api.LobbyTable{TableNo: t.TableNo, PlayerNum: t.PlayerNum, RobotNum: t.RobotNum}
 		table.Players = make([]*api.LobbyPlayer, t.PlayerNum+t.RobotNum)
 
@@ -126,7 +127,7 @@ func HandleReqLobbyView(account *session.NetAccount, msg *api.ReqLobbyView) (pro
 
 		tables[idx] = table
 		idx++
-	}
+	})
 	// 牌桌号降序
 	sort.Slice(tables, func(i, j int) bool {
 		return tables[i].TableNo > tables[j].TableNo
@@ -142,7 +143,7 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 	if account.Player != nil {
 		return &api.ResFail{Msg: fmt.Sprintf("当前已加入#%d牌桌", account.Player.GameTable.TableNo)}, nil
 	}
-	table := store.LobbyTables[msg.TableNo]
+	table := store.LobbyTables.Get(msg.TableNo)
 	if table == nil {
 		return &api.ResFail{Msg: "牌桌不存在"}, nil
 	}
@@ -209,7 +210,7 @@ func HandleReqKickOutTable(player *game.Player, msg *api.ReqKickOutTable) (proto
 			// 从牌桌移除该玩家
 			player.GameTable.Players[i] = nil
 			// 被对踢出人发送消息
-			account := store.NetAccounts[p.Id]
+			account := store.NetAccounts.Get(p.Id)
 			account.Player = nil                        // 解除账户绑定
 			account.IncrementBalance(player.Chip)       // 筹码返还账户
 			p.ProtoWriter.Write(&api.ResKickOutTable{}) // 被踢玩家消息
@@ -242,7 +243,7 @@ func HandleReqLeaveTable(player *game.Player, msg *api.ReqLeaveTable) (proto.Mes
 			break
 		}
 	}
-	account := store.NetAccounts[player.Id]
+	account := store.NetAccounts.Get(player.Id)
 	account.Player = nil                  // 解除账户绑定
 	account.IncrementBalance(player.Chip) // 筹码返还账户
 
@@ -318,13 +319,13 @@ func HandleReqDismissGameTable(player *game.Player, msg *api.ReqDismissGameTable
 		return &api.ResFail{Msg: fmt.Sprintf("#%d,牌局进行中", player.GameTable.Stage)}, nil
 	}
 	player.GameTable.Stage = 9
-	delete(store.LobbyTables, player.GameTable.TableNo)
+	store.LobbyTables.Delete(player.GameTable.TableNo)
 	// 通知所有玩家，解除账号绑定，结算玩家金额
 	for i, p := range player.GameTable.Players {
 		if p == nil {
 			continue
 		}
-		account := store.NetAccounts[p.Id]
+		account := store.NetAccounts.Get(p.Id)
 		account.IncrementBalance(p.Chip)
 		account.Player = nil
 		player.GameTable.Players[i] = nil

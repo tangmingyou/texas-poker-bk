@@ -72,11 +72,19 @@ func Authorize(ctx *gin.Context) {
 	}
 
 	sub := &session.Subject{
-		Id:     user.Id,
-		Name:   user.Username,
-		Time:   time.Now().UnixMilli(),
-		Avatar: user.Avatar,
+		Id:           user.Id,
+		Name:         user.Username,
+		Time:         time.Now().UnixMilli(),
+		Avatar:       user.Avatar,
+		TokenVersion: user.TokenVersion + 1,
 	}
+	// dao.UserDao.UpdateTokenVersion(user.Id, sub.TokenVersion, user.TokenVersion)
+	tVersion, err := dao.UserDao.IncrementTokenVersion(user.Id)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"msg": err.Error()})
+		return
+	}
+	store.TokenVersions.SetDefault(user.Id, tVersion)
 
 	token, err := EncodeSubject(sub)
 	if err != nil {
@@ -103,18 +111,22 @@ func registerUser(username string, password string) (*entity.User, error) {
 	// 生成头像
 	avatar := fmt.Sprintf("%d%d%s", time.Now().UnixMilli(), rand.Intn(90)+10, ".jpg")
 	err := govatar.GenerateFile(govatar.MALE, conf.Conf.Game.AvatarPath+avatar)
+	// 保存用户信息到db
 	if err != nil {
 		return nil, err
 	}
 	user := &entity.User{
-		Username: username,
-		Password: password,
-		Balance:  conf.Conf.Game.GiftChip,
-		Avatar:   avatar,
-		Version:  0,
+		Username:     username,
+		Password:     password,
+		Balance:      conf.Conf.Game.GiftChip,
+		Avatar:       avatar,
+		Version:      0,
+		TokenVersion: 0,
 	}
-	// TODO error
-	dao.UserDao.DB.Save(user)
+	tx := dao.UserDao.DB.Save(user)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
 	return user, nil
 }
 
@@ -152,10 +164,15 @@ func SubjectAuthFilter(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"msg": "认证失败，请重新登录"})
 		ctx.Abort()
-	} else {
-		// 设置token用户到请求上下文
-		ctx.Set(SubjectKey, subject)
+		return
 	}
+	if subject.TokenVersion != store.TokenVersions.Get(subject.Id) {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"msg": "登录已过期"})
+		ctx.Abort()
+		return
+	}
+	// 设置token用户到请求上下文
+	ctx.Set(SubjectKey, subject)
 }
 
 // EncodeSubject 对subject对象aesCBC加密并返回base64Std编码的 token
@@ -206,6 +223,9 @@ func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.M
 		// client.Close("authorize failed!")
 		return &api.ResFail{Code: 401, Msg: err.Error()}, nil
 	}
+	if subject.TokenVersion != store.TokenVersions.Get(subject.Id) {
+		return &api.ResFail{Code: 401, Msg: "登录已过期"}, nil
+	}
 
 	account := &session.NetAccount{
 		Id:          subject.Id,
@@ -216,8 +236,19 @@ func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.M
 		BalanceLock: &sync.RWMutex{},
 		Lock:        &sync.Mutex{},
 	}
-	// TODO 查询 DB 账户余额
-	account = store.SaveAndTryRecoverNetAccounts(account)
+	// TODO 查询 DB 账户余额，处理断线、重连问题
+	current := store.NetAccounts.Get(account.Id)
+	if current == nil {
+		store.NetAccounts.SetDefault(account.Id, account)
+	} else {
+		// 掉线重连的用户, TODO 重复登录的用户
+		current.Client.Write(&api.ResFail{Code: 403, Msg: "该账号在其他地方登录，您已下线"})
+		current.Client = account.Client
+		if current.Player != nil {
+			current.Player.ProtoWriter = account.Client
+		}
+		account = current
+	}
 	client.Account = account
 
 	// response

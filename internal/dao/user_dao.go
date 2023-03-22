@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -45,4 +46,26 @@ func (u *User) FindUserByName(username string) *entity.User {
 		return nil
 	}
 	return user
+}
+
+func (u *User) IncrementTokenVersion(userId int64) (int32, error) {
+	u1 := &entity.User{}
+	tx := u.DB.Select("token_version").First(u1, userId)
+	// fmt.Printf("current user: %v, %d\n", u1, tx.RowsAffected)
+	if tx.Error != nil {
+		return 0, tx.Error
+	}
+	newTokenVersion := u1.TokenVersion + 1
+	tx.Model(&entity.User{}).
+		Where("id", userId).
+		Where("token_version", u1.TokenVersion).
+		Update("token_version", newTokenVersion)
+	// fmt.Printf("RowsAffected: %d\n\n", tx.RowsAffected)
+	if tx.Error != nil {
+		return 0, tx.Error
+	}
+	if tx.RowsAffected != 1 {
+		return 0, errors.New("登录异常")
+	}
+	return newTokenVersion, nil
 }
