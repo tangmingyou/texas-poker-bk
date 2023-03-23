@@ -3,6 +3,7 @@ package game
 import (
 	"sync"
 	"texas-poker-bk/internal/letter"
+	"texas-poker-bk/tool/collect"
 )
 
 var (
@@ -27,10 +28,12 @@ type Player struct {
 	Hand                *Hand    // 手牌牌型
 	RoundCheckRaiseOnly bool     // 该回合仅过牌下注
 
-	GameTable   *Table // 当前牌桌
-	ProtoWriter letter.ProtoWriter
-	Lock        *sync.Mutex
-	StatusLock  *sync.Mutex
+	GameTable  *Table // 当前牌桌
+	Client     letter.ProtoClient
+	Lock       *sync.Mutex
+	StatusLock *sync.Mutex
+
+	OfflineAutoBettingDelayKey int64
 }
 
 func (p *Player) Init() {
@@ -83,4 +86,12 @@ func (p *Player) SetStatus(status int32) {
 	}
 
 	p.Status = status
+}
+
+// AutoBetting 回合离线时自动操作
+func (p *Player) AutoBetting() (BetType int32, BetChip int32) {
+	if collect.In(5, p.BetOpts...) {
+		return 5, 0
+	}
+	return 4, 0
 }

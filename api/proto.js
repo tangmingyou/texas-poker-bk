@@ -5265,7 +5265,6 @@ export const api = $root.api = (() => {
          * @property {string|null} [avatar] TablePlayer avatar
          * @property {number|null} [chip] TablePlayer chip
          * @property {number|null} [status] TablePlayer status
-         * @property {number|null} [lastStatus] TablePlayer lastStatus
          * @property {boolean|null} [master] TablePlayer master
          * @property {number|null} [roundBetTimes] TablePlayer roundBetTimes
          * @property {number|null} [totalBetChip] TablePlayer totalBetChip
@@ -5337,14 +5336,6 @@ export const api = $root.api = (() => {
          * @instance
          */
         TablePlayer.prototype.status = 0;
-
-        /**
-         * TablePlayer lastStatus.
-         * @member {number} lastStatus
-         * @memberof api.TablePlayer
-         * @instance
-         */
-        TablePlayer.prototype.lastStatus = 0;
 
         /**
          * TablePlayer master.
@@ -5430,8 +5421,6 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 5, wireType 0 =*/40).int32(message.chip);
             if (message.status != null && Object.hasOwnProperty.call(message, "status"))
                 writer.uint32(/* id 6, wireType 0 =*/48).int32(message.status);
-            if (message.lastStatus != null && Object.hasOwnProperty.call(message, "lastStatus"))
-                writer.uint32(/* id 7, wireType 0 =*/56).int32(message.lastStatus);
             if (message.master != null && Object.hasOwnProperty.call(message, "master"))
                 writer.uint32(/* id 8, wireType 0 =*/64).bool(message.master);
             if (message.roundBetTimes != null && Object.hasOwnProperty.call(message, "roundBetTimes"))
@@ -5501,10 +5490,6 @@ export const api = $root.api = (() => {
                     }
                 case 6: {
                         message.status = reader.int32();
-                        break;
-                    }
-                case 7: {
-                        message.lastStatus = reader.int32();
                         break;
                     }
                 case 8: {
@@ -5586,9 +5571,6 @@ export const api = $root.api = (() => {
             if (message.status != null && message.hasOwnProperty("status"))
                 if (!$util.isInteger(message.status))
                     return "status: integer expected";
-            if (message.lastStatus != null && message.hasOwnProperty("lastStatus"))
-                if (!$util.isInteger(message.lastStatus))
-                    return "lastStatus: integer expected";
             if (message.master != null && message.hasOwnProperty("master"))
                 if (typeof message.master !== "boolean")
                     return "master: boolean expected";
@@ -5651,8 +5633,6 @@ export const api = $root.api = (() => {
                 message.chip = object.chip | 0;
             if (object.status != null)
                 message.status = object.status | 0;
-            if (object.lastStatus != null)
-                message.lastStatus = object.lastStatus | 0;
             if (object.master != null)
                 message.master = Boolean(object.master);
             if (object.roundBetTimes != null)
@@ -5708,7 +5688,6 @@ export const api = $root.api = (() => {
                 object.avatar = "";
                 object.chip = 0;
                 object.status = 0;
-                object.lastStatus = 0;
                 object.master = false;
                 object.roundBetTimes = 0;
                 object.handType = null;
@@ -5730,8 +5709,6 @@ export const api = $root.api = (() => {
                 object.chip = message.chip;
             if (message.status != null && message.hasOwnProperty("status"))
                 object.status = message.status;
-            if (message.lastStatus != null && message.hasOwnProperty("lastStatus"))
-                object.lastStatus = message.lastStatus;
             if (message.master != null && message.hasOwnProperty("master"))
                 object.master = message.master;
             if (message.roundBetTimes != null && message.hasOwnProperty("roundBetTimes"))
@@ -7078,6 +7055,7 @@ export const api = $root.api = (() => {
          * @interface IReqBetting
          * @property {number|null} [betType] ReqBetting betType
          * @property {number|null} [betChip] ReqBetting betChip
+         * @property {number|null} [operator] ReqBetting operator
          */
 
         /**
@@ -7112,6 +7090,14 @@ export const api = $root.api = (() => {
         ReqBetting.prototype.betChip = 0;
 
         /**
+         * ReqBetting operator.
+         * @member {number} operator
+         * @memberof api.ReqBetting
+         * @instance
+         */
+        ReqBetting.prototype.operator = 0;
+
+        /**
          * Creates a new ReqBetting instance using the specified properties.
          * @function create
          * @memberof api.ReqBetting
@@ -7139,6 +7125,8 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 1, wireType 0 =*/8).int32(message.betType);
             if (message.betChip != null && Object.hasOwnProperty.call(message, "betChip"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.betChip);
+            if (message.operator != null && Object.hasOwnProperty.call(message, "operator"))
+                writer.uint32(/* id 3, wireType 0 =*/24).int32(message.operator);
             return writer;
         };
 
@@ -7179,6 +7167,10 @@ export const api = $root.api = (() => {
                     }
                 case 2: {
                         message.betChip = reader.int32();
+                        break;
+                    }
+                case 3: {
+                        message.operator = reader.int32();
                         break;
                     }
                 default:
@@ -7222,6 +7214,9 @@ export const api = $root.api = (() => {
             if (message.betChip != null && message.hasOwnProperty("betChip"))
                 if (!$util.isInteger(message.betChip))
                     return "betChip: integer expected";
+            if (message.operator != null && message.hasOwnProperty("operator"))
+                if (!$util.isInteger(message.operator))
+                    return "operator: integer expected";
             return null;
         };
 
@@ -7241,6 +7236,8 @@ export const api = $root.api = (() => {
                 message.betType = object.betType | 0;
             if (object.betChip != null)
                 message.betChip = object.betChip | 0;
+            if (object.operator != null)
+                message.operator = object.operator | 0;
             return message;
         };
 
@@ -7260,11 +7257,14 @@ export const api = $root.api = (() => {
             if (options.defaults) {
                 object.betType = 0;
                 object.betChip = 0;
+                object.operator = 0;
             }
             if (message.betType != null && message.hasOwnProperty("betType"))
                 object.betType = message.betType;
             if (message.betChip != null && message.hasOwnProperty("betChip"))
                 object.betChip = message.betChip;
+            if (message.operator != null && message.hasOwnProperty("operator"))
+                object.operator = message.operator;
             return object;
         };
 

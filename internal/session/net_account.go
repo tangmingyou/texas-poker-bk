@@ -37,3 +37,10 @@ func (account *NetAccount) GetBalance() int32 {
 	defer account.BalanceLock.RUnlock()
 	return account.Balance
 }
+
+func (account *NetAccount) SettlePlayerChip() {
+	// 返还玩家账户金额
+	account.IncrementBalance(account.Player.Chip) // 牌桌筹码返还到账户 TODO 持久化
+	account.Player.Chip = 0
+	account.Player = nil // 解除账户绑定
+}

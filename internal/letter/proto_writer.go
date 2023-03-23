@@ -2,6 +2,7 @@ package letter
 
 import "github.com/golang/protobuf/proto"
 
-type ProtoWriter interface {
+type ProtoClient interface {
+	IsOnline() bool
 	Write(message proto.Message)
 }

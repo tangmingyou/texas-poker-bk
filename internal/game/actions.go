@@ -6,6 +6,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"texas-poker-bk/api"
 	"texas-poker-bk/tool/collect"
+	"time"
 )
 
 type PlayerBetting struct {
@@ -274,6 +275,11 @@ func SetNextPlayer4Limited(roundStart bool, t *Table, current *Player) {
 	}
 	// TODO 筹码不够跟注时可 all in
 
+	// 玩家离线，n秒后自动投注
+	if !nextP.Client.IsOnline() {
+		nextP.OfflineAutoBettingDelayKey = nextP.GameTable.
+			RefAutoBettingDelayQueue.Add(60*time.Second, nextP.Id)
+	}
 }
 
 func AllIn4NoLimited(player *Player, betChip int32) proto.Message {

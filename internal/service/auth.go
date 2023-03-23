@@ -16,6 +16,7 @@ import (
 	"texas-poker-bk/internal/conf"
 	"texas-poker-bk/internal/dao"
 	"texas-poker-bk/internal/model/entity"
+	"texas-poker-bk/internal/service/event"
 	"texas-poker-bk/internal/service/store"
 	"texas-poker-bk/internal/session"
 	"texas-poker-bk/tool/collect"
@@ -245,11 +246,14 @@ func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.M
 		current.Client.Write(&api.ResFail{Code: 403, Msg: "该账号在其他地方登录，您已下线"})
 		current.Client = account.Client
 		if current.Player != nil {
-			current.Player.ProtoWriter = account.Client
+			current.Player.Client = account.Client
 		}
 		account = current
 	}
 	client.Account = account
+
+	// 在线通知消息
+	event.OnlineWatcher.Add(account.Id, true)
 
 	// response
 	res := &api.ResIdentity{Id: subject.Id, Username: subject.Name, Avatar: subject.Avatar}

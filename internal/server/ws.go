@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/conf"
+	"texas-poker-bk/internal/service/event"
 	"texas-poker-bk/internal/session"
 	"texas-poker-bk/tool/ip"
 	"time"
@@ -35,17 +36,6 @@ func RouteWs(ctx *gin.Context) {
 }
 
 func Upgrade(ctx *gin.Context) {
-	//token, exists := ctx.GetQuery("t")
-	//if !exists {
-	//	ctx.JSON(http.StatusUnauthorized, gin.H{"api": "unauth"})
-	//	return
-	//}
-	//subject, err := service.DecodeSubject(token)
-	//if err != nil {
-	//	ctx.JSON(http.StatusUnauthorized, gin.H{"api": "token failed"})
-	//	return
-	//}
-
 	conn, err := upgradeWs(ctx.Writer, ctx.Request)
 	if err != nil {
 		fmt.Println(err)
@@ -86,10 +76,15 @@ const (
 // 处理新建的websocket
 func handleNetClient(client *session.NetClient) {
 	defer func() {
-		// 捕获aes解析错误
+		// 捕获其他错误
 		if r := recover(); r != nil {
-			fmt.Println(r)
-			client.Write(&api.ResFail{Code: 401, Msg: r.(error).Error()})
+			fmt.Println("recover error: ", r)
+			client.Write(&api.ResFail{Code: 500, Msg: r.(error).Error()})
+		}
+	}()
+	defer func() {
+		if client.Account != nil {
+			event.OfflineWatcher.Add(client.Account.Id, true)
 		}
 	}()
 	// https://github.com/gorilla/websocket/blob/a68708917c6a4f06314ab4e52493cc61359c9d42/examples/chat/conn.go#L50
@@ -104,7 +99,7 @@ func handleNetClient(client *session.NetClient) {
 		return client.Conn.SetReadDeadline(time.Now().Add(pongWait))
 	})
 
-	// TODO 1分钟后过期
+	// TODO 未认证连接30s后过期
 	for {
 		// 阻塞读取消息
 		_, bytes, err := client.Conn.ReadMessage()
@@ -115,24 +110,28 @@ func handleNetClient(client *session.NetClient) {
 			} else {
 				// 读失败
 				log.Printf("ReadMessage error: %T, %v", err, err)
-				client.Close("read conn err:" + err.Error())
 			}
+			client.Write(&api.ResFail{Msg: "消息读失败:" + err.Error()})
+			client.Close("ws read err: " + err.Error())
 			return
 		}
 
 		wrap := &api.ProtoWrap{}
 		err = proto.Unmarshal(bytes, wrap)
 		if err != nil {
+			client.Write(&api.ResFail{Msg: "消息解析失败:" + err.Error()})
 			client.Close("api unmarshal fail! " + err.Error())
 			return
 		}
 		msg, err := api.NewProtoInstance(wrap.Op)
 		if err != nil {
+			client.WriteSeq(false, wrap.Seq, &api.ResFail{Msg: "消息体解析失败_1:" + err.Error()})
 			client.Close(err.Error())
 			return
 		}
 		err = proto.Unmarshal(wrap.Body, msg)
 		if err != nil {
+			client.WriteSeq(false, wrap.Seq, &api.ResFail{Msg: "消息体解析失败_2:" + err.Error()})
 			client.Close("api body unmarshal fail! " + err.Error())
 			return
 		}

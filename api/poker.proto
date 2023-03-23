@@ -191,6 +191,7 @@ message ResDismissGameTable {
 message ReqBetting {
   int32 betType = 1; // 1跟注,2加注或跟注(-[0]+),3All-In,4弃牌,5过牌
   int32 betChip = 2; // 跟注/加注金额
+  int32 operator = 3; // 0玩家操作,1自动操作
 }
 
 // 通知玩家某个其他玩家动作

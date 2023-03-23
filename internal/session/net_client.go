@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"sync"
+	"sync/atomic"
 	"texas-poker-bk/api"
 	"time"
 )
@@ -14,22 +15,33 @@ import (
 type NetClient struct {
 	// Id        int64
 	Conn      *websocket.Conn
+	Online    *atomic.Bool
 	Account   *NetAccount
 	WriteLock *sync.Mutex
 }
 
 func NewNetClient(conn *websocket.Conn) *NetClient {
+	online := &atomic.Bool{}
+	online.Store(true)
+
 	return &NetClient{
 		Conn:      conn,
 		WriteLock: new(sync.Mutex),
+		Online:    online,
 	}
 }
 
 func (c *NetClient) Close(reason string) {
+	log.Println("close NetClient reason: ", reason)
+	c.Online.Store(false)
 	err := c.Conn.Close()
 	if err != nil {
 		log.Println("Close Error", err)
 	}
+}
+
+func (c *NetClient) IsOnline() bool {
+	return c.Online.Load()
 }
 
 func (c *NetClient) Write(msg proto.Message) {

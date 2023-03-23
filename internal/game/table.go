@@ -8,6 +8,18 @@ import (
 	"texas-poker-bk/tool/collect"
 )
 
+var (
+// LobbyTables 存储当前进行中的牌桌
+// LobbyTables *store.Store[int32, *Table]
+)
+
+func init() {
+	//var tableZeroValue *Table = nil
+	//LobbyTables = store.NewStore(tableZeroValue, func(k int32) string {
+	//	return strconv.Itoa(int(k))
+	//})
+}
+
 type Table struct {
 	TableNo   int32 // 牌桌编号
 	MasterId  int64 // 房主Id
@@ -43,6 +55,8 @@ type Table struct {
 
 	Lock        *sync.Mutex // 牌桌锁
 	PlayersLock *sync.Mutex
+
+	RefAutoBettingDelayQueue *collect.DelayQueue[int64]
 }
 
 // InitGameAndPlayerStatus 初始化桌面
@@ -171,6 +185,20 @@ func (t *Table) JoinPlayer(player *Player) (int, error) {
 	return -1, errors.New("牌桌玩家已满")
 }
 
+// RemovePlayer 从牌桌移除玩家
+func (t *Table) RemovePlayer(playerId int64) (found bool, player *Player) {
+	t.PlayersLock.Lock()
+	defer t.PlayersLock.Unlock()
+	// 从牌桌移除
+	for i, p := range t.Players {
+		if p.Id == playerId {
+			t.Players[i] = nil
+			return true, p
+		}
+	}
+	return false, nil
+}
+
 // BuildResGameFullStatus 构建牌桌当前游戏状态消息
 func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 	resGame := &api.ResGameFullStatus{
@@ -240,7 +268,7 @@ func (t *Table) NoticeGameFullStatus() {
 	resGame := t.BuildResGameFullStatus()
 	gameEnd := collect.In(t.Stage, 1, 7, 9)
 	for _, player := range t.Players {
-		if player != nil && player.ProtoWriter != nil {
+		if player != nil && player.Client != nil {
 			resGame.PlayerId = player.Id
 			// 除结算时,只返回自己的手牌
 			if !gameEnd {
@@ -253,7 +281,7 @@ func (t *Table) NoticeGameFullStatus() {
 					}
 				}
 			}
-			player.ProtoWriter.Write(resGame)
+			player.Client.Write(resGame)
 		}
 	}
 }
@@ -261,8 +289,8 @@ func (t *Table) NoticeGameFullStatus() {
 // NoticeAllPlayer 发送消息到牌桌所有玩家
 func (t *Table) NoticeAllPlayer(message proto.Message) {
 	for _, player := range t.Players {
-		if player != nil && player.ProtoWriter != nil {
-			player.ProtoWriter.Write(message)
+		if player != nil && player.Client != nil {
+			player.Client.Write(message)
 		}
 	}
 }

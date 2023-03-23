@@ -7,10 +7,16 @@ import (
 	"sort"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/game"
+	"texas-poker-bk/internal/service/event"
 	"texas-poker-bk/internal/service/store"
 	"texas-poker-bk/internal/session"
 	"texas-poker-bk/tool/collect"
 )
+
+func init() {
+	// TODO 循环依赖 ioc 参考
+	event.HandleReqBetting = HandleReqBetting
+}
 
 // HandleReqCreateTable 创建桌面
 func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) (proto.Message, error) {
@@ -37,14 +43,15 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		TableNo:  store.TableNo.Add(1),
 		MasterId: account.Id,
 
-		PlayerNum:      playerNum + 1,
-		RobotNum:       robotNum,
-		Players:        make([]*game.Player, playerNum+1),
-		Robots:         make([]*game.Robot, robotNum),
-		BigBlindChip:   msg.BigBlind,
-		SmallBlindChip: msg.BigBlind / 2,
-		LimitInAmount:  msg.BigBlind * 100,
-		TexasType:      msg.TexasType,
+		PlayerNum:                playerNum + 1,
+		RobotNum:                 robotNum,
+		Players:                  make([]*game.Player, playerNum+1),
+		Robots:                   make([]*game.Robot, robotNum),
+		BigBlindChip:             msg.BigBlind,
+		SmallBlindChip:           msg.BigBlind / 2,
+		LimitInAmount:            msg.BigBlind * 100,
+		TexasType:                msg.TexasType,
+		RefAutoBettingDelayQueue: event.AutoBettingDelayQueue,
 	}
 	// 游戏类型 对应 下注处理流程
 	switch msg.TexasType {
@@ -69,7 +76,7 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		TotalBetChip: 0,
 		Cards:        [2]*game.Card{},
 		GameTable:    table,
-		ProtoWriter:  account.Client,
+		Client:       account.Client,
 	}
 	owner.Init()
 	// 挂载 player 到 account 上
@@ -89,7 +96,7 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 }
 
 // HandleReqLobbyView 返回当前所有桌面和玩家数量
-func HandleReqLobbyView(account *session.NetAccount, msg *api.ReqLobbyView) (proto.Message, error) {
+func HandleReqLobbyView(account *session.NetAccount, _ *api.ReqLobbyView) (proto.Message, error) {
 	res := &api.ResLobbyView{}
 	if store.LobbyTables.Count() == 0 {
 		return res, nil
@@ -119,7 +126,7 @@ func HandleReqLobbyView(account *session.NetAccount, msg *api.ReqLobbyView) (pro
 			}
 		}
 		if collect.IsNotEmptySlice(t.Robots) {
-			for _, _ = range t.Robots {
+			for range t.Robots {
 				table.Players[playerIdx] = &api.LobbyPlayer{Robot: true}
 				playerIdx++
 			}
@@ -171,7 +178,7 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 		TotalBetChip: 0,
 		Cards:        [2]*game.Card{nil, nil},
 		GameTable:    table,
-		ProtoWriter:  account.Client,
+		Client:       account.Client,
 	}
 	player.Init()
 	index, err := table.JoinPlayer(player)
@@ -205,17 +212,13 @@ func HandleReqKickOutTable(player *game.Player, msg *api.ReqKickOutTable) (proto
 	if player.GameTable.Stage != 1 {
 		return &api.ResFail{Msg: "牌局进行中不能踢人"}, nil
 	}
-	for i, p := range player.GameTable.Players {
-		if p != nil && p.Id == msg.PlayerId {
-			// 从牌桌移除该玩家
-			player.GameTable.Players[i] = nil
-			// 被对踢出人发送消息
-			account := store.NetAccounts.Get(p.Id)
-			account.Player = nil                        // 解除账户绑定
-			account.IncrementBalance(player.Chip)       // 筹码返还账户
-			p.ProtoWriter.Write(&api.ResKickOutTable{}) // 被踢玩家消息
-			break
-		}
+
+	found, p := player.GameTable.RemovePlayer(msg.PlayerId)
+	if found {
+		// 结算玩家金额
+		store.NetAccounts.Get(p.Id).SettlePlayerChip()
+		// 被踢玩家消息
+		player.Client.Write(&api.ResKickOutTable{})
 	}
 	// 通知牌桌所有玩家
 	player.GameTable.NoticeGameFullStatus()
@@ -223,7 +226,7 @@ func HandleReqKickOutTable(player *game.Player, msg *api.ReqKickOutTable) (proto
 }
 
 // HandleReqLeaveTable 离开桌面
-func HandleReqLeaveTable(player *game.Player, msg *api.ReqLeaveTable) (proto.Message, error) {
+func HandleReqLeaveTable(player *game.Player, _ *api.ReqLeaveTable) (proto.Message, error) {
 	player.GameTable.PlayersLock.Lock()
 	defer player.GameTable.PlayersLock.Unlock()
 
@@ -237,16 +240,10 @@ func HandleReqLeaveTable(player *game.Player, msg *api.ReqLeaveTable) (proto.Mes
 		return &api.ResFail{Msg: "房主不能退出,请解散房间"}, nil
 	}
 	// 从牌桌移除
-	for i, p := range player.GameTable.Players {
-		if p.Id == player.Id {
-			player.GameTable.Players[i] = nil
-			break
-		}
+	found, p := player.GameTable.RemovePlayer(player.Id)
+	if found {
+		store.NetAccounts.Get(p.Id).SettlePlayerChip()
 	}
-	account := store.NetAccounts.Get(player.Id)
-	account.Player = nil                  // 解除账户绑定
-	account.IncrementBalance(player.Chip) // 筹码返还账户
-
 	// 通知牌桌其他玩家
 	player.GameTable.NoticeGameFullStatus()
 
@@ -254,7 +251,7 @@ func HandleReqLeaveTable(player *game.Player, msg *api.ReqLeaveTable) (proto.Mes
 }
 
 // HandleReqGameFullStatus 获取牌桌当前所有状态
-func HandleReqGameFullStatus(player *game.Player, msg *api.ReqGameFullStatus) (proto.Message, error) {
+func HandleReqGameFullStatus(player *game.Player, _ *api.ReqGameFullStatus) (proto.Message, error) {
 	if player.GameTable == nil {
 		return &api.ResFail{Msg: "当前未加入牌桌"}, nil
 	}
@@ -274,7 +271,7 @@ func HandleReqGameFullStatus(player *game.Player, msg *api.ReqGameFullStatus) (p
 }
 
 // HandleReqReadyStart 准备开始游戏
-func HandleReqReadyStart(player *game.Player, msg *api.ReqReadyStart) (proto.Message, error) {
+func HandleReqReadyStart(player *game.Player, _ *api.ReqReadyStart) (proto.Message, error) {
 	player.Lock.Lock()
 	defer player.Lock.Unlock()
 	if player.Id == player.GameTable.MasterId {
@@ -297,9 +294,11 @@ func HandleReqReadyStart(player *game.Player, msg *api.ReqReadyStart) (proto.Mes
 	return &api.ResSuccess{}, nil
 }
 
-func HandleReqCancelReady(player *game.Player, msg *api.ReqCancelReady) (proto.Message, error) {
-	player.Lock.Lock()
-	defer player.Lock.Unlock()
+func HandleReqCancelReady(player *game.Player, _ *api.ReqCancelReady) (proto.Message, error) {
+	// 和 GameStart 互斥
+	player.GameTable.Lock.Lock()
+	defer player.GameTable.Lock.Unlock()
+
 	if player.Id == player.GameTable.MasterId {
 		return &api.ResFail{Msg: "房主不用准备"}, nil
 	}
@@ -312,7 +311,7 @@ func HandleReqCancelReady(player *game.Player, msg *api.ReqCancelReady) (proto.M
 }
 
 // HandleReqDismissGameTable 解散牌桌
-func HandleReqDismissGameTable(player *game.Player, msg *api.ReqDismissGameTable) (proto.Message, error) {
+func HandleReqDismissGameTable(player *game.Player, _ *api.ReqDismissGameTable) (proto.Message, error) {
 	player.GameTable.Lock.Lock()
 	defer player.GameTable.Lock.Unlock()
 	if !collect.In(player.GameTable.Stage, 1, 7) {
@@ -330,23 +329,16 @@ func HandleReqDismissGameTable(player *game.Player, msg *api.ReqDismissGameTable
 		account.Player = nil
 		player.GameTable.Players[i] = nil
 		if p.Id != player.Id {
-			p.ProtoWriter.Write(&api.ResDismissGameTable{})
+			p.Client.Write(&api.ResDismissGameTable{})
 		}
 	}
 	return &api.ResDismissGameTable{}, nil
 }
 
 // HandleReqGameStart 游戏开始,初始化,扣除大小盲注,每个玩家发2张牌
-func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Message, error) {
+func HandleReqGameStart(player *game.Player, _ *api.ReqGameStart) (proto.Message, error) {
 	player.GameTable.Lock.Lock()
 	defer player.GameTable.Lock.Unlock()
-	// 锁定牌桌所有玩家
-	for _, p := range player.GameTable.Players {
-		if p != nil {
-			p.Lock.Lock()
-			defer p.Lock.Unlock()
-		}
-	}
 
 	table := player.GameTable
 	if player.Id != table.MasterId {
@@ -354,6 +346,9 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 	}
 	if !collect.In(table.Stage, 1, 7) {
 		return &api.ResFail{Msg: fmt.Sprintf("牌局状态有误%d", table.Stage)}, nil
+	}
+	if table.PlayerCount() < 2 {
+		return &api.ResFail{Msg: "至少需两位玩家可开始"}, nil
 	}
 	// 检查所有玩家准备状态
 	for _, p := range table.Players {
@@ -434,6 +429,9 @@ func HandleReqGameStart(player *game.Player, msg *api.ReqGameStart) (proto.Messa
 
 // HandleReqBetting 下注
 func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, error) {
+	player.Lock.Lock()
+	defer player.Lock.Unlock()
+
 	if player.Status != 6 {
 		return &api.ResFail{Msg: "当前未轮到您下注"}, nil
 	}

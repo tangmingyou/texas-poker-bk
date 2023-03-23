@@ -12,12 +12,14 @@ import (
 var (
 	TableNo *atomic.Int32
 
-	LobbyTables *store[int32, *game.Table]
+	// LobbyTables 存储当前进行中的牌桌
+	LobbyTables *Store[int32, *game.Table]
 
 	// NetAccounts 存储一下在线用户, TODO 连接终端,未在牌局或牌局未开始中回收账号,机器人代打后回收账号
-	NetAccounts *store[int64, *session.NetAccount]
+	NetAccounts *Store[int64, *session.NetAccount]
 
-	TokenVersions *store[int64, int32]
+	// TokenVersions 存储token版本号,登录时+1,一个账户同一时间只允许一个token有效
+	TokenVersions *Store[int64, int32]
 )
 
 const (
@@ -25,21 +27,51 @@ const (
 	DefaultExpiration time.Duration = cache.DefaultExpiration
 )
 
-type store[K any, V any] struct {
+func init() {
+	TableNo = &atomic.Int32{} // 牌桌编号计数器
+
+	var tableZeroValue *game.Table = nil
+	LobbyTables = NewStore(tableZeroValue, func(k int32) string {
+		return strconv.Itoa(int(k))
+	})
+
+	var accountZeroValue *session.NetAccount = nil
+	NetAccounts = NewStore(accountZeroValue, func(k int64) string {
+		return strconv.FormatInt(k, 10)
+	})
+
+	TokenVersions = NewStore(int32(-1), func(k int64) string {
+		return strconv.FormatInt(k, 10)
+	})
+}
+
+type Store[K any, V any] struct {
 	c         *cache.Cache
 	zeroValue V
 	k2str     func(K) string
 }
 
-func (s *store[K, V]) SetDefault(k K, v V) {
+func NewStore[K any, V any](zeroValue V, k2str func(K) string) *Store[K, V] {
+	return NewExpireStore(cache.NoExpiration, cache.NoExpiration, zeroValue, k2str)
+}
+
+func NewExpireStore[K any, V any](defaultExpiration, cleanupInterval time.Duration, zeroValue V, k2str func(K) string) *Store[K, V] {
+	return &Store[K, V]{
+		c:         cache.New(defaultExpiration, cleanupInterval),
+		zeroValue: zeroValue,
+		k2str:     k2str,
+	}
+}
+
+func (s *Store[K, V]) SetDefault(k K, v V) {
 	s.c.SetDefault(s.k2str(k), v)
 }
 
-func (s *store[K, V]) Set(k K, v V, d time.Duration) {
+func (s *Store[K, V]) Set(k K, v V, d time.Duration) {
 	s.c.Set(s.k2str(k), v, d)
 }
 
-func (s *store[K, V]) Get(k K) V {
+func (s *Store[K, V]) Get(k K) V {
 	v, found := s.c.Get(s.k2str(k))
 	if !found {
 		return s.zeroValue
@@ -47,43 +79,16 @@ func (s *store[K, V]) Get(k K) V {
 	return v.(V)
 }
 
-func (s *store[K, V]) Delete(k K) {
+func (s *Store[K, V]) Delete(k K) {
 	s.c.Delete(s.k2str(k))
 }
 
-func (s *store[K, V]) ForEach(f func(k string, v V)) {
+func (s *Store[K, V]) ForEach(f func(k string, v V)) {
 	for k, v := range s.c.Items() {
 		f(k, v.Object.(V))
 	}
 }
 
-func (s *store[K, V]) Count() int {
+func (s *Store[K, V]) Count() int {
 	return s.c.ItemCount()
-}
-
-func init() {
-	LobbyTables = &store[int32, *game.Table]{
-		c:         cache.New(cache.NoExpiration, cache.NoExpiration),
-		zeroValue: nil,
-		k2str: func(k int32) string {
-			return strconv.Itoa(int(k))
-		},
-	}
-	NetAccounts = &store[int64, *session.NetAccount]{
-		c:         cache.New(cache.NoExpiration, cache.NoExpiration),
-		zeroValue: nil,
-		k2str: func(k int64) string {
-			return strconv.FormatInt(k, 10)
-		},
-	}
-
-	TokenVersions = &store[int64, int32]{
-		c:         cache.New(cache.NoExpiration, cache.NoExpiration),
-		zeroValue: -1,
-		k2str: func(k int64) string {
-			return strconv.FormatInt(k, 10)
-		},
-	}
-
-	TableNo = &atomic.Int32{} // 牌桌编号计数器
 }
