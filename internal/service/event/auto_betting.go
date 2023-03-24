@@ -15,7 +15,7 @@ var AutoBettingDelayQueue *collect.DelayQueue[int64]
 var HandleReqBetting func(player *game.Player, msg *api.ReqBetting) (proto.Message, error)
 
 func init() {
-	AutoBettingDelayQueue = collect.NewDelayQueue(handleAutoBetting)
+	AutoBettingDelayQueue = collect.NewDelayQueue(time.Second, handleAutoBetting)
 }
 
 func handleAutoBetting(accountId int64, _ time.Time) {

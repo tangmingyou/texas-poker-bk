@@ -14,16 +14,18 @@ type DelayQueue[T any] struct {
 	taskQueueMap   *treemap.Map
 	lock           *sync.RWMutex
 	offsetMs       int64
+	checkInterval  time.Duration
 	handler        func(data T, now time.Time)
 	supplying      *atomic.Bool
 	consumeChannel chan []T
 }
 
-func NewDelayQueue[T any](handler func(data T, now time.Time)) *DelayQueue[T] {
+func NewDelayQueue[T any](checkInterval time.Duration, handler func(data T, now time.Time)) *DelayQueue[T] {
 	q := &DelayQueue[T]{}
 	q.taskQueueMap = treemap.NewWithIntComparator()
 	q.lock = &sync.RWMutex{}
 	q.offsetMs = time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC).UnixMilli()
+	q.checkInterval = checkInterval
 	q.handler = handler
 	q.supplying = &atomic.Bool{}
 	q.consumeChannel = make(chan []T, 32)
@@ -62,7 +64,7 @@ func (q *DelayQueue[T]) supplier() {
 	}
 	go func() {
 		for {
-			now := <-time.After(time.Millisecond * 100)
+			now := <-time.After(q.checkInterval)
 			_, queue := q.next(now.UnixMilli())
 			if IsEmptySlice(queue) {
 				continue
@@ -98,6 +100,8 @@ func (q *DelayQueue[T]) next(nowMs int64) (int64, []T) {
 // Add 添加任务
 func (q *DelayQueue[T]) Add(after time.Duration, data T) int64 {
 	ms := time.Now().UnixMilli() + after.Milliseconds()
+	// 通知生产者goroutine轮训数据
+	defer q.supplier()
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	val, found := q.taskQueueMap.Get(int(ms))
@@ -107,8 +111,6 @@ func (q *DelayQueue[T]) Add(after time.Duration, data T) int64 {
 	}
 	values := val.([]T)
 	q.taskQueueMap.Put(int(ms), append(values, data))
-	// 通知生产者goroutine轮训数据
-	q.supplier()
 	return q.genKey(ms, len(values))
 }
 
