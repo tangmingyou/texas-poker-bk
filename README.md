@@ -19,3 +19,15 @@ pbjs -t json api/*.proto > jsproto.json
 cd target
 nohup ./texas -conf=config.toml -region=sh -zone=sh001 -deploy.env=dev -weight=10 2>&1 > texas.log &
 pkill -f ./texas
+
+
+TODO List
+### 离线后
+- 牌局结束后，清理离线玩家
+- 下注超时,页面倒计时、自动操作
+- 前端lobby页面显示内容优化
+- lobby界面用户创建新桌面时通知消息，前端拉取新大厅界面，
+- header头部编辑、退出、账户金额，流水， 
+- 日志
+- 验证码
+- 性能测试、系统调优
