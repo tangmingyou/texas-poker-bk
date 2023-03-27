@@ -3,6 +3,7 @@ package game
 import (
 	"sync"
 	"texas-poker-bk/internal/letter"
+	"texas-poker-bk/tool/async"
 	"texas-poker-bk/tool/collect"
 )
 
@@ -33,7 +34,7 @@ type Player struct {
 	Lock       *sync.Mutex
 	StatusLock *sync.Mutex
 
-	OfflineAutoBettingDelayKey int64
+	OfflineAutoBetDelayCanceler *async.Canceler[int64]
 }
 
 func (p *Player) Init() {

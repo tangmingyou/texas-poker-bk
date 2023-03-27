@@ -277,8 +277,7 @@ func SetNextPlayer4Limited(roundStart bool, t *Table, current *Player) {
 
 	// 玩家离线，n秒后自动投注
 	if !nextP.Client.IsOnline() {
-		nextP.OfflineAutoBettingDelayKey = nextP.GameTable.
-			RefAutoBettingDelayQueue.Add(60*time.Second, nextP.Id)
+		nextP.OfflineAutoBetDelayCanceler = nextP.GameTable.RefAutoBettingDelayQueue.Delay(60*time.Second, nextP.Id)
 	}
 }
 

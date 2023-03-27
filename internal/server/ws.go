@@ -90,7 +90,7 @@ func handleNetClient(client *session.NetClient) {
 	// https://github.com/gorilla/websocket/blob/a68708917c6a4f06314ab4e52493cc61359c9d42/examples/chat/conn.go#L50
 	client.Conn.SetReadLimit(maxMessageSize)
 	// TODO readDeadLine 读取超时后关闭连接
-	// err := client.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	// err := client.Conn.SetReadDeadline(time.Now().Delay(pongWait))
 	//if err != nil {
 	//	log.Printf("set deadline error: %v", err)
 	//	return
@@ -125,13 +125,13 @@ func handleNetClient(client *session.NetClient) {
 		}
 		msg, err := api.NewProtoInstance(wrap.Op)
 		if err != nil {
-			client.WriteSeq(false, wrap.Seq, &api.ResFail{Msg: "消息体解析失败_1:" + err.Error()})
+			client.WriteSeq(false, wrap.Seq, wrap.ReqMs, &api.ResFail{Msg: "消息体解析失败_1:" + err.Error()})
 			client.Close(err.Error())
 			return
 		}
 		err = proto.Unmarshal(wrap.Body, msg)
 		if err != nil {
-			client.WriteSeq(false, wrap.Seq, &api.ResFail{Msg: "消息体解析失败_2:" + err.Error()})
+			client.WriteSeq(false, wrap.Seq, wrap.ReqMs, &api.ResFail{Msg: "消息体解析失败_2:" + err.Error()})
 			client.Close("api body unmarshal fail! " + err.Error())
 			return
 		}
@@ -174,12 +174,12 @@ func handleNetClient(client *session.NetClient) {
 		// fmt.Println(called, res, resErr)
 		if resErr != nil {
 			// 错误消息
-			client.WriteSeq(false, wrap.Seq, &api.ResFail{Msg: resErr.Error()})
+			client.WriteSeq(false, wrap.Seq, wrap.ReqMs, &api.ResFail{Msg: resErr.Error()})
 			return
 		}
 		if res != nil {
 			// 响应消息
-			client.WriteSeq(true, wrap.Seq, res)
+			client.WriteSeq(true, wrap.Seq, wrap.ReqMs, res)
 		}
 		if !called {
 			// log not found handler wrap.Op

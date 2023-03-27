@@ -6,16 +6,16 @@ import (
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/game"
 	"texas-poker-bk/internal/service/store"
-	"texas-poker-bk/tool/collect"
+	"texas-poker-bk/tool/async"
 	"time"
 )
 
-var AutoBettingDelayQueue *collect.DelayQueue[int64]
+var AutoBettingDelayQueue *async.DelayQueue[int64]
 
 var HandleReqBetting func(player *game.Player, msg *api.ReqBetting) (proto.Message, error)
 
 func init() {
-	AutoBettingDelayQueue = collect.NewDelayQueue(time.Second, handleAutoBetting)
+	AutoBettingDelayQueue = async.NewDelayQueue(time.Second, 32, handleAutoBetting)
 }
 
 func handleAutoBetting(accountId int64, _ time.Time) {

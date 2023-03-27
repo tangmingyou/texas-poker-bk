@@ -47,7 +47,7 @@ func init() {
 
 type Store[K any, V any] struct {
 	c         *cache.Cache
-	zeroValue V
+	zeroValue V // 默认值
 	k2str     func(K) string
 }
 
@@ -71,7 +71,7 @@ func (s *Store[K, V]) Set(k K, v V, d time.Duration) {
 	s.c.Set(s.k2str(k), v, d)
 }
 
-func (s *Store[K, V]) Get(k K) V {
+func (s *Store[K, V]) Get(k K) (zero V) {
 	v, found := s.c.Get(s.k2str(k))
 	if !found {
 		return s.zeroValue

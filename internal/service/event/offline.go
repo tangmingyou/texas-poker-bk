@@ -46,7 +46,7 @@ func handleOffline(e *watcher.Event[int64, bool]) {
 	}
 	// 判断当前是玩家回合（60s自动过牌/弃牌）
 	if account.Player.Status == 6 {
-		account.Player.GameTable.RefAutoBettingDelayQueue.Add(60*time.Second, account.Id)
+		account.Player.GameTable.RefAutoBettingDelayQueue.Delay(60*time.Second, account.Id)
 	}
 	// 待玩家回合时还是offline（自动过牌/弃牌）
 }

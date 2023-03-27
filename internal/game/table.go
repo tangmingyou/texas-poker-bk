@@ -5,6 +5,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"sync"
 	"texas-poker-bk/api"
+	"texas-poker-bk/tool/async"
 	"texas-poker-bk/tool/collect"
 )
 
@@ -56,7 +57,7 @@ type Table struct {
 	Lock        *sync.Mutex // 牌桌锁
 	PlayersLock *sync.Mutex
 
-	RefAutoBettingDelayQueue *collect.DelayQueue[int64]
+	RefAutoBettingDelayQueue *async.DelayQueue[int64]
 }
 
 // InitGameAndPlayerStatus 初始化桌面

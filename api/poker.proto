@@ -14,15 +14,17 @@ message ProtoWrap {
   int32 op = 2; // option/action
   int32 seq = 3; // sequence
   bool success = 4; // 请求是否成功
+  int64 reqMs = 5;
   bytes body = 7; // proto bytes
 }
 
+// server ping, client pong携带server ping的时间戳, server计算延迟
 message Ping {
-  uint64 timeMs = 1; // 毫秒时间戳
+  int64 ms = 1; // 毫秒时间戳
 }
 
 message Pong {
-  uint64 timeMs = 1; // 毫秒时间戳
+  int64 pingMs = 1; // 毫秒时间戳
 }
 
 // 成功消息

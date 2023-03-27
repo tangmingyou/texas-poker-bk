@@ -45,10 +45,10 @@ func (c *NetClient) IsOnline() bool {
 }
 
 func (c *NetClient) Write(msg proto.Message) {
-	c.WriteSeq(true, 0, msg)
+	c.WriteSeq(true, 0, 0, msg)
 }
 
-func (c *NetClient) WriteSeq(success bool, seq int32, msg proto.Message) {
+func (c *NetClient) WriteSeq(success bool, seq int32, reqMs int64, msg proto.Message) {
 	// 序列化 protobuf 消息
 	op, err := api.GetProtoOp(msg)
 	if err != nil {
@@ -56,7 +56,7 @@ func (c *NetClient) WriteSeq(success bool, seq int32, msg proto.Message) {
 		return
 	}
 	bytes, err := proto.Marshal(msg)
-	wrap := &api.ProtoWrap{Ver: 1, Op: op, Seq: seq, Success: success, Body: bytes}
+	wrap := &api.ProtoWrap{Ver: 1, Op: op, Seq: seq, Success: success, ReqMs: reqMs, Body: bytes}
 	wrapBytes, err := proto.Marshal(wrap)
 
 	// 向ws客户端写

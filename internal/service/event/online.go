@@ -20,8 +20,8 @@ func handleOnline(e *watcher.Event[int64, bool]) {
 		return
 	}
 	// 取消自动下注
-	if account.Player.OfflineAutoBettingDelayKey != 0 {
-		AutoBettingDelayQueue.Cancel(account.Player.OfflineAutoBettingDelayKey)
-		account.Player.OfflineAutoBettingDelayKey = 0
+	if account.Player.OfflineAutoBetDelayCanceler != nil {
+		account.Player.OfflineAutoBetDelayCanceler.Cancel()
+		account.Player.OfflineAutoBetDelayCanceler = nil
 	}
 }

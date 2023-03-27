@@ -259,3 +259,7 @@ func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.M
 	res := &api.ResIdentity{Id: subject.Id, Username: subject.Name, Avatar: subject.Avatar}
 	return res, nil
 }
+
+func scheduleAccountPing() {
+
+}

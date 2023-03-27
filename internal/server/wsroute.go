@@ -14,6 +14,10 @@ var NetAccountHandlers = make(map[int32]func(*session.NetAccount, proto.Message)
 var PlayerHandlers = make(map[int32]func(*game.Player, proto.Message) (proto.Message, error))
 
 func init() {
+	// ping/pong: 测延迟
+	HandleNetClientMsg(&api.Ping{}, func(_ *session.NetClient, ping *api.Ping) (proto.Message, error) {
+		return &api.Pong{PingMs: ping.Ms}, nil
+	})
 	// 连接token认证
 	HandleNetClientMsg(&api.ReqIdentity{}, service.HandleReqIdentity)
 	// 创建桌面

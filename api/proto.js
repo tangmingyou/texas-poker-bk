@@ -26,6 +26,7 @@ export const api = $root.api = (() => {
          * @property {number|null} [op] ProtoWrap op
          * @property {number|null} [seq] ProtoWrap seq
          * @property {boolean|null} [success] ProtoWrap success
+         * @property {number|Long|null} [reqMs] ProtoWrap reqMs
          * @property {Uint8Array|null} [body] ProtoWrap body
          */
 
@@ -77,6 +78,14 @@ export const api = $root.api = (() => {
         ProtoWrap.prototype.success = false;
 
         /**
+         * ProtoWrap reqMs.
+         * @member {number|Long} reqMs
+         * @memberof api.ProtoWrap
+         * @instance
+         */
+        ProtoWrap.prototype.reqMs = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+
+        /**
          * ProtoWrap body.
          * @member {Uint8Array} body
          * @memberof api.ProtoWrap
@@ -116,6 +125,8 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 3, wireType 0 =*/24).int32(message.seq);
             if (message.success != null && Object.hasOwnProperty.call(message, "success"))
                 writer.uint32(/* id 4, wireType 0 =*/32).bool(message.success);
+            if (message.reqMs != null && Object.hasOwnProperty.call(message, "reqMs"))
+                writer.uint32(/* id 5, wireType 0 =*/40).int64(message.reqMs);
             if (message.body != null && Object.hasOwnProperty.call(message, "body"))
                 writer.uint32(/* id 7, wireType 2 =*/58).bytes(message.body);
             return writer;
@@ -166,6 +177,10 @@ export const api = $root.api = (() => {
                     }
                 case 4: {
                         message.success = reader.bool();
+                        break;
+                    }
+                case 5: {
+                        message.reqMs = reader.int64();
                         break;
                     }
                 case 7: {
@@ -219,6 +234,9 @@ export const api = $root.api = (() => {
             if (message.success != null && message.hasOwnProperty("success"))
                 if (typeof message.success !== "boolean")
                     return "success: boolean expected";
+            if (message.reqMs != null && message.hasOwnProperty("reqMs"))
+                if (!$util.isInteger(message.reqMs) && !(message.reqMs && $util.isInteger(message.reqMs.low) && $util.isInteger(message.reqMs.high)))
+                    return "reqMs: integer|Long expected";
             if (message.body != null && message.hasOwnProperty("body"))
                 if (!(message.body && typeof message.body.length === "number" || $util.isString(message.body)))
                     return "body: buffer expected";
@@ -245,6 +263,15 @@ export const api = $root.api = (() => {
                 message.seq = object.seq | 0;
             if (object.success != null)
                 message.success = Boolean(object.success);
+            if (object.reqMs != null)
+                if ($util.Long)
+                    (message.reqMs = $util.Long.fromValue(object.reqMs)).unsigned = false;
+                else if (typeof object.reqMs === "string")
+                    message.reqMs = parseInt(object.reqMs, 10);
+                else if (typeof object.reqMs === "number")
+                    message.reqMs = object.reqMs;
+                else if (typeof object.reqMs === "object")
+                    message.reqMs = new $util.LongBits(object.reqMs.low >>> 0, object.reqMs.high >>> 0).toNumber();
             if (object.body != null)
                 if (typeof object.body === "string")
                     $util.base64.decode(object.body, message.body = $util.newBuffer($util.base64.length(object.body)), 0);
@@ -271,6 +298,11 @@ export const api = $root.api = (() => {
                 object.op = 0;
                 object.seq = 0;
                 object.success = false;
+                if ($util.Long) {
+                    let long = new $util.Long(0, 0, false);
+                    object.reqMs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.reqMs = options.longs === String ? "0" : 0;
                 if (options.bytes === String)
                     object.body = "";
                 else {
@@ -287,6 +319,11 @@ export const api = $root.api = (() => {
                 object.seq = message.seq;
             if (message.success != null && message.hasOwnProperty("success"))
                 object.success = message.success;
+            if (message.reqMs != null && message.hasOwnProperty("reqMs"))
+                if (typeof message.reqMs === "number")
+                    object.reqMs = options.longs === String ? String(message.reqMs) : message.reqMs;
+                else
+                    object.reqMs = options.longs === String ? $util.Long.prototype.toString.call(message.reqMs) : options.longs === Number ? new $util.LongBits(message.reqMs.low >>> 0, message.reqMs.high >>> 0).toNumber() : message.reqMs;
             if (message.body != null && message.hasOwnProperty("body"))
                 object.body = options.bytes === String ? $util.base64.encode(message.body, 0, message.body.length) : options.bytes === Array ? Array.prototype.slice.call(message.body) : message.body;
             return object;
@@ -327,7 +364,7 @@ export const api = $root.api = (() => {
          * Properties of a Ping.
          * @memberof api
          * @interface IPing
-         * @property {number|Long|null} [timeMs] Ping timeMs
+         * @property {number|Long|null} [ms] Ping ms
          */
 
         /**
@@ -346,12 +383,12 @@ export const api = $root.api = (() => {
         }
 
         /**
-         * Ping timeMs.
-         * @member {number|Long} timeMs
+         * Ping ms.
+         * @member {number|Long} ms
          * @memberof api.Ping
          * @instance
          */
-        Ping.prototype.timeMs = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+        Ping.prototype.ms = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
 
         /**
          * Creates a new Ping instance using the specified properties.
@@ -377,8 +414,8 @@ export const api = $root.api = (() => {
         Ping.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.timeMs != null && Object.hasOwnProperty.call(message, "timeMs"))
-                writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.timeMs);
+            if (message.ms != null && Object.hasOwnProperty.call(message, "ms"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int64(message.ms);
             return writer;
         };
 
@@ -414,7 +451,7 @@ export const api = $root.api = (() => {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1: {
-                        message.timeMs = reader.uint64();
+                        message.ms = reader.int64();
                         break;
                     }
                 default:
@@ -452,9 +489,9 @@ export const api = $root.api = (() => {
         Ping.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.timeMs != null && message.hasOwnProperty("timeMs"))
-                if (!$util.isInteger(message.timeMs) && !(message.timeMs && $util.isInteger(message.timeMs.low) && $util.isInteger(message.timeMs.high)))
-                    return "timeMs: integer|Long expected";
+            if (message.ms != null && message.hasOwnProperty("ms"))
+                if (!$util.isInteger(message.ms) && !(message.ms && $util.isInteger(message.ms.low) && $util.isInteger(message.ms.high)))
+                    return "ms: integer|Long expected";
             return null;
         };
 
@@ -470,15 +507,15 @@ export const api = $root.api = (() => {
             if (object instanceof $root.api.Ping)
                 return object;
             let message = new $root.api.Ping();
-            if (object.timeMs != null)
+            if (object.ms != null)
                 if ($util.Long)
-                    (message.timeMs = $util.Long.fromValue(object.timeMs)).unsigned = true;
-                else if (typeof object.timeMs === "string")
-                    message.timeMs = parseInt(object.timeMs, 10);
-                else if (typeof object.timeMs === "number")
-                    message.timeMs = object.timeMs;
-                else if (typeof object.timeMs === "object")
-                    message.timeMs = new $util.LongBits(object.timeMs.low >>> 0, object.timeMs.high >>> 0).toNumber(true);
+                    (message.ms = $util.Long.fromValue(object.ms)).unsigned = false;
+                else if (typeof object.ms === "string")
+                    message.ms = parseInt(object.ms, 10);
+                else if (typeof object.ms === "number")
+                    message.ms = object.ms;
+                else if (typeof object.ms === "object")
+                    message.ms = new $util.LongBits(object.ms.low >>> 0, object.ms.high >>> 0).toNumber();
             return message;
         };
 
@@ -497,15 +534,15 @@ export const api = $root.api = (() => {
             let object = {};
             if (options.defaults)
                 if ($util.Long) {
-                    let long = new $util.Long(0, 0, true);
-                    object.timeMs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    let long = new $util.Long(0, 0, false);
+                    object.ms = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                 } else
-                    object.timeMs = options.longs === String ? "0" : 0;
-            if (message.timeMs != null && message.hasOwnProperty("timeMs"))
-                if (typeof message.timeMs === "number")
-                    object.timeMs = options.longs === String ? String(message.timeMs) : message.timeMs;
+                    object.ms = options.longs === String ? "0" : 0;
+            if (message.ms != null && message.hasOwnProperty("ms"))
+                if (typeof message.ms === "number")
+                    object.ms = options.longs === String ? String(message.ms) : message.ms;
                 else
-                    object.timeMs = options.longs === String ? $util.Long.prototype.toString.call(message.timeMs) : options.longs === Number ? new $util.LongBits(message.timeMs.low >>> 0, message.timeMs.high >>> 0).toNumber(true) : message.timeMs;
+                    object.ms = options.longs === String ? $util.Long.prototype.toString.call(message.ms) : options.longs === Number ? new $util.LongBits(message.ms.low >>> 0, message.ms.high >>> 0).toNumber() : message.ms;
             return object;
         };
 
@@ -544,7 +581,7 @@ export const api = $root.api = (() => {
          * Properties of a Pong.
          * @memberof api
          * @interface IPong
-         * @property {number|Long|null} [timeMs] Pong timeMs
+         * @property {number|Long|null} [pingMs] Pong pingMs
          */
 
         /**
@@ -563,12 +600,12 @@ export const api = $root.api = (() => {
         }
 
         /**
-         * Pong timeMs.
-         * @member {number|Long} timeMs
+         * Pong pingMs.
+         * @member {number|Long} pingMs
          * @memberof api.Pong
          * @instance
          */
-        Pong.prototype.timeMs = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+        Pong.prototype.pingMs = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
 
         /**
          * Creates a new Pong instance using the specified properties.
@@ -594,8 +631,8 @@ export const api = $root.api = (() => {
         Pong.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.timeMs != null && Object.hasOwnProperty.call(message, "timeMs"))
-                writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.timeMs);
+            if (message.pingMs != null && Object.hasOwnProperty.call(message, "pingMs"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int64(message.pingMs);
             return writer;
         };
 
@@ -631,7 +668,7 @@ export const api = $root.api = (() => {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1: {
-                        message.timeMs = reader.uint64();
+                        message.pingMs = reader.int64();
                         break;
                     }
                 default:
@@ -669,9 +706,9 @@ export const api = $root.api = (() => {
         Pong.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.timeMs != null && message.hasOwnProperty("timeMs"))
-                if (!$util.isInteger(message.timeMs) && !(message.timeMs && $util.isInteger(message.timeMs.low) && $util.isInteger(message.timeMs.high)))
-                    return "timeMs: integer|Long expected";
+            if (message.pingMs != null && message.hasOwnProperty("pingMs"))
+                if (!$util.isInteger(message.pingMs) && !(message.pingMs && $util.isInteger(message.pingMs.low) && $util.isInteger(message.pingMs.high)))
+                    return "pingMs: integer|Long expected";
             return null;
         };
 
@@ -687,15 +724,15 @@ export const api = $root.api = (() => {
             if (object instanceof $root.api.Pong)
                 return object;
             let message = new $root.api.Pong();
-            if (object.timeMs != null)
+            if (object.pingMs != null)
                 if ($util.Long)
-                    (message.timeMs = $util.Long.fromValue(object.timeMs)).unsigned = true;
-                else if (typeof object.timeMs === "string")
-                    message.timeMs = parseInt(object.timeMs, 10);
-                else if (typeof object.timeMs === "number")
-                    message.timeMs = object.timeMs;
-                else if (typeof object.timeMs === "object")
-                    message.timeMs = new $util.LongBits(object.timeMs.low >>> 0, object.timeMs.high >>> 0).toNumber(true);
+                    (message.pingMs = $util.Long.fromValue(object.pingMs)).unsigned = false;
+                else if (typeof object.pingMs === "string")
+                    message.pingMs = parseInt(object.pingMs, 10);
+                else if (typeof object.pingMs === "number")
+                    message.pingMs = object.pingMs;
+                else if (typeof object.pingMs === "object")
+                    message.pingMs = new $util.LongBits(object.pingMs.low >>> 0, object.pingMs.high >>> 0).toNumber();
             return message;
         };
 
@@ -714,15 +751,15 @@ export const api = $root.api = (() => {
             let object = {};
             if (options.defaults)
                 if ($util.Long) {
-                    let long = new $util.Long(0, 0, true);
-                    object.timeMs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    let long = new $util.Long(0, 0, false);
+                    object.pingMs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                 } else
-                    object.timeMs = options.longs === String ? "0" : 0;
-            if (message.timeMs != null && message.hasOwnProperty("timeMs"))
-                if (typeof message.timeMs === "number")
-                    object.timeMs = options.longs === String ? String(message.timeMs) : message.timeMs;
+                    object.pingMs = options.longs === String ? "0" : 0;
+            if (message.pingMs != null && message.hasOwnProperty("pingMs"))
+                if (typeof message.pingMs === "number")
+                    object.pingMs = options.longs === String ? String(message.pingMs) : message.pingMs;
                 else
-                    object.timeMs = options.longs === String ? $util.Long.prototype.toString.call(message.timeMs) : options.longs === Number ? new $util.LongBits(message.timeMs.low >>> 0, message.timeMs.high >>> 0).toNumber(true) : message.timeMs;
+                    object.pingMs = options.longs === String ? $util.Long.prototype.toString.call(message.pingMs) : options.longs === Number ? new $util.LongBits(message.pingMs.low >>> 0, message.pingMs.high >>> 0).toNumber() : message.pingMs;
             return object;
         };
 
