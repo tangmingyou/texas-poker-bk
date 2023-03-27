@@ -16,7 +16,13 @@ func init() {
 // handleOnline 玩家上线了，取消一些自动操作动作
 func handleOnline(e *watcher.Event[int64, bool]) {
 	account := store.NetAccounts.Get(e.Publisher)
-	if account == nil || account.Player == nil {
+	if account == nil {
+		return
+	}
+	if account.OfflineCleanCanceler != nil {
+		account.OfflineCleanCanceler.Cancel()
+	}
+	if account.Player == nil {
 		return
 	}
 	// 取消自动下注

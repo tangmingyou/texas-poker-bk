@@ -27,7 +27,7 @@ func main() {
 	//fmt.Println(k, v)
 
 	//wait := &sync.WaitGroup{}
-	//wait.Add(1)
+	//wait.Publish(1)
 	//wait.Wait()
 
 	//wait := make(chan bool, 1)
@@ -38,7 +38,7 @@ func main() {
 	//var counters [10]*atomic.Int32
 	//
 	//delayer := async.NewScheduleQueue(time.Second, 32, func(index int32, now time.Time) int32 {
-	//	counters[index%100].Add(1)
+	//	counters[index%100].Publish(1)
 	//	fmt.Println(now.Format("2006-01-02 15:04:05.9999"), index, index%100, counters[index%100].Load())
 	//	if index == 10000 && counters[index%100].Load() == 1000 {
 	//		wait <- true

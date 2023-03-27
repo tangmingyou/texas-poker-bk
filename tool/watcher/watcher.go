@@ -39,7 +39,7 @@ func (w *Watcher[P, T]) Stop() {
 	w.stop <- true
 }
 
-func (w *Watcher[P, T]) Add(publisher P, event T) {
+func (w *Watcher[P, T]) Publish(publisher P, event T) {
 	e := &Event[P, T]{publisher, event, time.Now().UnixMilli()}
 	go func() {
 		w.events <- e

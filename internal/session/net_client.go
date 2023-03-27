@@ -33,7 +33,6 @@ func NewNetClient(conn *websocket.Conn) *NetClient {
 
 func (c *NetClient) Close(reason string) {
 	log.Println("close NetClient reason: ", reason)
-	c.Online.Store(false)
 	err := c.Conn.Close()
 	if err != nil {
 		log.Println("Close Error", err)

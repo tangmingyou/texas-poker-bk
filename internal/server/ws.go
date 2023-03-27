@@ -84,7 +84,8 @@ func handleNetClient(client *session.NetClient) {
 	}()
 	defer func() {
 		if client.Account != nil {
-			event.OfflineWatcher.Add(client.Account.Id, true)
+			client.Online.Store(false)
+			event.OfflineWatcher.Publish(client.Account.Id, true)
 		}
 	}()
 	// https://github.com/gorilla/websocket/blob/a68708917c6a4f06314ab4e52493cc61359c9d42/examples/chat/conn.go#L50

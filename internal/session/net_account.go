@@ -3,6 +3,7 @@ package session
 import (
 	"sync"
 	"texas-poker-bk/internal/game"
+	"texas-poker-bk/tool/async"
 )
 
 // NetAccount 已认证的长连接用户
@@ -15,6 +16,8 @@ type NetAccount struct {
 	Player      *game.Player
 	BalanceLock *sync.RWMutex
 	Lock        *sync.Mutex
+
+	OfflineCleanCanceler *async.Canceler[int64]
 }
 
 func (account *NetAccount) DecrementBalance(amount int32) int32 {

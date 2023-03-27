@@ -253,7 +253,7 @@ func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.M
 	client.Account = account
 
 	// 在线通知消息
-	event.OnlineWatcher.Add(account.Id, true)
+	event.OnlineWatcher.Publish(account.Id, true)
 
 	// response
 	res := &api.ResIdentity{Id: subject.Id, Username: subject.Name, Avatar: subject.Avatar}
