@@ -273,12 +273,16 @@ func SetNextPlayer4Limited(roundStart bool, t *Table, current *Player) {
 	if nextP.BetMax > nextP.BetMin { // 加注
 		nextP.BetOpts = append(nextP.BetOpts, 2)
 	}
+	// TODO 下注倒计时
+	nextP.BetTimeLimit = time.Now().Add(120 * time.Second)
+	nextP.AutoBetDelayCanceler = nextP.GameTable.RefAutoBettingDelayQueue.Delay(120*time.Second, nextP.Id)
+
 	// TODO 筹码不够跟注时可 all in
 
 	// 玩家离线，n秒后自动投注
-	if !nextP.Client.IsOnline() {
-		nextP.OfflineAutoBetDelayCanceler = nextP.GameTable.RefAutoBettingDelayQueue.Delay(60*time.Second, nextP.Id)
-	}
+	//if !nextP.Client.IsOnline() {
+	//	nextP.AutoBetDelayCanceler = nextP.GameTable.RefAutoBettingDelayQueue.Delay(60*time.Second, nextP.Id)
+	//}
 }
 
 func AllIn4NoLimited(player *Player, betChip int32) proto.Message {

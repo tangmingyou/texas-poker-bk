@@ -7,6 +7,7 @@ import (
 	"texas-poker-bk/api"
 	"texas-poker-bk/tool/async"
 	"texas-poker-bk/tool/collect"
+	"time"
 )
 
 var (
@@ -191,8 +192,22 @@ func (t *Table) RemovePlayer(playerId int64) (found bool, player *Player) {
 	defer t.PlayersLock.Unlock()
 	// 从牌桌移除
 	for i, p := range t.Players {
+		if p == nil {
+			continue
+		}
 		if p.Id == playerId {
 			t.Players[i] = nil
+			// 该玩家是房主, 房主给到下个位置玩家
+			if t.MasterId == player.Id {
+				nextMasterPos := t.NextPlayerPos(i)
+				if nextMasterPos != i {
+					t.MasterId = t.Players[nextMasterPos].Id
+				} else {
+					// 没有玩家了, 解散牌桌
+					t.Stage = 9
+					LobbyTables.Delete(player.GameTable.TableNo)
+				}
+			}
 			return true, p
 		}
 	}
@@ -221,10 +236,15 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 	}
 	// 牌桌玩家
 	resGame.Players = make([]*api.TablePlayer, len(t.Players))
+	now := time.Now()
 	for i, p := range t.Players {
 		if p == nil {
 			resGame.Players[i] = nil
 			continue
+		}
+		var betSecondLimit int32 = 0
+		if p.Status == 6 {
+			betSecondLimit = int32(p.BetTimeLimit.Sub(now).Milliseconds() / 1000)
 		}
 		player := &api.TablePlayer{
 			Robot:         false,
@@ -238,9 +258,11 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 			TotalBetChip:  p.TotalBetChip,
 			HandCard:      make([]*api.Card, 2),
 			BetRole: &api.BetRole{
-				BetMin:  p.BetMin,
-				BetMax:  p.BetMax,
-				BetOpts: p.BetOpts,
+				BetMin:         p.BetMin,
+				BetMax:         p.BetMax,
+				BetTimeLimit:   p.BetTimeLimit.UnixMilli(),
+				BetSecondLimit: betSecondLimit,
+				BetOpts:        p.BetOpts,
 			},
 		}
 		if p.Hand != nil {

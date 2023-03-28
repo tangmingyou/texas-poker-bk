@@ -6028,6 +6028,8 @@ export const api = $root.api = (() => {
          * @interface IBetRole
          * @property {number|null} [betMin] BetRole betMin
          * @property {number|null} [betMax] BetRole betMax
+         * @property {number|Long|null} [betTimeLimit] BetRole betTimeLimit
+         * @property {number|null} [betSecondLimit] BetRole betSecondLimit
          * @property {Array.<number>|null} [betOpts] BetRole betOpts
          */
 
@@ -6062,6 +6064,22 @@ export const api = $root.api = (() => {
          * @instance
          */
         BetRole.prototype.betMax = 0;
+
+        /**
+         * BetRole betTimeLimit.
+         * @member {number|Long} betTimeLimit
+         * @memberof api.BetRole
+         * @instance
+         */
+        BetRole.prototype.betTimeLimit = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+
+        /**
+         * BetRole betSecondLimit.
+         * @member {number} betSecondLimit
+         * @memberof api.BetRole
+         * @instance
+         */
+        BetRole.prototype.betSecondLimit = 0;
 
         /**
          * BetRole betOpts.
@@ -6099,6 +6117,10 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 1, wireType 0 =*/8).int32(message.betMin);
             if (message.betMax != null && Object.hasOwnProperty.call(message, "betMax"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.betMax);
+            if (message.betTimeLimit != null && Object.hasOwnProperty.call(message, "betTimeLimit"))
+                writer.uint32(/* id 9, wireType 0 =*/72).int64(message.betTimeLimit);
+            if (message.betSecondLimit != null && Object.hasOwnProperty.call(message, "betSecondLimit"))
+                writer.uint32(/* id 10, wireType 0 =*/80).int32(message.betSecondLimit);
             if (message.betOpts != null && message.betOpts.length) {
                 writer.uint32(/* id 13, wireType 2 =*/106).fork();
                 for (let i = 0; i < message.betOpts.length; ++i)
@@ -6145,6 +6167,14 @@ export const api = $root.api = (() => {
                     }
                 case 2: {
                         message.betMax = reader.int32();
+                        break;
+                    }
+                case 9: {
+                        message.betTimeLimit = reader.int64();
+                        break;
+                    }
+                case 10: {
+                        message.betSecondLimit = reader.int32();
                         break;
                     }
                 case 13: {
@@ -6199,6 +6229,12 @@ export const api = $root.api = (() => {
             if (message.betMax != null && message.hasOwnProperty("betMax"))
                 if (!$util.isInteger(message.betMax))
                     return "betMax: integer expected";
+            if (message.betTimeLimit != null && message.hasOwnProperty("betTimeLimit"))
+                if (!$util.isInteger(message.betTimeLimit) && !(message.betTimeLimit && $util.isInteger(message.betTimeLimit.low) && $util.isInteger(message.betTimeLimit.high)))
+                    return "betTimeLimit: integer|Long expected";
+            if (message.betSecondLimit != null && message.hasOwnProperty("betSecondLimit"))
+                if (!$util.isInteger(message.betSecondLimit))
+                    return "betSecondLimit: integer expected";
             if (message.betOpts != null && message.hasOwnProperty("betOpts")) {
                 if (!Array.isArray(message.betOpts))
                     return "betOpts: array expected";
@@ -6225,6 +6261,17 @@ export const api = $root.api = (() => {
                 message.betMin = object.betMin | 0;
             if (object.betMax != null)
                 message.betMax = object.betMax | 0;
+            if (object.betTimeLimit != null)
+                if ($util.Long)
+                    (message.betTimeLimit = $util.Long.fromValue(object.betTimeLimit)).unsigned = false;
+                else if (typeof object.betTimeLimit === "string")
+                    message.betTimeLimit = parseInt(object.betTimeLimit, 10);
+                else if (typeof object.betTimeLimit === "number")
+                    message.betTimeLimit = object.betTimeLimit;
+                else if (typeof object.betTimeLimit === "object")
+                    message.betTimeLimit = new $util.LongBits(object.betTimeLimit.low >>> 0, object.betTimeLimit.high >>> 0).toNumber();
+            if (object.betSecondLimit != null)
+                message.betSecondLimit = object.betSecondLimit | 0;
             if (object.betOpts) {
                 if (!Array.isArray(object.betOpts))
                     throw TypeError(".api.BetRole.betOpts: array expected");
@@ -6253,11 +6300,24 @@ export const api = $root.api = (() => {
             if (options.defaults) {
                 object.betMin = 0;
                 object.betMax = 0;
+                if ($util.Long) {
+                    let long = new $util.Long(0, 0, false);
+                    object.betTimeLimit = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.betTimeLimit = options.longs === String ? "0" : 0;
+                object.betSecondLimit = 0;
             }
             if (message.betMin != null && message.hasOwnProperty("betMin"))
                 object.betMin = message.betMin;
             if (message.betMax != null && message.hasOwnProperty("betMax"))
                 object.betMax = message.betMax;
+            if (message.betTimeLimit != null && message.hasOwnProperty("betTimeLimit"))
+                if (typeof message.betTimeLimit === "number")
+                    object.betTimeLimit = options.longs === String ? String(message.betTimeLimit) : message.betTimeLimit;
+                else
+                    object.betTimeLimit = options.longs === String ? $util.Long.prototype.toString.call(message.betTimeLimit) : options.longs === Number ? new $util.LongBits(message.betTimeLimit.low >>> 0, message.betTimeLimit.high >>> 0).toNumber() : message.betTimeLimit;
+            if (message.betSecondLimit != null && message.hasOwnProperty("betSecondLimit"))
+                object.betSecondLimit = message.betSecondLimit;
             if (message.betOpts && message.betOpts.length) {
                 object.betOpts = [];
                 for (let j = 0; j < message.betOpts.length; ++j)

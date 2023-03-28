@@ -25,38 +25,23 @@ func handleGameRoundEnd(e *watcher.Event[int32, bool]) {
 	}
 	table.Lock.Lock()
 	defer table.Lock.Unlock()
-	table.PlayersLock.Lock()
-	defer table.PlayersLock.Unlock()
 
-	notice := true
-	for i, player := range table.Players {
+	for _, player := range table.Players {
 		if player == nil {
 			continue
 		}
+		// 移除牌桌上所有离线玩家
 		if !player.Client.IsOnline() {
 			// 踢了
-			table.Players[i] = nil
-			// 结算玩家金额
-			store.NetAccounts.Get(player.Id).SettlePlayerChip()
-			// 被踢玩家消息
-			// player.Client.Write(&api.ResKickOutTable{})
-
-			// 该离线玩家是房主, 房主给到下个位置玩家
-			if table.MasterId == player.Id {
-				nextMasterPos := table.NextPlayerPos(i)
-				if nextMasterPos == i {
-					// 没有玩家了, 解散牌桌
-					notice = false
-					table.Stage = 9
-					game.LobbyTables.Delete(player.GameTable.TableNo)
-					return
-				}
-				table.MasterId = table.Players[nextMasterPos].Id
+			found, _ := table.RemovePlayer(player.Id)
+			if found {
+				// 结算玩家金额
+				store.NetAccounts.Get(player.Id).SettlePlayerChip()
 			}
 		}
 	}
 	// 通知牌桌所有玩家
-	if notice {
+	if 0 < table.PlayerCount() {
 		table.NoticeGameFullStatus()
 	}
 }

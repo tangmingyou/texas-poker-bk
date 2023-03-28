@@ -2,6 +2,7 @@ package event
 
 import (
 	"fmt"
+	gameDelayer "texas-poker-bk/internal/game/delayer"
 	"texas-poker-bk/internal/logic/delayer"
 	"texas-poker-bk/internal/logic/store"
 	"texas-poker-bk/tool/collect"
@@ -33,16 +34,29 @@ func handleOffline(e *watcher.Event[int64, bool]) {
 		account.OfflineCleanCanceler = delayer.OfflineCleanDelayer.Delay(10*time.Second, account.Id)
 		return
 	}
+	// 牌局未在进行中直接移除玩家并下线
 	if collect.In(account.Player.GameTable.Stage, 1, 9) {
-		// 牌局未在进行中直接移除玩家并下线
-		account.Player.GameTable.RemovePlayer(account.Id)
-		account.SettlePlayerChip()
+		found, _ := account.Player.GameTable.RemovePlayer(account.Id)
+		if found {
+			account.SettlePlayerChip()
+		}
 		account.OfflineCleanCanceler = delayer.OfflineCleanDelayer.Delay(10*time.Second, account.Id)
 		return
 	}
-	// 判断当前是玩家回合（60s自动过牌/弃牌）
-	if account.Player.Status == 6 {
-		account.Player.GameTable.RefAutoBettingDelayQueue.Delay(60*time.Second, account.Id)
+	// 牌局结束展示时间，10s后再移除玩家
+	if account.Player.GameTable.Stage == 7 {
+		accountId := e.Publisher
+		gameDelayer.GameDelayer.Delay(10*time.Second, func() {
+			account := store.NetAccounts.Get(accountId)
+			if account == nil || account.Player == nil || collect.NotIn(account.Player.GameTable.Stage, 1, 7, 9) {
+				return
+			}
+			// 从牌桌移除玩家
+			found, _ := account.Player.GameTable.RemovePlayer(account.Id)
+			if found {
+				account.SettlePlayerChip()
+			}
+			account.OfflineCleanCanceler = delayer.OfflineCleanDelayer.Delay(3*time.Second, account.Id)
+		})
 	}
-	// 待玩家回合时还是offline（自动过牌/弃牌）
 }

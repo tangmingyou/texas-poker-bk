@@ -1,6 +1,7 @@
 
 [http]
-host = ""
+#host = ""
+host = "192.168.110.53"
 #host = "192.168.3.101"
 port = 3999
 
@@ -26,6 +27,7 @@ dbPath = "data/texas-poker.db"
 # 新用户赠送筹码
 giftChip = 10000
 avatarPath = "data/avatar/"
+betTimeLimit = 120
 
 [game.offline] # 玩家掉线配置
 # 在房间中

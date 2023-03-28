@@ -167,6 +167,9 @@ message Card {
 message BetRole {
   int32 betMin = 1; // 最低下注额
   int32 betMax = 2; // 最高下注额
+  int64 betTimeLimit = 9; // 下注限制时间戳,客户端判断本机时间减当前时间-betSecondLimit <= 10则取，否则用直接用剩余秒数
+  int32 betSecondLimit = 10; // 下注剩余秒数
+
   repeated int32 betOpts = 13; // status=[4,6]时下注可操作按钮: 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
 }
 

@@ -26,8 +26,8 @@ func handleOnline(e *watcher.Event[int64, bool]) {
 		return
 	}
 	// 取消自动下注
-	if account.Player.OfflineAutoBetDelayCanceler != nil {
-		account.Player.OfflineAutoBetDelayCanceler.Cancel()
-		account.Player.OfflineAutoBetDelayCanceler = nil
+	if account.Player.AutoBetDelayCanceler != nil {
+		account.Player.AutoBetDelayCanceler.Cancel()
+		account.Player.AutoBetDelayCanceler = nil
 	}
 }

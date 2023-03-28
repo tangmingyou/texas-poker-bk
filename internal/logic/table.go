@@ -203,8 +203,8 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 
 // HandleReqKickOutTable 踢人
 func HandleReqKickOutTable(player *game.Player, msg *api.ReqKickOutTable) (proto.Message, error) {
-	player.GameTable.PlayersLock.Lock()
-	defer player.GameTable.PlayersLock.Unlock()
+	player.GameTable.Lock.Lock()
+	defer player.GameTable.Lock.Unlock()
 
 	if player.GameTable.MasterId != player.Id {
 		return &api.ResFail{Msg: "不是房主不能踢人"}, nil
@@ -230,8 +230,8 @@ func HandleReqKickOutTable(player *game.Player, msg *api.ReqKickOutTable) (proto
 
 // HandleReqLeaveTable 离开桌面
 func HandleReqLeaveTable(player *game.Player, _ *api.ReqLeaveTable) (proto.Message, error) {
-	player.GameTable.PlayersLock.Lock()
-	defer player.GameTable.PlayersLock.Unlock()
+	player.GameTable.Lock.Lock()
+	defer player.GameTable.Lock.Unlock()
 
 	if !collect.In(player.GameTable.Stage, 1, 7, 9) {
 		return &api.ResFail{Msg: "牌局进行中不能退出"}, nil
@@ -280,7 +280,7 @@ func HandleReqReadyStart(player *game.Player, _ *api.ReqReadyStart) (proto.Messa
 	if player.Id == player.GameTable.MasterId {
 		return &api.ResFail{Msg: "房主不用准备"}, nil
 	}
-	if !collect.In(player.Status, 1, 8) {
+	if collect.NotIn(player.Status, 1, 8) {
 		msg := ""
 		switch player.Status {
 		case 2:
@@ -455,6 +455,11 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 		res = &api.ResSuccess{}
 	} else if reflect.TypeOf(res) == reflect.TypeOf(&api.ResFail{}) {
 		return res, nil
+	}
+
+	// 取消自动下注
+	if player.AutoBetDelayCanceler != nil {
+		player.AutoBetDelayCanceler.Cancel()
 	}
 
 	// 记录操作
