@@ -17,7 +17,7 @@ type NetAccount struct {
 	BalanceLock *sync.RWMutex
 	Lock        *sync.Mutex
 
-	OfflineCleanCanceler *async.Canceler[int64]
+	OfflineDelayCanceler *async.Canceler[int64]
 }
 
 func (account *NetAccount) DecrementBalance(amount int32) int32 {

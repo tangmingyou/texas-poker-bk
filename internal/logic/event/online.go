@@ -19,8 +19,8 @@ func handleOnline(e *watcher.Event[int64, bool]) {
 	if account == nil {
 		return
 	}
-	if account.OfflineCleanCanceler != nil {
-		account.OfflineCleanCanceler.Cancel()
+	if account.OfflineDelayCanceler != nil {
+		account.OfflineDelayCanceler.Cancel()
 	}
 	if account.Player == nil {
 		return

@@ -221,7 +221,7 @@ func HandleReqKickOutTable(player *game.Player, msg *api.ReqKickOutTable) (proto
 		// 结算玩家金额
 		store.NetAccounts.Get(p.Id).SettlePlayerChip()
 		// 被踢玩家消息
-		player.Client.Write(&api.ResKickOutTable{})
+		p.Client.Write(&api.ResKickOutTable{})
 	}
 	// 通知牌桌所有玩家
 	player.GameTable.NoticeGameFullStatus()

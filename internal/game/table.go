@@ -198,14 +198,14 @@ func (t *Table) RemovePlayer(playerId int64) (found bool, player *Player) {
 		if p.Id == playerId {
 			t.Players[i] = nil
 			// 该玩家是房主, 房主给到下个位置玩家
-			if t.MasterId == player.Id {
+			if t.MasterId == p.Id {
 				nextMasterPos := t.NextPlayerPos(i)
 				if nextMasterPos != i {
 					t.MasterId = t.Players[nextMasterPos].Id
 				} else {
 					// 没有玩家了, 解散牌桌
 					t.Stage = 9
-					LobbyTables.Delete(player.GameTable.TableNo)
+					LobbyTables.Delete(p.GameTable.TableNo)
 				}
 			}
 			return true, p
