@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/game"
-	"texas-poker-bk/internal/service"
+	"texas-poker-bk/internal/logic"
 	"texas-poker-bk/internal/session"
 )
 
@@ -19,30 +19,30 @@ func init() {
 		return &api.Pong{PingMs: ping.Ms}, nil
 	})
 	// 连接token认证
-	HandleNetClientMsg(&api.ReqIdentity{}, service.HandleReqIdentity)
+	HandleNetClientMsg(&api.ReqIdentity{}, logic.HandleReqIdentity)
 	// 创建桌面
-	HandleNetAccountMsg(&api.ReqCreateTable{}, service.HandleReqCreateTable)
+	HandleNetAccountMsg(&api.ReqCreateTable{}, logic.HandleReqCreateTable)
 	// 查询所有游戏桌面
-	HandleNetAccountMsg(&api.ReqLobbyView{}, service.HandleReqLobbyView)
+	HandleNetAccountMsg(&api.ReqLobbyView{}, logic.HandleReqLobbyView)
 	// 获取牌桌当前所有状态
-	HandleNetPlayerMsg(&api.ReqGameFullStatus{}, service.HandleReqGameFullStatus)
+	HandleNetPlayerMsg(&api.ReqGameFullStatus{}, logic.HandleReqGameFullStatus)
 	// 加入桌面
-	HandleNetAccountMsg(&api.ReqJoinTable{}, service.HandleReqJoinTable)
+	HandleNetAccountMsg(&api.ReqJoinTable{}, logic.HandleReqJoinTable)
 
 	// 踢人
-	HandleNetPlayerMsg(&api.ReqKickOutTable{}, service.HandleReqKickOutTable)
+	HandleNetPlayerMsg(&api.ReqKickOutTable{}, logic.HandleReqKickOutTable)
 	// 离开房间
-	HandleNetPlayerMsg(&api.ReqLeaveTable{}, service.HandleReqLeaveTable)
+	HandleNetPlayerMsg(&api.ReqLeaveTable{}, logic.HandleReqLeaveTable)
 	// 解散房间
-	HandleNetPlayerMsg(&api.ReqDismissGameTable{}, service.HandleReqDismissGameTable)
+	HandleNetPlayerMsg(&api.ReqDismissGameTable{}, logic.HandleReqDismissGameTable)
 	// 玩家准备
-	HandleNetPlayerMsg(&api.ReqReadyStart{}, service.HandleReqReadyStart)
+	HandleNetPlayerMsg(&api.ReqReadyStart{}, logic.HandleReqReadyStart)
 	// 玩家取消准备
-	HandleNetPlayerMsg(&api.ReqCancelReady{}, service.HandleReqCancelReady)
+	HandleNetPlayerMsg(&api.ReqCancelReady{}, logic.HandleReqCancelReady)
 	// 开始游戏
-	HandleNetPlayerMsg(&api.ReqGameStart{}, service.HandleReqGameStart)
+	HandleNetPlayerMsg(&api.ReqGameStart{}, logic.HandleReqGameStart)
 	// 筹码下注
-	HandleNetPlayerMsg(&api.ReqBetting{}, service.HandleReqBetting)
+	HandleNetPlayerMsg(&api.ReqBetting{}, logic.HandleReqBetting)
 }
 
 func checkExistsTypeHandler(op int32, err error) {

@@ -1,7 +1,7 @@
 package event
 
 import (
-	"texas-poker-bk/internal/service/store"
+	"texas-poker-bk/internal/logic/store"
 	"texas-poker-bk/tool/watcher"
 )
 

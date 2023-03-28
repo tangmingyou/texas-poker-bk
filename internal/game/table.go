@@ -135,14 +135,13 @@ func (t *Table) PlayerCount() int32 {
 func (t *Table) NextPlayerPos(current int) int {
 	// 当前位置往后
 	for i := current + 1; i < len(t.Players); i++ {
-		if t.Players[i] == nil {
-			continue
+		if t.Players[i] != nil {
+			return i
 		}
-		return i
 	}
 	// 从头找
-	for i, p := range t.Players {
-		if p != nil {
+	for i := 0; i < current && i < len(t.Players); i++ {
+		if t.Players[i] != nil {
 			return i
 		}
 	}
@@ -438,14 +437,14 @@ func (t *Table) SetNextPlayer(current int) {
 }
 
 // RoundOver 当前回合结束
-func (t *Table) RoundOver() error {
+func (t *Table) RoundOver() (finished bool, err error) {
 	// TODO 记录 t.RoundBetLogs[]
 
 	// 游戏结束,开牌结算
 	if t.Stage == 5 || 1 == len(collect.Filter(t.Players, func(i int, p *Player) bool {
 		return p != nil && p.Status != 7
 	})) {
-		return t.cardFightAndSettle()
+		return true, t.cardFightAndSettle()
 	}
 
 	// 开启下一回合, 根据回合发公共牌
@@ -480,7 +479,7 @@ func (t *Table) RoundOver() error {
 	t.PlayerBetting.SetNextPlayer(true, t, nil)
 	// t.SetNextPlayerWithRoundStart()
 
-	return nil
+	return false, nil
 }
 
 // cardFightAndSettle 斗牌并结算
@@ -511,9 +510,9 @@ func (t *Table) cardFightAndSettle() error {
 			if winners == nil {
 				winners = []*Player{p}
 			} else {
-				if p.Hand.point > winners[0].Hand.point {
+				if p.Hand.GetPoint() > winners[0].Hand.GetPoint() {
 					winners = []*Player{p}
-				} else if p.Hand.point == winners[0].Hand.point {
+				} else if p.Hand.GetPoint() == winners[0].Hand.GetPoint() {
 					// 手牌相同
 					winners = append(winners, p)
 				}

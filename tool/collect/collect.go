@@ -12,6 +12,10 @@ func In[T comparable](value T, values ...T) bool {
 	return false
 }
 
+func NotIn[T comparable](value T, values ...T) bool {
+	return !In(value, values...)
+}
+
 func Count[T any](slice []T, isCount func(int, T) bool) int {
 	count := 0
 	if slice == nil {

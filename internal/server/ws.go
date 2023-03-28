@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/conf"
-	"texas-poker-bk/internal/service/event"
+	"texas-poker-bk/internal/logic/event"
 	"texas-poker-bk/internal/session"
 	"texas-poker-bk/tool/ip"
 	"time"

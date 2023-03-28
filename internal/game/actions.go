@@ -124,7 +124,7 @@ func Fold4Limited(player *Player, betChip int32) proto.Message {
 
 	player.SetStatus(7)
 	betNotice.Line2 = "弃牌"
-	// 剩余玩家数为1则结束, 在 service 中判断
+	// 剩余玩家数为1则结束, 在 logic 中判断
 	//leftPlayers := collect.Filter(player.GameTable.Players, func(i int, p *Player) bool {
 	//	return p != nil && p.Status != 7
 	//})

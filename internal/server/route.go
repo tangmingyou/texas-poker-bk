@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/dao"
-	"texas-poker-bk/internal/service"
+	"texas-poker-bk/internal/logic"
 )
 
 func NewServer() *gin.Engine {
 	server := gin.Default()
 	// token认证过滤器
-	server.Use(service.SubjectAuthFilter)
+	server.Use(logic.SubjectAuthFilter)
 
 	// session storage
 	server.Use(SessionStore("golang-tech-stack"))
@@ -27,13 +27,13 @@ func NewServer() *gin.Engine {
 	conn.GET("/route_ws", RouteWs)
 
 	auth := base.Group("/auth")
-	auth.GET("/captcha", service.Captcha)      // 验证码
-	auth.POST("/authorize", service.Authorize) // 登录或注册认证
+	auth.GET("/captcha", logic.Captcha)      // 验证码
+	auth.POST("/authorize", logic.Authorize) // 登录或注册认证
 
 	user := base.Group("/user")
 	user.GET("/findByName", dao.FindUserByName)
 
 	gm := base.Group("/gm")
-	gm.GET("/avatar/:avatar", service.Avatar)
+	gm.GET("/avatar/:avatar", logic.Avatar)
 	return server
 }

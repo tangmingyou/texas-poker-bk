@@ -1,11 +1,11 @@
-package event
+package delayer
 
 import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/game"
-	"texas-poker-bk/internal/service/store"
+	"texas-poker-bk/internal/logic/store"
 	"texas-poker-bk/tool/async"
 	"time"
 )

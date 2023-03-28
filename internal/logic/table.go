@@ -1,4 +1,4 @@
-package service
+package logic
 
 import (
 	"fmt"
@@ -7,15 +7,18 @@ import (
 	"sort"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/game"
-	"texas-poker-bk/internal/service/event"
-	"texas-poker-bk/internal/service/store"
+	"texas-poker-bk/internal/game/delayer"
+	"texas-poker-bk/internal/game/event"
+	delayer2 "texas-poker-bk/internal/logic/delayer"
+	"texas-poker-bk/internal/logic/store"
 	"texas-poker-bk/internal/session"
 	"texas-poker-bk/tool/collect"
+	"time"
 )
 
 func init() {
 	// TODO 循环依赖 ioc 参考
-	event.HandleReqBetting = HandleReqBetting
+	delayer2.HandleReqBetting = HandleReqBetting
 }
 
 // HandleReqCreateTable 创建桌面
@@ -40,7 +43,7 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 	}
 	// 初始化一个牌桌
 	table := &game.Table{
-		TableNo:  store.TableNo.Add(1),
+		TableNo:  game.TableNo.Add(1),
 		MasterId: account.Id,
 
 		PlayerNum:                playerNum + 1,
@@ -51,7 +54,7 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		SmallBlindChip:           msg.BigBlind / 2,
 		LimitInAmount:            msg.BigBlind * 100,
 		TexasType:                msg.TexasType,
-		RefAutoBettingDelayQueue: event.AutoBettingDelayQueue,
+		RefAutoBettingDelayQueue: delayer2.AutoBettingDelayQueue,
 	}
 	// 游戏类型 对应 下注处理流程
 	switch msg.TexasType {
@@ -87,7 +90,7 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 	for i := 0; i < int(robotNum); i++ {
 		table.Robots[i] = &game.Robot{}
 	}
-	store.LobbyTables.SetDefault(table.TableNo, table)
+	game.LobbyTables.SetDefault(table.TableNo, table)
 	//err := store.SaveNewTable(table)
 	//if err != nil {
 	//	return &api.ResFail{Msg: err.Error()}, nil
@@ -98,10 +101,10 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 // HandleReqLobbyView 返回当前所有桌面和玩家数量
 func HandleReqLobbyView(account *session.NetAccount, _ *api.ReqLobbyView) (proto.Message, error) {
 	res := &api.ResLobbyView{}
-	if store.LobbyTables.Count() == 0 {
+	if game.LobbyTables.Count() == 0 {
 		return res, nil
 	}
-	tables := make([]*api.LobbyTable, store.LobbyTables.Count())
+	tables := make([]*api.LobbyTable, game.LobbyTables.Count())
 	if account.Player != nil {
 		res.CurTableNo = account.Player.GameTable.TableNo
 	}
@@ -109,7 +112,7 @@ func HandleReqLobbyView(account *session.NetAccount, _ *api.ReqLobbyView) (proto
 
 	// 遍历 store tables 转换为视图层结构体
 	idx := 0
-	store.LobbyTables.ForEach(func(k string, t *game.Table) {
+	game.LobbyTables.ForEach(func(k string, t *game.Table) {
 		table := &api.LobbyTable{TableNo: t.TableNo, PlayerNum: t.PlayerNum, RobotNum: t.RobotNum}
 		table.Players = make([]*api.LobbyPlayer, t.PlayerNum+t.RobotNum)
 
@@ -150,7 +153,7 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 	if account.Player != nil {
 		return &api.ResFail{Msg: fmt.Sprintf("当前已加入#%d牌桌", account.Player.GameTable.TableNo)}, nil
 	}
-	table := store.LobbyTables.Get(msg.TableNo)
+	table := game.LobbyTables.Get(msg.TableNo)
 	if table == nil {
 		return &api.ResFail{Msg: "牌桌不存在"}, nil
 	}
@@ -314,19 +317,19 @@ func HandleReqCancelReady(player *game.Player, _ *api.ReqCancelReady) (proto.Mes
 func HandleReqDismissGameTable(player *game.Player, _ *api.ReqDismissGameTable) (proto.Message, error) {
 	player.GameTable.Lock.Lock()
 	defer player.GameTable.Lock.Unlock()
-	if !collect.In(player.GameTable.Stage, 1, 7) {
+	if collect.NotIn(player.GameTable.Stage, 1, 7) {
 		return &api.ResFail{Msg: fmt.Sprintf("#%d,牌局进行中", player.GameTable.Stage)}, nil
 	}
 	player.GameTable.Stage = 9
-	store.LobbyTables.Delete(player.GameTable.TableNo)
+	game.LobbyTables.Delete(player.GameTable.TableNo)
 	// 通知所有玩家，解除账号绑定，结算玩家金额
 	for i, p := range player.GameTable.Players {
 		if p == nil {
 			continue
 		}
 		account := store.NetAccounts.Get(p.Id)
-		account.IncrementBalance(p.Chip)
-		account.Player = nil
+		account.SettlePlayerChip()
+
 		player.GameTable.Players[i] = nil
 		if p.Id != player.Id {
 			p.Client.Write(&api.ResDismissGameTable{})
@@ -463,9 +466,15 @@ func HandleReqBetting(player *game.Player, msg *api.ReqBetting) (proto.Message, 
 	// 判断回合是否结束
 	if table.PlayerBetting.IsRoundOver(player, table.LastPosBetOp) {
 		// 开启下一轮
-		err := table.RoundOver()
+		finished, err := table.RoundOver()
 		if err != nil {
 			return &api.ResFail{Code: 500, Msg: err.Error()}, nil
+		}
+		if finished {
+			delayer.GameDelayer.Delay(time.Second*5, func() {
+				// 该局牌结束事件
+				event.GameRoundEndWatcher.Publish(table.TableNo, true)
+			})
 		}
 		return res, nil
 	}
