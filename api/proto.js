@@ -5303,6 +5303,7 @@ export const api = $root.api = (() => {
          * @property {number|null} [chip] TablePlayer chip
          * @property {number|null} [status] TablePlayer status
          * @property {boolean|null} [master] TablePlayer master
+         * @property {number|null} [roundBetTotal] TablePlayer roundBetTotal
          * @property {number|null} [roundBetTimes] TablePlayer roundBetTimes
          * @property {number|null} [totalBetChip] TablePlayer totalBetChip
          * @property {api.IHandType|null} [handType] TablePlayer handType
@@ -5383,6 +5384,14 @@ export const api = $root.api = (() => {
         TablePlayer.prototype.master = false;
 
         /**
+         * TablePlayer roundBetTotal.
+         * @member {number} roundBetTotal
+         * @memberof api.TablePlayer
+         * @instance
+         */
+        TablePlayer.prototype.roundBetTotal = 0;
+
+        /**
          * TablePlayer roundBetTimes.
          * @member {number} roundBetTimes
          * @memberof api.TablePlayer
@@ -5460,6 +5469,8 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 6, wireType 0 =*/48).int32(message.status);
             if (message.master != null && Object.hasOwnProperty.call(message, "master"))
                 writer.uint32(/* id 8, wireType 0 =*/64).bool(message.master);
+            if (message.roundBetTotal != null && Object.hasOwnProperty.call(message, "roundBetTotal"))
+                writer.uint32(/* id 9, wireType 0 =*/72).int32(message.roundBetTotal);
             if (message.roundBetTimes != null && Object.hasOwnProperty.call(message, "roundBetTimes"))
                 writer.uint32(/* id 11, wireType 0 =*/88).int32(message.roundBetTimes);
             if (message.handType != null && Object.hasOwnProperty.call(message, "handType"))
@@ -5531,6 +5542,10 @@ export const api = $root.api = (() => {
                     }
                 case 8: {
                         message.master = reader.bool();
+                        break;
+                    }
+                case 9: {
+                        message.roundBetTotal = reader.int32();
                         break;
                     }
                 case 11: {
@@ -5611,6 +5626,9 @@ export const api = $root.api = (() => {
             if (message.master != null && message.hasOwnProperty("master"))
                 if (typeof message.master !== "boolean")
                     return "master: boolean expected";
+            if (message.roundBetTotal != null && message.hasOwnProperty("roundBetTotal"))
+                if (!$util.isInteger(message.roundBetTotal))
+                    return "roundBetTotal: integer expected";
             if (message.roundBetTimes != null && message.hasOwnProperty("roundBetTimes"))
                 if (!$util.isInteger(message.roundBetTimes))
                     return "roundBetTimes: integer expected";
@@ -5672,6 +5690,8 @@ export const api = $root.api = (() => {
                 message.status = object.status | 0;
             if (object.master != null)
                 message.master = Boolean(object.master);
+            if (object.roundBetTotal != null)
+                message.roundBetTotal = object.roundBetTotal | 0;
             if (object.roundBetTimes != null)
                 message.roundBetTimes = object.roundBetTimes | 0;
             if (object.totalBetChip != null)
@@ -5726,6 +5746,7 @@ export const api = $root.api = (() => {
                 object.chip = 0;
                 object.status = 0;
                 object.master = false;
+                object.roundBetTotal = 0;
                 object.roundBetTimes = 0;
                 object.handType = null;
                 object.totalBetChip = 0;
@@ -5748,6 +5769,8 @@ export const api = $root.api = (() => {
                 object.status = message.status;
             if (message.master != null && message.hasOwnProperty("master"))
                 object.master = message.master;
+            if (message.roundBetTotal != null && message.hasOwnProperty("roundBetTotal"))
+                object.roundBetTotal = message.roundBetTotal;
             if (message.roundBetTimes != null && message.hasOwnProperty("roundBetTimes"))
                 object.roundBetTimes = message.roundBetTimes;
             if (message.handType != null && message.hasOwnProperty("handType"))

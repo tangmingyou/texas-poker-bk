@@ -160,7 +160,7 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 	table.Lock.Lock()
 	defer table.Lock.Unlock()
 
-	if !collect.In(table.Stage, 1, 7) {
+	if collect.NotIn(table.Stage, 1, 7) {
 		return &api.ResFail{Msg: "牌桌正在进行中"}, nil
 	}
 	if table.PlayerCount() == table.PlayerNum {
@@ -236,7 +236,7 @@ func HandleReqLeaveTable(player *game.Player, _ *api.ReqLeaveTable) (proto.Messa
 	if !collect.In(player.GameTable.Stage, 1, 7, 9) {
 		return &api.ResFail{Msg: "牌局进行中不能退出"}, nil
 	}
-	if player.Status != 1 {
+	if collect.NotIn(player.Status, 1, 8) {
 		return &api.ResFail{Msg: "您已准备不能退出"}, nil
 	}
 	if player.GameTable.MasterId == player.Id {

@@ -246,12 +246,17 @@ func (t *Table) BuildResGameFullStatus() *api.ResGameFullStatus {
 		if p.Status == 6 {
 			betSecondLimit = int32(p.BetTimeLimit.Sub(now).Milliseconds() / 1000)
 		}
+		var roundBetTotal int32 = 0
+		if t.RoundBetTotal != nil {
+			roundBetTotal = t.RoundBetTotal[p.Id]
+		}
 		player := &api.TablePlayer{
 			Robot:         false,
 			Id:            p.Id,
 			Username:      p.Username,
 			Avatar:        p.Avatar,
 			Chip:          p.Chip,
+			RoundBetTotal: roundBetTotal,
 			Status:        p.Status,
 			Master:        t.MasterId == p.Id,
 			RoundBetTimes: p.RoundBetTimes,
