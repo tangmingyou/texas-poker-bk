@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"runtime/debug"
 	"texas-poker-bk/api"
 	"texas-poker-bk/internal/conf"
 	"texas-poker-bk/internal/logic/event"
@@ -79,6 +80,8 @@ func handleNetClient(client *session.NetClient) {
 		// 捕获其他错误
 		if r := recover(); r != nil {
 			fmt.Println("recover error: ", r)
+			// 输出堆栈信息
+			fmt.Println(string(debug.Stack()))
 			client.Write(&api.ResFail{Code: 500, Msg: r.(error).Error()})
 		}
 	}()
@@ -136,7 +139,12 @@ func handleNetClient(client *session.NetClient) {
 			client.Close("api body unmarshal fail! " + err.Error())
 			return
 		}
-		log.Println(fmt.Sprintf("ws msg: %T{%v}", msg, msg))
+
+		switch msg.(type) {
+		case *api.Ping:
+		default:
+			log.Println(fmt.Sprintf("ws msg: %T{%v}", msg, msg))
+		}
 
 		// TODO queue channel -> msg -> handler
 		var called bool

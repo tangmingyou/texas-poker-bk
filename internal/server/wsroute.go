@@ -43,6 +43,8 @@ func init() {
 	HandleNetPlayerMsg(&api.ReqGameStart{}, logic.HandleReqGameStart)
 	// 筹码下注
 	HandleNetPlayerMsg(&api.ReqBetting{}, logic.HandleReqBetting)
+	// 查看账户余额
+	HandleNetAccountMsg(&api.ReqAccountBalance{}, logic.HandleReqAccountBalance)
 }
 
 func checkExistsTypeHandler(op int32, err error) {

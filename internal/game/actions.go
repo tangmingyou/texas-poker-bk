@@ -273,7 +273,7 @@ func SetNextPlayer4Limited(roundStart bool, t *Table, current *Player) {
 	if nextP.BetMax > nextP.BetMin { // 加注
 		nextP.BetOpts = append(nextP.BetOpts, 2)
 	}
-	// TODO 下注倒计时
+	// 下注倒计时
 	nextP.BetTimeLimit = time.Now().Add(120 * time.Second)
 	nextP.AutoBetDelayCanceler = nextP.GameTable.RefAutoBettingDelayQueue.Delay(120*time.Second, nextP.Id)
 

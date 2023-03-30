@@ -1434,6 +1434,7 @@ export const api = $root.api = (() => {
          * @property {number|Long|null} [id] ResIdentity id
          * @property {string|null} [username] ResIdentity username
          * @property {string|null} [avatar] ResIdentity avatar
+         * @property {number|null} [balance] ResIdentity balance
          */
 
         /**
@@ -1476,6 +1477,14 @@ export const api = $root.api = (() => {
         ResIdentity.prototype.avatar = "";
 
         /**
+         * ResIdentity balance.
+         * @member {number} balance
+         * @memberof api.ResIdentity
+         * @instance
+         */
+        ResIdentity.prototype.balance = 0;
+
+        /**
          * Creates a new ResIdentity instance using the specified properties.
          * @function create
          * @memberof api.ResIdentity
@@ -1505,6 +1514,8 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 4, wireType 2 =*/34).string(message.username);
             if (message.avatar != null && Object.hasOwnProperty.call(message, "avatar"))
                 writer.uint32(/* id 5, wireType 2 =*/42).string(message.avatar);
+            if (message.balance != null && Object.hasOwnProperty.call(message, "balance"))
+                writer.uint32(/* id 6, wireType 0 =*/48).int32(message.balance);
             return writer;
         };
 
@@ -1551,6 +1562,10 @@ export const api = $root.api = (() => {
                         message.avatar = reader.string();
                         break;
                     }
+                case 6: {
+                        message.balance = reader.int32();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -1595,6 +1610,9 @@ export const api = $root.api = (() => {
             if (message.avatar != null && message.hasOwnProperty("avatar"))
                 if (!$util.isString(message.avatar))
                     return "avatar: string expected";
+            if (message.balance != null && message.hasOwnProperty("balance"))
+                if (!$util.isInteger(message.balance))
+                    return "balance: integer expected";
             return null;
         };
 
@@ -1623,6 +1641,8 @@ export const api = $root.api = (() => {
                 message.username = String(object.username);
             if (object.avatar != null)
                 message.avatar = String(object.avatar);
+            if (object.balance != null)
+                message.balance = object.balance | 0;
             return message;
         };
 
@@ -1647,6 +1667,7 @@ export const api = $root.api = (() => {
                     object.id = options.longs === String ? "0" : 0;
                 object.username = "";
                 object.avatar = "";
+                object.balance = 0;
             }
             if (message.id != null && message.hasOwnProperty("id"))
                 if (typeof message.id === "number")
@@ -1657,6 +1678,8 @@ export const api = $root.api = (() => {
                 object.username = message.username;
             if (message.avatar != null && message.hasOwnProperty("avatar"))
                 object.avatar = message.avatar;
+            if (message.balance != null && message.hasOwnProperty("balance"))
+                object.balance = message.balance;
             return object;
         };
 
@@ -8354,6 +8377,384 @@ export const api = $root.api = (() => {
         };
 
         return ResGameNextRound;
+    })();
+
+    api.ReqAccountBalance = (function() {
+
+        /**
+         * Properties of a ReqAccountBalance.
+         * @memberof api
+         * @interface IReqAccountBalance
+         */
+
+        /**
+         * Constructs a new ReqAccountBalance.
+         * @memberof api
+         * @classdesc Represents a ReqAccountBalance.
+         * @implements IReqAccountBalance
+         * @constructor
+         * @param {api.IReqAccountBalance=} [properties] Properties to set
+         */
+        function ReqAccountBalance(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ReqAccountBalance instance using the specified properties.
+         * @function create
+         * @memberof api.ReqAccountBalance
+         * @static
+         * @param {api.IReqAccountBalance=} [properties] Properties to set
+         * @returns {api.ReqAccountBalance} ReqAccountBalance instance
+         */
+        ReqAccountBalance.create = function create(properties) {
+            return new ReqAccountBalance(properties);
+        };
+
+        /**
+         * Encodes the specified ReqAccountBalance message. Does not implicitly {@link api.ReqAccountBalance.verify|verify} messages.
+         * @function encode
+         * @memberof api.ReqAccountBalance
+         * @static
+         * @param {api.IReqAccountBalance} message ReqAccountBalance message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqAccountBalance.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ReqAccountBalance message, length delimited. Does not implicitly {@link api.ReqAccountBalance.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ReqAccountBalance
+         * @static
+         * @param {api.IReqAccountBalance} message ReqAccountBalance message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ReqAccountBalance.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ReqAccountBalance message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ReqAccountBalance
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ReqAccountBalance} ReqAccountBalance
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqAccountBalance.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ReqAccountBalance();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ReqAccountBalance message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ReqAccountBalance
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ReqAccountBalance} ReqAccountBalance
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ReqAccountBalance.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ReqAccountBalance message.
+         * @function verify
+         * @memberof api.ReqAccountBalance
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ReqAccountBalance.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a ReqAccountBalance message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ReqAccountBalance
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ReqAccountBalance} ReqAccountBalance
+         */
+        ReqAccountBalance.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ReqAccountBalance)
+                return object;
+            return new $root.api.ReqAccountBalance();
+        };
+
+        /**
+         * Creates a plain object from a ReqAccountBalance message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ReqAccountBalance
+         * @static
+         * @param {api.ReqAccountBalance} message ReqAccountBalance
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ReqAccountBalance.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ReqAccountBalance to JSON.
+         * @function toJSON
+         * @memberof api.ReqAccountBalance
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ReqAccountBalance.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ReqAccountBalance
+         * @function getTypeUrl
+         * @memberof api.ReqAccountBalance
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ReqAccountBalance.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ReqAccountBalance";
+        };
+
+        return ReqAccountBalance;
+    })();
+
+    api.ResAccountBalance = (function() {
+
+        /**
+         * Properties of a ResAccountBalance.
+         * @memberof api
+         * @interface IResAccountBalance
+         * @property {number|null} [balance] ResAccountBalance balance
+         */
+
+        /**
+         * Constructs a new ResAccountBalance.
+         * @memberof api
+         * @classdesc Represents a ResAccountBalance.
+         * @implements IResAccountBalance
+         * @constructor
+         * @param {api.IResAccountBalance=} [properties] Properties to set
+         */
+        function ResAccountBalance(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * ResAccountBalance balance.
+         * @member {number} balance
+         * @memberof api.ResAccountBalance
+         * @instance
+         */
+        ResAccountBalance.prototype.balance = 0;
+
+        /**
+         * Creates a new ResAccountBalance instance using the specified properties.
+         * @function create
+         * @memberof api.ResAccountBalance
+         * @static
+         * @param {api.IResAccountBalance=} [properties] Properties to set
+         * @returns {api.ResAccountBalance} ResAccountBalance instance
+         */
+        ResAccountBalance.create = function create(properties) {
+            return new ResAccountBalance(properties);
+        };
+
+        /**
+         * Encodes the specified ResAccountBalance message. Does not implicitly {@link api.ResAccountBalance.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResAccountBalance
+         * @static
+         * @param {api.IResAccountBalance} message ResAccountBalance message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResAccountBalance.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.balance != null && Object.hasOwnProperty.call(message, "balance"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.balance);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResAccountBalance message, length delimited. Does not implicitly {@link api.ResAccountBalance.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResAccountBalance
+         * @static
+         * @param {api.IResAccountBalance} message ResAccountBalance message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResAccountBalance.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResAccountBalance message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResAccountBalance
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResAccountBalance} ResAccountBalance
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResAccountBalance.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResAccountBalance();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1: {
+                        message.balance = reader.int32();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResAccountBalance message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResAccountBalance
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResAccountBalance} ResAccountBalance
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResAccountBalance.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResAccountBalance message.
+         * @function verify
+         * @memberof api.ResAccountBalance
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResAccountBalance.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.balance != null && message.hasOwnProperty("balance"))
+                if (!$util.isInteger(message.balance))
+                    return "balance: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResAccountBalance message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResAccountBalance
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResAccountBalance} ResAccountBalance
+         */
+        ResAccountBalance.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResAccountBalance)
+                return object;
+            let message = new $root.api.ResAccountBalance();
+            if (object.balance != null)
+                message.balance = object.balance | 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a ResAccountBalance message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResAccountBalance
+         * @static
+         * @param {api.ResAccountBalance} message ResAccountBalance
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResAccountBalance.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.balance = 0;
+            if (message.balance != null && message.hasOwnProperty("balance"))
+                object.balance = message.balance;
+            return object;
+        };
+
+        /**
+         * Converts this ResAccountBalance to JSON.
+         * @function toJSON
+         * @memberof api.ResAccountBalance
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResAccountBalance.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResAccountBalance
+         * @function getTypeUrl
+         * @memberof api.ResAccountBalance
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResAccountBalance.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResAccountBalance";
+        };
+
+        return ResAccountBalance;
     })();
 
     return api;

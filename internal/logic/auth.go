@@ -227,39 +227,44 @@ func HandleReqIdentity(client *session.NetClient, msg *api.ReqIdentity) (proto.M
 	if subject.TokenVersion != store.TokenVersions.Get(subject.Id) {
 		return &api.ResFail{Code: 401, Msg: "登录已过期"}, nil
 	}
-
-	account := &session.NetAccount{
-		Id:          subject.Id,
-		UserName:    subject.Name,
-		Avatar:      subject.Avatar,
-		Client:      client,
-		Balance:     1000,
-		BalanceLock: &sync.RWMutex{},
-		Lock:        &sync.Mutex{},
+	dbUser := &entity.User{Id: subject.Id}
+	row := dao.UserDao.DB.First(dbUser).RowsAffected
+	if row == 0 {
+		return &api.ResFail{Code: 401, Msg: "账户不存在"}, nil
 	}
-	// TODO 查询 DB 账户余额，处理断线、重连问题
-	current := store.NetAccounts.Get(account.Id)
-	if current == nil {
+	account := store.NetAccounts.Get(subject.Id)
+	if account == nil {
+		// 查询DB 账户情况
+		account = &session.NetAccount{
+			Id:          subject.Id,
+			UserName:    dbUser.Username,
+			Avatar:      dbUser.Avatar,
+			Balance:     dbUser.Balance,
+			Client:      client,
+			BalanceLock: &sync.RWMutex{},
+			Lock:        &sync.Mutex{},
+		}
+
 		store.NetAccounts.SetDefault(account.Id, account)
 	} else {
-		// 掉线重连的用户, TODO 重复登录的用户
-		current.Client.Write(&api.ResFail{Code: 403, Msg: "该账号在其他地方登录，您已下线"})
-		current.Client = account.Client
-		if current.Player != nil {
-			current.Player.Client = account.Client
+		// 掉线重连的用户, 重复登录的用户
+		account.Client.Write(&api.ResFail{Code: 403, Msg: "该账号在其他地方登录，您已下线"})
+		account.Client = client
+		if account.Player != nil {
+			account.Player.Client = client
 		}
-		account = current
 	}
 	client.Account = account
 
 	// 在线通知消息
-	event.OnlineWatcher.Publish(account.Id, true)
+	event.OnlineWatcher.Publish(subject.Id, true)
 
 	// response
-	res := &api.ResIdentity{Id: subject.Id, Username: subject.Name, Avatar: subject.Avatar}
+	res := &api.ResIdentity{
+		Id:       subject.Id,
+		Username: account.UserName,
+		Avatar:   account.Avatar,
+		Balance:  account.Balance,
+	}
 	return res, nil
-}
-
-func scheduleAccountPing() {
-
 }

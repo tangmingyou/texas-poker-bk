@@ -53,6 +53,9 @@ var protoInstances = []proto.Message{
 	&ResCalcWinnerChip{},
 
 	&ResGameEndSettle{},
+
+	&ReqAccountBalance{},
+	&ResAccountBalance{},
 }
 
 var (

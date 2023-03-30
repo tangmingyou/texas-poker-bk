@@ -30,9 +30,11 @@ func handleOfflineDelay(accountId int64, now time.Time) {
 	}
 	// 牌局未在进行中直接移除玩家并下线
 	if collect.In(account.Player.GameTable.Stage, 1, 9) {
-		found, _ := account.Player.GameTable.RemovePlayer(account.Id)
+		table := account.Player.GameTable
+		found, _ := table.RemovePlayer(account.Id)
 		if found {
 			account.SettlePlayerChip()
+			table.NoticeGameFullStatus()
 		}
 		removeMemoryAccount(accountId)
 		return
@@ -46,9 +48,11 @@ func handleOfflineDelay(accountId int64, now time.Time) {
 				return
 			}
 			// 从牌桌移除玩家
-			found, _ := account.Player.GameTable.RemovePlayer(account.Id)
+			table := account.Player.GameTable
+			found, _ := table.RemovePlayer(account.Id)
 			if found {
 				account.SettlePlayerChip()
+				table.NoticeGameFullStatus()
 			}
 			removeMemoryAccount(account.Id)
 		})

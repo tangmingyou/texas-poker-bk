@@ -3,6 +3,7 @@ package session
 import (
 	"sync"
 	"texas-poker-bk/internal/game"
+	"texas-poker-bk/internal/logic/balance"
 	"texas-poker-bk/tool/async"
 )
 
@@ -24,7 +25,9 @@ func (account *NetAccount) DecrementBalance(amount int32) int32 {
 	account.BalanceLock.Lock()
 	defer account.BalanceLock.Unlock()
 	account.Balance -= amount
-	// TODO 同步到 DB
+
+	// 账户金额持久化
+	balance.AsyncPersist.Persist(account.Id, account.Balance)
 	return account.Balance
 }
 
@@ -32,6 +35,9 @@ func (account *NetAccount) IncrementBalance(amount int32) int32 {
 	account.BalanceLock.Lock()
 	defer account.BalanceLock.Unlock()
 	account.Balance += amount
+
+	// 账户金额持久化
+	balance.AsyncPersist.Persist(account.Id, account.Balance)
 	return account.Balance
 }
 
@@ -43,7 +49,7 @@ func (account *NetAccount) GetBalance() int32 {
 
 func (account *NetAccount) SettlePlayerChip() {
 	// 返还玩家账户金额
-	account.IncrementBalance(account.Player.Chip) // 牌桌筹码返还到账户 TODO 持久化
+	account.IncrementBalance(account.Player.Chip) // 牌桌筹码返还到账户
 	account.Player.Chip = 0
 	account.Player = nil // 解除账户绑定
 }

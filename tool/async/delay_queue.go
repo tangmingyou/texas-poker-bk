@@ -36,7 +36,7 @@ const (
 // DelayQueue key: int64(64bit) = 1(0固定值)+41(ms)+22(index)
 type DelayQueue[T any] struct {
 	taskQueueMap  *treemap.Map
-	lock          *sync.RWMutex
+	lock          *sync.Mutex
 	offsetMs      int64
 	checkInterval time.Duration
 	handler       func(data T, now time.Time) (nextData T) // nextData用作scheduler下次执行时参数
@@ -47,7 +47,7 @@ type DelayQueue[T any] struct {
 func NewDelayQueue[T any](checkInterval time.Duration, buffer int, handler func(T, time.Time)) *DelayQueue[T] {
 	q := &DelayQueue[T]{}
 	q.taskQueueMap = treemap.NewWithIntComparator()
-	q.lock = &sync.RWMutex{}
+	q.lock = &sync.Mutex{}
 	q.offsetMs = time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC).UnixMilli()
 	q.checkInterval = checkInterval
 	q.handler = func(data T, now time.Time) (zero T) {

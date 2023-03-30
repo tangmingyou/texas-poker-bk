@@ -46,6 +46,7 @@ message ResIdentity {
   int64 id = 3;
   string username = 4;
   string avatar = 5;
+  int32 balance = 6;
 }
 
 // 大厅消息 ============= begin
@@ -221,4 +222,12 @@ message ResCalcWinnerChip {
 // 回合数变化时响应消息，前端等发牌动画结束后放开操作
 message ResGameNextRound {
   int32 round = 1;
+}
+
+message ReqAccountBalance {
+
+}
+
+message ResAccountBalance {
+  int32 balance = 1;
 }
