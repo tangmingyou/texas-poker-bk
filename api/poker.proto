@@ -59,6 +59,11 @@ message ResLobbyView {
   repeated LobbyTable tables = 3;
 }
 
+// 有新桌面创建通知消息
+message ResLobbyFresh {
+  int32 tableNo = 1;
+}
+
 message LobbyTable {
   int32 tableNo = 1; // 游戏编号
   int32 playerNum = 2;  // 限定玩家数量

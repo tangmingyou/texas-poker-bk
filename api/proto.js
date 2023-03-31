@@ -2135,6 +2135,209 @@ export const api = $root.api = (() => {
         return ResLobbyView;
     })();
 
+    api.ResLobbyFresh = (function() {
+
+        /**
+         * Properties of a ResLobbyFresh.
+         * @memberof api
+         * @interface IResLobbyFresh
+         * @property {number|null} [tableNo] ResLobbyFresh tableNo
+         */
+
+        /**
+         * Constructs a new ResLobbyFresh.
+         * @memberof api
+         * @classdesc Represents a ResLobbyFresh.
+         * @implements IResLobbyFresh
+         * @constructor
+         * @param {api.IResLobbyFresh=} [properties] Properties to set
+         */
+        function ResLobbyFresh(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * ResLobbyFresh tableNo.
+         * @member {number} tableNo
+         * @memberof api.ResLobbyFresh
+         * @instance
+         */
+        ResLobbyFresh.prototype.tableNo = 0;
+
+        /**
+         * Creates a new ResLobbyFresh instance using the specified properties.
+         * @function create
+         * @memberof api.ResLobbyFresh
+         * @static
+         * @param {api.IResLobbyFresh=} [properties] Properties to set
+         * @returns {api.ResLobbyFresh} ResLobbyFresh instance
+         */
+        ResLobbyFresh.create = function create(properties) {
+            return new ResLobbyFresh(properties);
+        };
+
+        /**
+         * Encodes the specified ResLobbyFresh message. Does not implicitly {@link api.ResLobbyFresh.verify|verify} messages.
+         * @function encode
+         * @memberof api.ResLobbyFresh
+         * @static
+         * @param {api.IResLobbyFresh} message ResLobbyFresh message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResLobbyFresh.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.tableNo != null && Object.hasOwnProperty.call(message, "tableNo"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.tableNo);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ResLobbyFresh message, length delimited. Does not implicitly {@link api.ResLobbyFresh.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof api.ResLobbyFresh
+         * @static
+         * @param {api.IResLobbyFresh} message ResLobbyFresh message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ResLobbyFresh.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a ResLobbyFresh message from the specified reader or buffer.
+         * @function decode
+         * @memberof api.ResLobbyFresh
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {api.ResLobbyFresh} ResLobbyFresh
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResLobbyFresh.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.api.ResLobbyFresh();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1: {
+                        message.tableNo = reader.int32();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a ResLobbyFresh message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof api.ResLobbyFresh
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {api.ResLobbyFresh} ResLobbyFresh
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ResLobbyFresh.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a ResLobbyFresh message.
+         * @function verify
+         * @memberof api.ResLobbyFresh
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ResLobbyFresh.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.tableNo != null && message.hasOwnProperty("tableNo"))
+                if (!$util.isInteger(message.tableNo))
+                    return "tableNo: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a ResLobbyFresh message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof api.ResLobbyFresh
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {api.ResLobbyFresh} ResLobbyFresh
+         */
+        ResLobbyFresh.fromObject = function fromObject(object) {
+            if (object instanceof $root.api.ResLobbyFresh)
+                return object;
+            let message = new $root.api.ResLobbyFresh();
+            if (object.tableNo != null)
+                message.tableNo = object.tableNo | 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a ResLobbyFresh message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof api.ResLobbyFresh
+         * @static
+         * @param {api.ResLobbyFresh} message ResLobbyFresh
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ResLobbyFresh.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.tableNo = 0;
+            if (message.tableNo != null && message.hasOwnProperty("tableNo"))
+                object.tableNo = message.tableNo;
+            return object;
+        };
+
+        /**
+         * Converts this ResLobbyFresh to JSON.
+         * @function toJSON
+         * @memberof api.ResLobbyFresh
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ResLobbyFresh.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ResLobbyFresh
+         * @function getTypeUrl
+         * @memberof api.ResLobbyFresh
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ResLobbyFresh.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/api.ResLobbyFresh";
+        };
+
+        return ResLobbyFresh;
+    })();
+
     api.LobbyTable = (function() {
 
         /**

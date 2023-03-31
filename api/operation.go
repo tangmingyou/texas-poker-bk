@@ -56,6 +56,8 @@ var protoInstances = []proto.Message{
 
 	&ReqAccountBalance{},
 	&ResAccountBalance{},
+
+	&ResLobbyFresh{},
 }
 
 var (

@@ -91,10 +91,19 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		table.Robots[i] = &game.Robot{}
 	}
 	game.LobbyTables.SetDefault(table.TableNo, table)
-	//err := store.SaveNewTable(table)
-	//if err != nil {
-	//	return &api.ResFail{Msg: err.Error()}, nil
-	//}
+
+	// 通知在大厅的用户拉取最新桌面情况
+	delayer.GameDelayer.Delay(time.Second, func() {
+		times := 0
+		store.NetAccounts.ForEach(func(id string, account *session.NetAccount) {
+			if times < 100 { // 暂只通知100个用户
+				if account.Client.IsOnline() && account.Player == nil {
+					account.Client.Write(&api.ResLobbyFresh{TableNo: table.TableNo})
+					times++
+				}
+			}
+		})
+	})
 	return &api.ResCreateTable{TableNo: table.TableNo}, nil
 }
 
