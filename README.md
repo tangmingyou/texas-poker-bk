@@ -1,34 +1,39 @@
-proto 编译 golang
-```shell
-go install github.com/golang/protobuf/protoc-gen-go 
-cmd/protoc-3.19.4/bin/protoc.exe --go_out=./ api/game.api
-```
+## 德州扑克后端，仅供娱乐技术交流，禁止赌博
 
-proto 编译 js
-```shell
-npm install -g protobufjs-cli
-# js
-pbjs -t static-module -w api/jsproto -o proto.js api/*.proto
-# json
-pbjs -t json api/*.proto > jsproto.json
-```
+### [H5前端工程](https://github.com/tangmingyou/texas-poker-front)
 
+
+
+![](doc/img/texas-ui.png)
+
+
+
+![](doc/img/texas-help.gif)
+
+
+
+
+
+### 参考
+
+[德州扑克Wiki](https://zh.wikipedia.org/zh-hans/%E5%BE%B7%E5%B7%9E%E6%92%B2%E5%85%8B)
 
 [网易德州扑克规则](http://sports.163.com/special/poker_rule/?ivk_sa=1025883k)
 
-cd target
-nohup ./texas -conf=config.toml 2>&1 > texas.log &
-pkill -f ./texas
 
 
-TODO List
+### Todo List
+
 - [x] 牌局结束后，清理离线玩家
 - [x] 下注页面倒计时、超时自动操作
-- [ ] 前端lobby页面显示内容优化
-- [x] lobby界面用户创建新桌面时通知消息，前端拉取新大厅牌桌列表
-- [ ] header头部编辑、退出、账户金额，流水查询
+- [x] 创建新桌面时主动通知lobby界面刷新消息，自动拉取最新牌桌列表
+- [ ] 无限注模式
+- [ ] 流水记录查询
 - [ ] 日志优化
 - [ ] 验证码
-- [ ] 性能测试、系统调优
-  - [ ] 大厅桌面变化日志版本记录
+- [ ] 性能测试
+- [ ] 调优
+  - [ ] 大厅桌面变化日志版本拉取
   - [ ] 注册同时生成大厅tiny头像
+  - [ ] 客户端牌桌消息全量和增量拉取
+
