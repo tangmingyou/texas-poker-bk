@@ -66,9 +66,15 @@ message ResLobbyFresh {
 
 message LobbyTable {
   int32 tableNo = 1; // 游戏编号
-  int32 playerNum = 2;  // 限定玩家数量
-  int32 robotNum = 3;  // 限定机器人数量
+  int32 playerNum = 2;
+//  int32 robotNum = 3;  // 限定机器人数量
   repeated LobbyPlayer players = 4; // 当前玩家机器人列表
+
+  int32 playerLimit = 5;  // 限定玩家数量
+  int32 texasType = 6;
+  int32 bigBland = 7;
+  int32 limitInAmount = 8;
+  int32 stage = 9;
 }
 
 message LobbyPlayer {

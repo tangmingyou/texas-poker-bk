@@ -2346,8 +2346,12 @@ export const api = $root.api = (() => {
          * @interface ILobbyTable
          * @property {number|null} [tableNo] LobbyTable tableNo
          * @property {number|null} [playerNum] LobbyTable playerNum
-         * @property {number|null} [robotNum] LobbyTable robotNum
          * @property {Array.<api.ILobbyPlayer>|null} [players] LobbyTable players
+         * @property {number|null} [playerLimit] LobbyTable playerLimit
+         * @property {number|null} [texasType] LobbyTable texasType
+         * @property {number|null} [bigBland] LobbyTable bigBland
+         * @property {number|null} [limitInAmount] LobbyTable limitInAmount
+         * @property {number|null} [stage] LobbyTable stage
          */
 
         /**
@@ -2383,20 +2387,52 @@ export const api = $root.api = (() => {
         LobbyTable.prototype.playerNum = 0;
 
         /**
-         * LobbyTable robotNum.
-         * @member {number} robotNum
-         * @memberof api.LobbyTable
-         * @instance
-         */
-        LobbyTable.prototype.robotNum = 0;
-
-        /**
          * LobbyTable players.
          * @member {Array.<api.ILobbyPlayer>} players
          * @memberof api.LobbyTable
          * @instance
          */
         LobbyTable.prototype.players = $util.emptyArray;
+
+        /**
+         * LobbyTable playerLimit.
+         * @member {number} playerLimit
+         * @memberof api.LobbyTable
+         * @instance
+         */
+        LobbyTable.prototype.playerLimit = 0;
+
+        /**
+         * LobbyTable texasType.
+         * @member {number} texasType
+         * @memberof api.LobbyTable
+         * @instance
+         */
+        LobbyTable.prototype.texasType = 0;
+
+        /**
+         * LobbyTable bigBland.
+         * @member {number} bigBland
+         * @memberof api.LobbyTable
+         * @instance
+         */
+        LobbyTable.prototype.bigBland = 0;
+
+        /**
+         * LobbyTable limitInAmount.
+         * @member {number} limitInAmount
+         * @memberof api.LobbyTable
+         * @instance
+         */
+        LobbyTable.prototype.limitInAmount = 0;
+
+        /**
+         * LobbyTable stage.
+         * @member {number} stage
+         * @memberof api.LobbyTable
+         * @instance
+         */
+        LobbyTable.prototype.stage = 0;
 
         /**
          * Creates a new LobbyTable instance using the specified properties.
@@ -2426,11 +2462,19 @@ export const api = $root.api = (() => {
                 writer.uint32(/* id 1, wireType 0 =*/8).int32(message.tableNo);
             if (message.playerNum != null && Object.hasOwnProperty.call(message, "playerNum"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.playerNum);
-            if (message.robotNum != null && Object.hasOwnProperty.call(message, "robotNum"))
-                writer.uint32(/* id 3, wireType 0 =*/24).int32(message.robotNum);
             if (message.players != null && message.players.length)
                 for (let i = 0; i < message.players.length; ++i)
                     $root.api.LobbyPlayer.encode(message.players[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+            if (message.playerLimit != null && Object.hasOwnProperty.call(message, "playerLimit"))
+                writer.uint32(/* id 5, wireType 0 =*/40).int32(message.playerLimit);
+            if (message.texasType != null && Object.hasOwnProperty.call(message, "texasType"))
+                writer.uint32(/* id 6, wireType 0 =*/48).int32(message.texasType);
+            if (message.bigBland != null && Object.hasOwnProperty.call(message, "bigBland"))
+                writer.uint32(/* id 7, wireType 0 =*/56).int32(message.bigBland);
+            if (message.limitInAmount != null && Object.hasOwnProperty.call(message, "limitInAmount"))
+                writer.uint32(/* id 8, wireType 0 =*/64).int32(message.limitInAmount);
+            if (message.stage != null && Object.hasOwnProperty.call(message, "stage"))
+                writer.uint32(/* id 9, wireType 0 =*/72).int32(message.stage);
             return writer;
         };
 
@@ -2473,14 +2517,30 @@ export const api = $root.api = (() => {
                         message.playerNum = reader.int32();
                         break;
                     }
-                case 3: {
-                        message.robotNum = reader.int32();
-                        break;
-                    }
                 case 4: {
                         if (!(message.players && message.players.length))
                             message.players = [];
                         message.players.push($root.api.LobbyPlayer.decode(reader, reader.uint32()));
+                        break;
+                    }
+                case 5: {
+                        message.playerLimit = reader.int32();
+                        break;
+                    }
+                case 6: {
+                        message.texasType = reader.int32();
+                        break;
+                    }
+                case 7: {
+                        message.bigBland = reader.int32();
+                        break;
+                    }
+                case 8: {
+                        message.limitInAmount = reader.int32();
+                        break;
+                    }
+                case 9: {
+                        message.stage = reader.int32();
                         break;
                     }
                 default:
@@ -2524,9 +2584,6 @@ export const api = $root.api = (() => {
             if (message.playerNum != null && message.hasOwnProperty("playerNum"))
                 if (!$util.isInteger(message.playerNum))
                     return "playerNum: integer expected";
-            if (message.robotNum != null && message.hasOwnProperty("robotNum"))
-                if (!$util.isInteger(message.robotNum))
-                    return "robotNum: integer expected";
             if (message.players != null && message.hasOwnProperty("players")) {
                 if (!Array.isArray(message.players))
                     return "players: array expected";
@@ -2536,6 +2593,21 @@ export const api = $root.api = (() => {
                         return "players." + error;
                 }
             }
+            if (message.playerLimit != null && message.hasOwnProperty("playerLimit"))
+                if (!$util.isInteger(message.playerLimit))
+                    return "playerLimit: integer expected";
+            if (message.texasType != null && message.hasOwnProperty("texasType"))
+                if (!$util.isInteger(message.texasType))
+                    return "texasType: integer expected";
+            if (message.bigBland != null && message.hasOwnProperty("bigBland"))
+                if (!$util.isInteger(message.bigBland))
+                    return "bigBland: integer expected";
+            if (message.limitInAmount != null && message.hasOwnProperty("limitInAmount"))
+                if (!$util.isInteger(message.limitInAmount))
+                    return "limitInAmount: integer expected";
+            if (message.stage != null && message.hasOwnProperty("stage"))
+                if (!$util.isInteger(message.stage))
+                    return "stage: integer expected";
             return null;
         };
 
@@ -2555,8 +2627,6 @@ export const api = $root.api = (() => {
                 message.tableNo = object.tableNo | 0;
             if (object.playerNum != null)
                 message.playerNum = object.playerNum | 0;
-            if (object.robotNum != null)
-                message.robotNum = object.robotNum | 0;
             if (object.players) {
                 if (!Array.isArray(object.players))
                     throw TypeError(".api.LobbyTable.players: array expected");
@@ -2567,6 +2637,16 @@ export const api = $root.api = (() => {
                     message.players[i] = $root.api.LobbyPlayer.fromObject(object.players[i]);
                 }
             }
+            if (object.playerLimit != null)
+                message.playerLimit = object.playerLimit | 0;
+            if (object.texasType != null)
+                message.texasType = object.texasType | 0;
+            if (object.bigBland != null)
+                message.bigBland = object.bigBland | 0;
+            if (object.limitInAmount != null)
+                message.limitInAmount = object.limitInAmount | 0;
+            if (object.stage != null)
+                message.stage = object.stage | 0;
             return message;
         };
 
@@ -2588,19 +2668,31 @@ export const api = $root.api = (() => {
             if (options.defaults) {
                 object.tableNo = 0;
                 object.playerNum = 0;
-                object.robotNum = 0;
+                object.playerLimit = 0;
+                object.texasType = 0;
+                object.bigBland = 0;
+                object.limitInAmount = 0;
+                object.stage = 0;
             }
             if (message.tableNo != null && message.hasOwnProperty("tableNo"))
                 object.tableNo = message.tableNo;
             if (message.playerNum != null && message.hasOwnProperty("playerNum"))
                 object.playerNum = message.playerNum;
-            if (message.robotNum != null && message.hasOwnProperty("robotNum"))
-                object.robotNum = message.robotNum;
             if (message.players && message.players.length) {
                 object.players = [];
                 for (let j = 0; j < message.players.length; ++j)
                     object.players[j] = $root.api.LobbyPlayer.toObject(message.players[j], options);
             }
+            if (message.playerLimit != null && message.hasOwnProperty("playerLimit"))
+                object.playerLimit = message.playerLimit;
+            if (message.texasType != null && message.hasOwnProperty("texasType"))
+                object.texasType = message.texasType;
+            if (message.bigBland != null && message.hasOwnProperty("bigBland"))
+                object.bigBland = message.bigBland;
+            if (message.limitInAmount != null && message.hasOwnProperty("limitInAmount"))
+                object.limitInAmount = message.limitInAmount;
+            if (message.stage != null && message.hasOwnProperty("stage"))
+                object.stage = message.stage;
             return object;
         };
 

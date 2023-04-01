@@ -35,8 +35,8 @@ type Table struct {
 	Dealer      *Dealer  // 发牌员
 	PublicCards [5]*Card // 公共牌
 
-	PlayerNum      int32     // 玩家数
-	RobotNum       int32     // 机器人数
+	PlayerLimit    int32     // 玩家数
+	RobotLimit     int32     // 机器人数
 	Players        []*Player // 玩家
 	Robots         []*Robot
 	BigBlindPos    int   // 大盲注位

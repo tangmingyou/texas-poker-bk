@@ -14,7 +14,8 @@ var (
 
 func init() {
 	TableNo = &atomic.Int32{} // 牌桌编号计数器
-
+	TableNo.Store(10000)
+	
 	var tableZeroValue *Table = nil
 	LobbyTables = cache.NewKVCache(tableZeroValue, func(k int32) string {
 		return strconv.Itoa(int(k))

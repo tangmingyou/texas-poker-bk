@@ -46,8 +46,8 @@ func HandleReqCreateTable(account *session.NetAccount, msg *api.ReqCreateTable) 
 		TableNo:  game.TableNo.Add(1),
 		MasterId: account.Id,
 
-		PlayerNum:                playerNum + 1,
-		RobotNum:                 robotNum,
+		PlayerLimit:              playerNum + 1,
+		RobotLimit:               robotNum,
 		Players:                  make([]*game.Player, playerNum+1),
 		Robots:                   make([]*game.Robot, robotNum),
 		BigBlindChip:             msg.BigBlind,
@@ -115,6 +115,7 @@ func HandleReqLobbyView(account *session.NetAccount, _ *api.ReqLobbyView) (proto
 	}
 	tables := make([]*api.LobbyTable, game.LobbyTables.Count())
 	if account.Player != nil {
+		// 若玩家已进入牌桌
 		res.CurTableNo = account.Player.GameTable.TableNo
 	}
 	res.Tables = tables
@@ -122,8 +123,16 @@ func HandleReqLobbyView(account *session.NetAccount, _ *api.ReqLobbyView) (proto
 	// 遍历 store tables 转换为视图层结构体
 	idx := 0
 	game.LobbyTables.ForEach(func(k string, t *game.Table) {
-		table := &api.LobbyTable{TableNo: t.TableNo, PlayerNum: t.PlayerNum, RobotNum: t.RobotNum}
-		table.Players = make([]*api.LobbyPlayer, t.PlayerNum+t.RobotNum)
+		table := &api.LobbyTable{
+			TableNo:       t.TableNo,
+			PlayerNum:     t.PlayerCount(),
+			PlayerLimit:   t.PlayerLimit,
+			TexasType:     t.TexasType,
+			BigBland:      t.BigBlindChip,
+			LimitInAmount: t.LimitInAmount,
+			Stage:         t.Stage,
+		}
+		table.Players = make([]*api.LobbyPlayer, t.PlayerLimit+t.RobotLimit)
 
 		playerIdx := 0
 		if collect.IsNotEmptySlice(t.Players) {
@@ -172,7 +181,7 @@ func HandleReqJoinTable(account *session.NetAccount, msg *api.ReqJoinTable) (pro
 	if collect.NotIn(table.Stage, 1, 7) {
 		return &api.ResFail{Msg: "牌桌正在进行中"}, nil
 	}
-	if table.PlayerCount() == table.PlayerNum {
+	if table.PlayerCount() == table.PlayerLimit {
 		return &api.ResFail{Msg: "牌桌人数已满"}, nil
 	}
 
@@ -249,7 +258,8 @@ func HandleReqLeaveTable(player *game.Player, _ *api.ReqLeaveTable) (proto.Messa
 		return &api.ResFail{Msg: "您已准备不能退出"}, nil
 	}
 	if player.GameTable.MasterId == player.Id {
-		return &api.ResFail{Msg: "房主不能退出,请解散房间"}, nil
+		return handleReqDismissGameTable0(player, &api.ReqDismissGameTable{})
+		// return &api.ResFail{Msg: "房主不能退出,请解散房间"}, nil
 	}
 	// 从牌桌移除
 	found, p := player.GameTable.RemovePlayer(player.Id)
@@ -323,9 +333,13 @@ func HandleReqCancelReady(player *game.Player, _ *api.ReqCancelReady) (proto.Mes
 }
 
 // HandleReqDismissGameTable 解散牌桌
-func HandleReqDismissGameTable(player *game.Player, _ *api.ReqDismissGameTable) (proto.Message, error) {
+func HandleReqDismissGameTable(player *game.Player, req *api.ReqDismissGameTable) (proto.Message, error) {
 	player.GameTable.Lock.Lock()
 	defer player.GameTable.Lock.Unlock()
+	return handleReqDismissGameTable0(player, req)
+}
+
+func handleReqDismissGameTable0(player *game.Player, _ *api.ReqDismissGameTable) (proto.Message, error) {
 	if collect.NotIn(player.GameTable.Stage, 1, 7) {
 		return &api.ResFail{Msg: fmt.Sprintf("#%d,牌局进行中", player.GameTable.Stage)}, nil
 	}
