@@ -11,9 +11,7 @@
 
 
 
-
 ![](doc/img/texas-help.gif)
-
 
 
 
@@ -41,3 +39,6 @@
   - [ ] 注册同时生成大厅tiny头像
   - [ ] 客户端牌桌消息全量和增量拉取
 
+
+
+Email: prometheustar@outlook.com
