@@ -1,4 +1,4 @@
-## 德州扑克后端，仅供娱乐技术交流，禁止赌博
+## 德州扑克后端，仅供技术实现参考，禁止赌博
 
 ### [H5前端工程](https://github.com/tangmingyou/texas-poker-front)
 

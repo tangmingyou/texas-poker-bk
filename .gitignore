@@ -26,3 +26,4 @@ Thumbs.db
 /dist
 /data/texas-poker.db
 /data/avatar
+/api/proto.js
